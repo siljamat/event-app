@@ -1,3 +1,4 @@
 import userResolver from './userResolver';
+import eventResolver from './eventResolver';
 
-export default [userResolver];
+export default [userResolver, eventResolver];
