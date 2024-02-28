@@ -9,6 +9,30 @@ type User = Partial<Document> & {
   password: string;
 };
 
+type Event = Partial<Document> & {
+  id: Types.ObjectId | string;
+  created_at: Date;
+  event_name: string;
+  description: string;
+  date: Date;
+  location: Point;
+  email: string;
+  organizer: string;
+  address: string;
+  age_restriction: string;
+  event_site: string;
+  ticket_site: string;
+  price: string;
+  image: string;
+  category: Types.ObjectId;
+  creator: Types.ObjectId | User;
+};
+
+type Category = {
+  id: Types.ObjectId | string;
+  category_name: string;
+};
+
 type UserOutput = Omit<User, 'password' | 'role'>;
 
 type UserInput = Omit<User, 'id' | 'role'>;
@@ -43,4 +67,6 @@ export {
   TokenContent,
   Location,
   LocationInput,
+  Event,
+  Category,
 };

@@ -1,0 +1,91 @@
+scalar Date
+
+type GeoPoint {
+  type: Point!
+  coordinates: [Float]!
+}
+
+enum Point {
+  Point
+}
+
+type Event {
+  id: ID!
+  created_at: Date
+  event_name: String!
+  description: String!
+  date: Date!
+  location: GeoPoint
+  email: String!
+  organizer: String!
+  address: String!
+  age_restrictions: String!
+  event_site: String
+  ticket_site: String
+  price: String!
+  image: String
+  category: [Category]
+  creator: User!
+}
+
+input Coordinates {
+  lat: Float!
+  lng: Float!
+}
+
+input InputGeoPoint {
+  type: Point!
+  coordinates: [Float]!
+}
+
+type Query {
+  events: [Event]
+  event(id: ID!): Event
+  eventsByCategory(categoryId: ID!): [Event]
+  eventsByArea(topRight: Coordinates!, bottomLeft: Coordinates!): [Event]
+  eventsByDate(date: Date!): [Event]
+  eventsByPrice(price: String!): [Event]
+  eventsByOrganizer(organizer: String!): [Event]
+  eventsByMinAge(age: String!): [Event]
+}
+
+input InputEvent {
+  id: ID!
+  event_name: String!
+  description: String!
+  date: Date!
+  location: InputGeoPoint
+  email: String!
+  organizer: String!
+  address: String!
+  age_restrictions: String!
+  event_site: String
+  ticket_site: String
+  price: String!
+  image: String
+  category: InputCategory
+  creator: UserInput!
+}
+#TODO: varmista pitääks täs olla noita pakollisia vai voiko olla valinnaisia ja miten se vaikuttaa resolveriin
+input updateEvent {
+  event_name: String!
+  description: String!
+  date: Date!
+  location: InputGeoPoint
+  email: String!
+  organizer: String!
+  address: String!
+  age_restrictions: String!
+  event_site: String
+  ticket_site: String
+  price: String!
+  image: String
+  category: ID
+  creator: UserInput!
+}
+
+type Mutation {
+  createEvent(input: InputEvent): Event
+  updateEvent(id: ID!, input: updateEvent!): Event
+  deleteEvent(id: ID!): Event
+}
