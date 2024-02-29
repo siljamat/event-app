@@ -11,8 +11,10 @@ export default {
       return await EventModel.find();
     },
     eventsFromExternalAPI: async () => {
+      console.log('TESTIÄÄÄÄ');
       const response = await fetch('https://api.hel.fi/linkedevents/v1/event/');
       const data = await response.json();
+      console.log(data);
       return data;
     },
     event: async (_parent: undefined, args: {id: string}) => {
