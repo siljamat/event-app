@@ -4,18 +4,31 @@ import EventModel from '../models/eventModel';
 import {isLoggedIn} from '../../functions/authorize';
 import {MyContext} from '../../types/MyContext';
 import {LocationInput} from '../../types/DBTypes';
+import fetchData from '../../functions/fetchData';
 
 export default {
   Query: {
     events: async () => {
-      return await EventModel.find();
+      try {
+        const events = await EventModel.find();
+        return events;
+      } catch (error) {
+        console.error('Error fetching events:', error);
+        throw error; // Heitä virhe GraphQL:lle
+      }
     },
     eventsFromExternalAPI: async () => {
-      console.log('TESTIÄÄÄÄ');
-      const response = await fetch('https://api.hel.fi/linkedevents/v1/event/');
-      const data = await response.json();
-      console.log(data);
-      return data;
+      try {
+        console.log('Fetching events from external API...');
+        const response = await fetchData(
+          'https://api.hel.fi/linkedevents/v1/event/',
+        );
+        console.log('Received response:', response);
+        return response;
+      } catch (error) {
+        console.error('Error fetching events from external API:', error);
+        throw error; // Heitä virhe GraphQL:lle
+      }
     },
     event: async (_parent: undefined, args: {id: string}) => {
       return await EventModel.findById(args.id);
