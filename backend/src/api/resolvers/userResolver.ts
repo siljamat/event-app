@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import {UserInput, User} from '../../types/DBTypes';
+import {UserInput, User, Event} from '../../types/DBTypes';
 import fetchData from '../../functions/fetchData';
 import {UserResponse} from '../../types/MessageTypes';
 import {MyContext} from '../../types/MyContext';
@@ -10,6 +10,13 @@ import {ObjectId} from 'mongoose';
 import EventModel from '../models/eventModel';
 
 export default {
+  Event: {
+    creator: async (parent: Event) => {
+      return await fetchData<User>(
+        `${process.env.AUTH_URL}/users/${parent.creator}`,
+      );
+    },
+  },
   Query: {
     users: async () => {
       return await fetchData<User[]>(`${process.env.AUTH_URL}/users`);
