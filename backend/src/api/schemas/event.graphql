@@ -19,7 +19,7 @@ type Event {
   email: String!
   organizer: String!
   address: String!
-  age_restrictions: String!
+  age_restriction: String!
   event_site: String
   ticket_site: String
   price: String!
@@ -58,7 +58,7 @@ input InputEvent {
   email: String!
   organizer: String!
   address: String!
-  age_restrictions: String!
+  age_restriction: String!
   event_site: String
   ticket_site: String
   price: String!
@@ -75,7 +75,7 @@ input updateEvent {
   email: String!
   organizer: String!
   address: String!
-  age_restrictions: String!
+  age_restriction: String!
   event_site: String
   ticket_site: String
   price: String!
