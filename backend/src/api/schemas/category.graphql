@@ -8,7 +8,6 @@ type Query {
 }
 
 input InputCategory {
-  id: ID!
   category_name: String!
 }
 

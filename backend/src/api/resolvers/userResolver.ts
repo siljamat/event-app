@@ -3,7 +3,11 @@ import {UserInput, User, Event} from '../../types/DBTypes';
 import fetchData from '../../functions/fetchData';
 import {UserResponse} from '../../types/MessageTypes';
 import {MyContext} from '../../types/MyContext';
-import {isAdmin} from '../../functions/authorize';
+import {isAdmin, isLoggedIn} from '../../functions/authorize';
+import {__InputValue} from 'graphql';
+import {log} from 'console';
+import {ObjectId} from 'mongoose';
+import EventModel from '../models/eventModel';
 
 export default {
   Event: {
@@ -116,6 +120,33 @@ export default {
           },
         },
       );
+    },
+    //TODO: fixaa
+    toggleFavorite: async (
+      _parent: undefined,
+      args: {eventId: ObjectId},
+      context: MyContext,
+    ) => {
+      // isLoggedIn(context);
+      // const user: User = await fetchData<User>(
+      //   `${process.env.AUTH_URL}/auth/user/${context.userdata?.user.id}`,
+      // );
+      // const isFavorited = user.favorites.some(
+      //   (event) => event.id === args.eventId,
+      // );
+      // if (isFavorited) {
+      //   // The event is already in the favorites, so remove it
+      //   user.favorites = user.favorites.filter(
+      //     (event) => event.id !== args.eventId,
+      //   );
+      // } else {
+      //   // The event is not in the favorites, so add it
+      //   const event: Event = await EventModel.findById(args.eventId);
+      //   if (!event) {
+      //     throw new Error('Event not found');
+      //   }
+      //   user.favorites.push(event);
+      // }
     },
   },
 };

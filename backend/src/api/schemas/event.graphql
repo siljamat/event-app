@@ -15,7 +15,7 @@ type Event {
   event_name: String!
   description: String!
   date: Date!
-  location: GeoPoint
+  location: GeoPoint!
   email: String!
   organizer: String!
   address: String!
@@ -26,6 +26,8 @@ type Event {
   image: String
   category: [Category]
   creator: User!
+  favoriteCount: Int
+  favoritedBy: [User]
 }
 
 input Coordinates {
@@ -40,6 +42,7 @@ input InputGeoPoint {
 
 type Query {
   events: [Event]
+  apiEvents: [Event]
   event(id: ID!): Event
   eventsByCategory(categoryId: ID!): [Event]
   eventsByArea(topRight: Coordinates!, bottomLeft: Coordinates!): [Event]
@@ -54,7 +57,7 @@ input InputEvent {
   event_name: String!
   description: String!
   date: Date!
-  location: InputGeoPoint
+  location: InputGeoPoint!
   email: String!
   organizer: String!
   address: String!
@@ -71,7 +74,7 @@ input updateEvent {
   event_name: String!
   description: String!
   date: Date!
-  location: InputGeoPoint
+  location: InputGeoPoint!
   email: String!
   organizer: String!
   address: String!

@@ -2,6 +2,7 @@
 import {NextFunction, Request, Response} from 'express';
 import CustomError from './classes/CustomError';
 import {ErrorResponse} from './types/MessageTypes';
+import {getLocationCoordinates} from './functions/geocode';
 
 const notFound = (req: Request, res: Response, next: NextFunction) => {
   const error = new CustomError(`🔍 - Not Found - ${req.originalUrl}`, 404);
@@ -22,4 +23,19 @@ const errorHandler = (
   });
 };
 
-export {notFound, errorHandler};
+const getCoordinates = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const {address} = req.body;
+    const coords = await getLocationCoordinates(address);
+    req.body.coords = coords;
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
+export {notFound, errorHandler, getCoordinates};
