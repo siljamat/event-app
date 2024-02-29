@@ -2,6 +2,8 @@ type User {
   id: ID!
   user_name: String!
   email: String!
+  events: [Event]
+  favorites: [Event]
 }
 
 type LoginResponse {
@@ -51,4 +53,5 @@ type Mutation {
   Separate mutations for admin because of rest api
   """
   deleteUserAsAdmin(id: ID!): UserResponse
+  toggleFavorite(eventId: ID!): Event!
 }

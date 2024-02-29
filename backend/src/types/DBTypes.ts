@@ -7,6 +7,7 @@ type User = Partial<Document> & {
   email: string;
   role: 'user' | 'admin';
   password: string;
+  favorites: Event[];
 };
 
 type Event = Partial<Document> & {
@@ -26,6 +27,8 @@ type Event = Partial<Document> & {
   image: string;
   category: Types.ObjectId;
   creator: Types.ObjectId | User;
+  favoriteCount: number;
+  favoritedBy: Types.ObjectId[];
 };
 
 type Category = {

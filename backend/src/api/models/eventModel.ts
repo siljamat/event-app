@@ -51,7 +51,6 @@ const eventSchema = new mongoose.Schema<Event>({
   },
   age_restriction: {
     type: String,
-    required: true,
   },
   event_site: {
     type: String,
@@ -65,8 +64,17 @@ const eventSchema = new mongoose.Schema<Event>({
   },
   image: {
     type: String,
-    required: true,
   },
+  favoriteCount: {
+    type: Number,
+    default: 0,
+  },
+  favoritedBy: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
+  ],
 });
 
 const EventModel = mongoose.model<Event>('Event', eventSchema);
