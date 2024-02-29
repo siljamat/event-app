@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import e from 'express';
 import EventModel from '../models/eventModel';
 import {isLoggedIn} from '../../functions/authorize';
@@ -8,6 +9,11 @@ export default {
   Query: {
     events: async () => {
       return await EventModel.find();
+    },
+    eventsFromExternalAPI: async () => {
+      const response = await fetch('https://api.hel.fi/linkedevents/v1/event/');
+      const data = await response.json();
+      return data;
     },
     event: async (_parent: undefined, args: {id: string}) => {
       return await EventModel.findById(args.id);
