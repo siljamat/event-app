@@ -3,7 +3,7 @@ import e from 'express';
 import EventModel from '../models/eventModel';
 import {isLoggedIn} from '../../functions/authorize';
 import {MyContext} from '../../types/MyContext';
-import {LocationInput} from '../../types/DBTypes';
+import {Event, LocationInput} from '../../types/DBTypes';
 
 export default {
   Query: {
@@ -46,6 +46,7 @@ export default {
       context: MyContext,
     ) => {
       isLoggedIn(context);
+      args.input.creator = context.userdata?.user.id;
       return await EventModel.create(args.input);
     },
     updateEvent: async (

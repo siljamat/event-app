@@ -65,7 +65,6 @@ const eventSchema = new mongoose.Schema<Event>({
   },
   image: {
     type: String,
-    required: true,
   },
 });
 
