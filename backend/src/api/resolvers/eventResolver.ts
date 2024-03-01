@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import e from 'express';
 import EventModel from '../models/eventModel';
 import {isLoggedIn} from '../../functions/authorize';
