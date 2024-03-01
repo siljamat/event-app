@@ -4,6 +4,7 @@ import {isLoggedIn} from '../../functions/authorize';
 import {MyContext} from '../../types/MyContext';
 import {LocationInput, Event} from '../../types/DBTypes';
 import fetchData from '../../functions/fetchData';
+import {getLocationCoordinates} from '../../functions/geocode';
 
 export default {
   Query: {
@@ -68,6 +69,14 @@ export default {
       context: MyContext,
     ) => {
       isLoggedIn(context);
+
+      const {address} = args.input;
+      const coords = await getLocationCoordinates(address);
+      args.input.location = {
+        type: 'Point',
+        coordinates: [coords.lat, coords.lng],
+      };
+
       args.input.creator = context.userdata?.user.id;
       return await EventModel.create(args.input);
     },
