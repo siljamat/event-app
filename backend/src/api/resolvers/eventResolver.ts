@@ -19,6 +19,12 @@ export default {
       );
       const events: Event[] = data.data.map((event: any) => {
         //TODO: varmista et kaikki tulee oikees muodos ja hae tarvittavat jne
+        const priceData =
+          event.offers && event.offers.length > 0
+            ? event.offers[0].price
+            : null;
+        const price = priceData ? priceData.fi || priceData.en || 'N/A' : 'N/A';
+
         return {
           id: event.id,
           created_at: event.created_time,
@@ -32,7 +38,7 @@ export default {
           age_restrictions: '',
           event_site: event.info_url,
           ticket_site: '',
-          price: '',
+          price: price || 'N/A',
           image: event.images[0],
           audience_min_age: event.audience_min_age,
           audience_max_age: event.audience_max_age,
@@ -132,6 +138,32 @@ export default {
     },
     eventsByPrice: async (_parent: undefined, args: {price: string}) => {
       return await EventModel.find({price: args.price});
+    },
+    apiEventsByPrice: async (_parent: undefined, args: {price: string}) => {
+      const data: any = await fetchData(
+        `https://api.hel.fi/linkedevents/v1/event/?price=${args.price}`,
+      );
+      const events: Event[] = data.data.map((event: any) => {
+        return {
+          id: event.id,
+          created_at: event.created_time,
+          event_name: event.name,
+          description: event.description,
+          date: event.start_time,
+          location: event.location,
+          email: '',
+          organizer: event.publisher,
+          address: '',
+          age_restrictions: '',
+          event_site: event.info_url,
+          ticket_site: '',
+          price: '',
+          image: event.images[0],
+          audience_min_age: event.audience_min_age,
+          audience_max_age: event.audience_max_age,
+        };
+      });
+      return events;
     },
     eventsByOrganizer: async (
       _parent: undefined,

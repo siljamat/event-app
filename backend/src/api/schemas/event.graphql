@@ -51,6 +51,7 @@ type Query {
   eventsByDate(date: Date!): [Event]
   apiEventsByDate(date: Date!): [Event]
   eventsByPrice(price: String!): [Event]
+  apiEventsByPrice(price: String!): [Event]
   eventsByOrganizer(organizer: String!): [Event]
   eventsByMinAge(age: String!): [Event]
 }
