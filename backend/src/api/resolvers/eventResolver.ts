@@ -23,6 +23,7 @@ export default {
           id: event.id,
           created_at: event.created_time,
           event_name: event.name.fi,
+          category: event.suitable_for,
           description: event.description.fi,
           date: event.start_time,
           location: event.location,
@@ -71,7 +72,8 @@ export default {
     eventsByCategory: async (_parent: undefined, args: {category: string}) => {
       return await EventModel.find({category: args.category});
     },
-    // TODO: Eventeissä ei tule kategoriaa mukana, ei voi testata sandboxissa?
+    // TODO: Eventeissä ei tule kategoriaa mukana (se on null), ei voi testata sandboxissa
+    // pitäisikö katsoa suitable for avulla vai onko joku muu tapa?
     apiEventsByCategory: async (
       _parent: undefined,
       args: {category: string},
@@ -164,6 +166,35 @@ export default {
       args: {organizer: string},
     ) => {
       return await EventModel.find({organizer: args.organizer});
+    },
+    apiEventsByOrganizer: async (
+      _parent: undefined,
+      args: {organizer: string},
+    ) => {
+      const data: any = await fetchData(
+        `https://api.hel.fi/linkedevents/v1/event/?publisher=${args.organizer}`,
+      );
+      const events: Event[] = data.data.map((event: any) => {
+        return {
+          id: event.id,
+          created_at: event.created_time,
+          event_name: event.name.fi,
+          description: event.description.fi,
+          date: event.start_time,
+          location: event.location,
+          email: '',
+          organizer: event.publisher,
+          address: '',
+          age_restrictions: '',
+          event_site: event.info_url,
+          ticket_site: '',
+          price: '',
+          image: event.images[0],
+          audience_min_age: event.audience_min_age,
+          audience_max_age: event.audience_max_age,
+        };
+      });
+      return events;
     },
     eventsByMinAge: async (_parent: undefined, args: {age: string}) => {
       return await EventModel.find({age_restriction: args.age});
