@@ -15,7 +15,7 @@ type Event {
   event_name: String!
   description: String!
   date: Date!
-  location: GeoPoint!
+  location: GeoPoint
   email: String!
   organizer: String!
   address: String!
@@ -57,7 +57,7 @@ input InputEvent {
   event_name: String!
   description: String!
   date: Date!
-  location: InputGeoPoint!
+  location: InputGeoPoint
   email: String!
   organizer: String!
   address: String!
@@ -74,7 +74,7 @@ input updateEvent {
   event_name: String!
   description: String!
   date: Date!
-  location: InputGeoPoint!
+  location: InputGeoPoint
   email: String!
   organizer: String!
   address: String!
