@@ -23,7 +23,7 @@ export default {
           id: event.id,
           created_at: event.created_time,
           event_name: event.name.fi,
-          description: event.description,
+          description: event.description.fi,
           date: event.start_time,
           location: event.location,
           email: '',
