@@ -45,6 +45,29 @@ export default {
     event: async (_parent: undefined, args: {id: string}) => {
       return await EventModel.findById(args.id);
     },
+    apiEvent: async (_parent: undefined, args: {id: string}) => {
+      const data: any = await fetchData(
+        `https://api.hel.fi/linkedevents/v1/event/${args.id}/`,
+      );
+      return {
+        id: data.id,
+        created_at: data.created_time,
+        event_name: data.name,
+        description: data.description,
+        date: data.start_time,
+        location: data.location,
+        email: '',
+        organizer: data.publisher,
+        address: '',
+        age_restrictions: '',
+        event_site: data.info_url,
+        ticket_site: '',
+        price: '',
+        image: data.images[0],
+        audience_min_age: data.audience_min_age,
+        audience_max_age: data.audience_max_age,
+      };
+    },
     eventsByCategory: async (_parent: undefined, args: {category: string}) => {
       return await EventModel.find({category: args.category});
     },

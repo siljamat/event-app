@@ -44,6 +44,7 @@ type Query {
   events: [Event]
   apiEvents: [Event]
   event(id: ID!): Event
+  apiEvent(id: ID!): Event
   eventsByCategory(categoryId: ID!): [Event]
   eventsByArea(topRight: Coordinates!, bottomLeft: Coordinates!): [Event]
   eventsByDate(date: Date!): [Event]
