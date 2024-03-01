@@ -52,8 +52,8 @@ export default {
       return {
         id: data.id,
         created_at: data.created_time,
-        event_name: data.name,
-        description: data.description,
+        event_name: data.name.fi,
+        description: data.description.fi,
         date: data.start_time,
         location: data.location,
         email: '',
@@ -83,8 +83,8 @@ export default {
         return {
           id: event.id,
           created_at: event.created_time,
-          event_name: event.name,
-          description: event.description,
+          event_name: event.name.fi,
+          description: event.description.fi,
           date: event.start_time,
           location: event.location,
           email: '',
@@ -112,8 +112,8 @@ export default {
         return {
           id: event.id,
           created_at: event.created_time,
-          event_name: event.name,
-          description: event.description,
+          event_name: event.name.fi,
+          description: event.description.fi,
           date: event.start_time,
           location: event.location,
           email: '',
@@ -132,6 +132,32 @@ export default {
     },
     eventsByPrice: async (_parent: undefined, args: {price: string}) => {
       return await EventModel.find({price: args.price});
+    },
+    apiEventsByPrice: async (_parent: undefined, args: {price: string}) => {
+      const data: any = await fetchData(
+        `https://api.hel.fi/linkedevents/v1/event/?price=${args.price}`,
+      );
+      const events: Event[] = data.data.map((event: any) => {
+        return {
+          id: event.id,
+          created_at: event.created_time,
+          event_name: event.name.fi,
+          description: event.description.fi,
+          date: event.start_time,
+          location: event.location,
+          email: '',
+          organizer: event.publisher,
+          address: '',
+          age_restrictions: '',
+          event_site: event.info_url,
+          ticket_site: '',
+          price: '',
+          image: event.images[0],
+          audience_min_age: event.audience_min_age,
+          audience_max_age: event.audience_max_age,
+        };
+      });
+      return events;
     },
     eventsByOrganizer: async (
       _parent: undefined,
