@@ -71,8 +71,64 @@ export default {
     eventsByCategory: async (_parent: undefined, args: {category: string}) => {
       return await EventModel.find({category: args.category});
     },
+    // TODO: Eventeissä ei tule kategoriaa mukana, ei voi testata sandboxissa?
+    apiEventsByCategory: async (
+      _parent: undefined,
+      args: {category: string},
+    ) => {
+      const data: any = await fetchData(
+        `https://api.hel.fi/linkedevents/v1/event/?suitable_for=${args.category}`,
+      );
+      const events: Event[] = data.data.map((event: any) => {
+        return {
+          id: event.id,
+          created_at: event.created_time,
+          event_name: event.name,
+          description: event.description,
+          date: event.start_time,
+          location: event.location,
+          email: '',
+          organizer: event.publisher,
+          address: '',
+          age_restrictions: '',
+          event_site: event.info_url,
+          ticket_site: '',
+          price: '',
+          image: event.images[0],
+          audience_min_age: event.audience_min_age,
+          audience_max_age: event.audience_max_age,
+        };
+      });
+      return events;
+    },
     eventsByDate: async (_parent: undefined, args: {date: Date}) => {
       return await EventModel.find({date: args.date});
+    },
+    apiEventsByDate: async (_parent: undefined, args: {date: Date}) => {
+      const data: any = await fetchData(
+        `https://api.hel.fi/linkedevents/v1/event/?start=${args.date}`,
+      );
+      const events: Event[] = data.data.map((event: any) => {
+        return {
+          id: event.id,
+          created_at: event.created_time,
+          event_name: event.name,
+          description: event.description,
+          date: event.start_time,
+          location: event.location,
+          email: '',
+          organizer: event.publisher,
+          address: '',
+          age_restrictions: '',
+          event_site: event.info_url,
+          ticket_site: '',
+          price: '',
+          image: event.images[0],
+          audience_min_age: event.audience_min_age,
+          audience_max_age: event.audience_max_age,
+        };
+      });
+      return events;
     },
     eventsByPrice: async (_parent: undefined, args: {price: string}) => {
       return await EventModel.find({price: args.price});
