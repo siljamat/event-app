@@ -224,6 +224,16 @@ export default {
       context: MyContext,
     ) => {
       isLoggedIn(context);
+
+      if (args.input.address) {
+        const {address} = args.input;
+        const coords = await getLocationCoordinates(address);
+        args.input.location = {
+          type: 'Point',
+          coordinates: [coords.lat, coords.lng],
+        };
+      }
+
       return await EventModel.findByIdAndUpdate(args.id, args.input, {
         new: true,
       });

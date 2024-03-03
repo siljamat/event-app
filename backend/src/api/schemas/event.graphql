@@ -71,7 +71,6 @@ input InputEvent {
   price: String!
   image: String
   category: InputCategory
-  creator: UserInput!
 }
 #TODO: varmista pitääks täs olla noita pakollisia vai voiko olla valinnaisia ja miten se vaikuttaa resolveriin
 input updateEvent {
@@ -88,7 +87,6 @@ input updateEvent {
   price: String!
   image: String
   category: ID
-  creator: UserInput!
 }
 
 type Mutation {
