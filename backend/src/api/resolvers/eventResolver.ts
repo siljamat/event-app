@@ -199,6 +199,16 @@ export default {
     eventsByMinAge: async (_parent: undefined, args: {age: string}) => {
       return await EventModel.find({age_restriction: args.age});
     },
+    eventsByArea: async (_parent: undefined, args: {address: string}) => {
+      const coords = await getLocationCoordinates(args.address);
+      return await EventModel.find({
+        location: {
+          $geoWithin: {
+            $centerSphere: [[coords.lat, coords.lng], 10 / 6378.1], //10km säteellä
+          },
+        },
+      });
+    },
   },
   Mutation: {
     createEvent: async (
@@ -246,21 +256,5 @@ export default {
       isLoggedIn(context);
       return await EventModel.findByIdAndDelete(args.id);
     },
-    //TODO: varmista et toimii näin! JA laitetaanko oman db tapahtumiin locationeita ja miten?
-    // eventsByLocation: async (
-    //   _parent: undefined,
-    //   args: {location: LocationInput},
-    // ) => {
-    //   return await EventModel.find({
-    //     location: {
-    //       $geoWithin: {
-    //         $box: [
-    //           [args.location.bottomLeft.lng, args.location.bottomLeft.lat],
-    //           [args.location.topRight.lng, args.location.topRight.lat],
-    //         ],
-    //       },
-    //     },
-    //   });
-    // },
   },
 };

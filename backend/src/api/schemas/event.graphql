@@ -47,7 +47,6 @@ type Query {
   apiEvent(id: ID!): Event
   eventsByCategory(categoryId: ID!): [Event]
   apiEventsByCategory(categoryId: ID!): [Event]
-  eventsByArea(topRight: Coordinates!, bottomLeft: Coordinates!): [Event]
   eventsByDate(date: Date!): [Event]
   apiEventsByDate(date: Date!): [Event]
   eventsByPrice(price: String!): [Event]
@@ -55,6 +54,9 @@ type Query {
   eventsByOrganizer(organizer: String!): [Event]
   apiEventsByOrganizer(organizer: String!): [Event]
   eventsByMinAge(age: String!): [Event]
+  apiEventsByMinAge(age: String!): [Event]
+  eventsByArea(address: String!): [Event]
+  apiEventsByArea(address: String!): [Event]
 }
 
 input InputEvent {
