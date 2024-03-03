@@ -8,6 +8,8 @@ import {LocationInput, Event} from '../../types/DBTypes';
 import fetchData from '../../functions/fetchData';
 import {getLocationCoordinates} from '../../functions/geocode';
 
+// API haut voi siirtää jossain vaiheessa omaan tiedostoon jos tuntuu että
+// tämä tiedosto alkaa paisumaan liikaa
 export default {
   Query: {
     events: async () => {
