@@ -8,6 +8,8 @@ import {LocationInput, Event} from '../../types/DBTypes';
 import fetchData from '../../functions/fetchData';
 import {getLocationCoordinates} from '../../functions/geocode';
 
+// API haut voi siirtää jossain vaiheessa omaan tiedostoon jos tuntuu että
+// tämä tiedosto alkaa paisumaan liikaa
 export default {
   Query: {
     events: async () => {
@@ -199,6 +201,32 @@ export default {
     eventsByMinAge: async (_parent: undefined, args: {age: string}) => {
       return await EventModel.find({age_restriction: args.age});
     },
+    apiEventsByMinAge: async (_parent: undefined, args: {age: string}) => {
+      const data: any = await fetchData(
+        `https://api.hel.fi/linkedevents/v1/event/?suitable_for=${args.age}`,
+      );
+      const events: Event[] = data.data.map((event: any) => {
+        return {
+          id: event.id,
+          created_at: event.created_time,
+          event_name: event.name.fi,
+          description: event.description.fi,
+          date: event.start_time,
+          location: event.location,
+          email: '',
+          organizer: event.publisher,
+          address: '',
+          age_restrictions: '',
+          event_site: event.info_url,
+          ticket_site: '',
+          price: '',
+          image: event.images[0],
+          audience_min_age: event.audience_min_age,
+          audience_max_age: event.audience_max_age,
+        };
+      });
+      return events;
+    },
   },
   Mutation: {
     createEvent: async (
@@ -236,21 +264,5 @@ export default {
       isLoggedIn(context);
       return await EventModel.findByIdAndDelete(args.id);
     },
-    //TODO: varmista et toimii näin! JA laitetaanko oman db tapahtumiin locationeita ja miten?
-    // eventsByLocation: async (
-    //   _parent: undefined,
-    //   args: {location: LocationInput},
-    // ) => {
-    //   return await EventModel.find({
-    //     location: {
-    //       $geoWithin: {
-    //         $box: [
-    //           [args.location.bottomLeft.lng, args.location.bottomLeft.lat],
-    //           [args.location.topRight.lng, args.location.topRight.lat],
-    //         ],
-    //       },
-    //     },
-    //   });
-    // },
   },
 };

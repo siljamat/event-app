@@ -55,6 +55,9 @@ type Query {
   eventsByOrganizer(organizer: String!): [Event]
   apiEventsByOrganizer(organizer: String!): [Event]
   eventsByMinAge(age: String!): [Event]
+  apiEventsByMinAge(age: String!): [Event]
+  eventsByLocation(location: InputGeoPoint!): [Event]
+  apiEventsByLocation(location: InputGeoPoint!): [Event]
 }
 
 input InputEvent {
