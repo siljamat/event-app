@@ -27,6 +27,17 @@ export default {
     checkToken: async (_parent: undefined, context: MyContext) => {
       return await {user: context.userdata?.user};
     },
+    // TO-DO: fix
+    favoritedEvents: async (_parent: undefined, context: MyContext) => {
+      try {
+        const user: User = await fetchData<User>(
+          `${process.env.AUTH_URL}/users/${context.userdata?.user.id}`,
+        );
+        return user.favoritedEvents || [];
+      } catch (error) {
+        throw new Error("Failed to retrieve user's favorited events.");
+      }
+    },
   },
   Mutation: {
     login: async (
@@ -121,32 +132,46 @@ export default {
         },
       );
     },
-    //TODO: fixaa
-    toggleFavorite: async (
+    toggleFavoriteEvent: async (
       _parent: undefined,
       args: {eventId: ObjectId},
       context: MyContext,
     ) => {
-      // isLoggedIn(context);
-      // const user: User = await fetchData<User>(
-      //   `${process.env.AUTH_URL}/auth/user/${context.userdata?.user.id}`,
-      // );
-      // const isFavorited = user.favorites.some(
-      //   (event) => event.id === args.eventId,
-      // );
-      // if (isFavorited) {
-      //   // The event is already in the favorites, so remove it
-      //   user.favorites = user.favorites.filter(
-      //     (event) => event.id !== args.eventId,
-      //   );
-      // } else {
-      //   // The event is not in the favorites, so add it
-      //   const event: Event = await EventModel.findById(args.eventId);
-      //   if (!event) {
-      //     throw new Error('Event not found');
-      //   }
-      //   user.favorites.push(event);
-      // }
+      isLoggedIn(context);
+      try {
+        const event = await EventModel.findById(args.eventId);
+        if (!event) {
+          throw new Error('Event not found');
+        }
+        const userId = context.userdata?.user.id;
+        const isFavorite = event.favoritedBy.includes(
+          context.userdata?.user.id,
+        );
+        if (isFavorite) {
+          event.favoritedBy = event.favoritedBy.filter(
+            (userId) => userId.toString() !== context.userdata?.user.id,
+          );
+          console.log(
+            'Event ' +
+              args.eventId +
+              ' unfavorited by ' +
+              context.userdata?.user.id,
+          );
+        } else {
+          event.favoritedBy.push(context.userdata?.user.id);
+          console.log(
+            'Event ' +
+              args.eventId +
+              ' favorited by ' +
+              context.userdata?.user.id,
+          );
+        }
+        event.favoriteCount = event.favoritedBy.length;
+        await event.save();
+        return event;
+      } catch (error) {
+        throw new Error('Failed to toggle favorite event.');
+      }
     },
   },
 };
