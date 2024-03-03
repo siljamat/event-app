@@ -47,7 +47,6 @@ type Query {
   apiEvent(id: ID!): Event
   eventsByCategory(categoryId: ID!): [Event]
   apiEventsByCategory(categoryId: ID!): [Event]
-  eventsByArea(topRight: Coordinates!, bottomLeft: Coordinates!): [Event]
   eventsByDate(date: Date!): [Event]
   apiEventsByDate(date: Date!): [Event]
   eventsByPrice(price: String!): [Event]
@@ -55,6 +54,9 @@ type Query {
   eventsByOrganizer(organizer: String!): [Event]
   apiEventsByOrganizer(organizer: String!): [Event]
   eventsByMinAge(age: String!): [Event]
+  apiEventsByMinAge(age: String!): [Event]
+  eventsByArea(address: String!): [Event]
+  apiEventsByArea(address: String!): [Event]
   apiEventsByMinAge(age: String!): [Event]
   eventsByLocation(location: InputGeoPoint!): [Event]
   apiEventsByLocation(location: InputGeoPoint!): [Event]
@@ -74,7 +76,6 @@ input InputEvent {
   price: String!
   image: String
   category: InputCategory
-  creator: UserInput!
 }
 #TODO: varmista pitääks täs olla noita pakollisia vai voiko olla valinnaisia ja miten se vaikuttaa resolveriin
 input updateEvent {
@@ -91,7 +92,6 @@ input updateEvent {
   price: String!
   image: String
   category: ID
-  creator: UserInput!
 }
 
 type Mutation {

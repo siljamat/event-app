@@ -201,31 +201,15 @@ export default {
     eventsByMinAge: async (_parent: undefined, args: {age: string}) => {
       return await EventModel.find({age_restriction: args.age});
     },
-    apiEventsByMinAge: async (_parent: undefined, args: {age: string}) => {
-      const data: any = await fetchData(
-        `https://api.hel.fi/linkedevents/v1/event/?suitable_for=${args.age}`,
-      );
-      const events: Event[] = data.data.map((event: any) => {
-        return {
-          id: event.id,
-          created_at: event.created_time,
-          event_name: event.name.fi,
-          description: event.description.fi,
-          date: event.start_time,
-          location: event.location,
-          email: '',
-          organizer: event.publisher,
-          address: '',
-          age_restrictions: '',
-          event_site: event.info_url,
-          ticket_site: '',
-          price: '',
-          image: event.images[0],
-          audience_min_age: event.audience_min_age,
-          audience_max_age: event.audience_max_age,
-        };
+    eventsByArea: async (_parent: undefined, args: {address: string}) => {
+      const coords = await getLocationCoordinates(args.address);
+      return await EventModel.find({
+        location: {
+          $geoWithin: {
+            $centerSphere: [[coords.lat, coords.lng], 10 / 6378.1], //10km säteellä
+          },
+        },
       });
-      return events;
     },
   },
   Mutation: {
@@ -252,6 +236,16 @@ export default {
       context: MyContext,
     ) => {
       isLoggedIn(context);
+
+      if (args.input.address) {
+        const {address} = args.input;
+        const coords = await getLocationCoordinates(address);
+        args.input.location = {
+          type: 'Point',
+          coordinates: [coords.lat, coords.lng],
+        };
+      }
+
       return await EventModel.findByIdAndUpdate(args.id, args.input, {
         new: true,
       });
