@@ -1,3 +1,4 @@
+import {ObjectId} from 'mongoose';
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import e from 'express';
@@ -10,7 +11,13 @@ import {getLocationCoordinates} from '../../functions/geocode';
 
 // API haut voi siirtää jossain vaiheessa omaan tiedostoon jos tuntuu että
 // tämä tiedosto alkaa paisumaan liikaa
+
 export default {
+  User: {
+    events: async (parent: {id: ObjectId}) => {
+      return await EventModel.find({creator: parent.id});
+    },
+  },
   Query: {
     events: async () => {
       return await EventModel.find();
@@ -220,35 +227,42 @@ export default {
     ) => {
       isLoggedIn(context);
 
-      const {address} = args.input;
-      const coords = await getLocationCoordinates(address);
-      args.input.location = {
-        type: 'Point',
-        coordinates: [coords.lat, coords.lng],
-      };
+      // const {address} = args.input;
+      // const coords = await getLocationCoordinates(address);
+      // args.input.location = {
+      //   type: 'Point',
+      //   coordinates: [coords.lat, coords.lng],
+      // };
 
       args.input.creator = context.userdata?.user.id;
       return await EventModel.create(args.input);
     },
+    //TODO: check if creator or admin or not authorized
     updateEvent: async (
       _parent: undefined,
       args: {id: string; input: Partial<Omit<Event, 'id'>>},
       context: MyContext,
     ) => {
       isLoggedIn(context);
-
-      if (args.input.address) {
-        const {address} = args.input;
-        const coords = await getLocationCoordinates(address);
-        args.input.location = {
-          type: 'Point',
-          coordinates: [coords.lat, coords.lng],
-        };
+      const id = args.input.creator;
+      console.log('creator id', id);
+      if (
+        id === context.userdata?.user.id ||
+        context.userdata?.user.role === 'admin'
+      ) {
+        // if (args.input.address) {
+        //   const {address} = args.input;
+        //   const coords = await getLocationCoordinates(address);
+        //   args.input.location = {
+        //     type: 'Point',
+        //     coordinates: [coords.lat, coords.lng],
+        //   };
+        // }
+        return await EventModel.findByIdAndUpdate(args.id, args.input, {
+          new: true,
+        });
       }
-
-      return await EventModel.findByIdAndUpdate(args.id, args.input, {
-        new: true,
-      });
+      throw new Error('Not authorized');
     },
     deleteEvent: async (
       _parent: undefined,
@@ -256,7 +270,13 @@ export default {
       context: MyContext,
     ) => {
       isLoggedIn(context);
-      return await EventModel.findByIdAndDelete(args.id);
+      if (
+        context.userdata?.user.role === 'admin' ||
+        context.userdata?.user.id === args.id
+      ) {
+        return await EventModel.findByIdAndDelete(args.id);
+      }
+      throw new Error('Not authorized');
     },
   },
 };
