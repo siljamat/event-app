@@ -66,112 +66,91 @@ export default {
     },
     updateUser: async (
       _parent: undefined,
-      args: {user: Partial<UserInput>},
+      args: {user: User},
       context: MyContext,
     ) => {
-      return await fetchData<UserResponse>(
-        `${process.env.AUTH_URL}/users/${context.userdata?.user.id}`,
-        {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${context.userdata?.token}`,
+      isLoggedIn(context);
+      if (
+        context.userdata?.user.id === args.user.id ||
+        context.userdata?.user.role === 'admin'
+      ) {
+        const {id, role, ...input} = args.user;
+        console.log('user Input for update user:', input);
+        return await fetchData<UserResponse>(
+          `${process.env.AUTH_URL}/users/${args.user.id}`,
+          {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${context.userdata?.token}`,
+            },
+            body: JSON.stringify(input),
           },
-          body: JSON.stringify(args.user),
-        },
-      );
+        );
+      }
+      throw new Error('Not authorized');
     },
     deleteUser: async (
       _parent: undefined,
       args: {id: string},
       context: MyContext,
     ) => {
-      return await fetchData<UserResponse>(
-        `${process.env.AUTH_URL}/users/${args.id}`,
-        {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${context.userdata?.token}`,
-          },
-        },
-      );
-    },
-    updateUserAsAdmin: async (
-      _parent: undefined,
-      args: {user: Partial<UserInput>},
-      context: MyContext,
-    ) => {
-      isAdmin(context);
-      return await fetchData<UserResponse>(
-        `${process.env.AUTH_URL}/users/${context.userdata?.user}`,
-        {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${context.userdata?.token}`,
-          },
-          body: JSON.stringify(args.user),
-        },
-      );
-    },
-    deleteUserAsAdmin: async (
-      _parent: undefined,
-      args: {id: string},
-      context: MyContext,
-    ) => {
-      isAdmin(context);
-      return await fetchData<UserResponse>(
-        `${process.env.AUTH_URL}/users/${args.id}`,
-        {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${context.userdata?.token}`,
-          },
-        },
-      );
-    },
-    toggleFavoriteEvent: async (
-      _parent: undefined,
-      args: {eventId: ObjectId},
-      context: MyContext,
-    ) => {
       isLoggedIn(context);
-      try {
-        const event = await EventModel.findById(args.eventId);
-        if (!event) {
-          throw new Error('Event not found');
-        }
-        const userId = context.userdata?.user.id;
-        const isFavorite = event.favoritedBy.includes(
-          context.userdata?.user.id,
+      if (
+        context.userdata?.user.id === args.id ||
+        context.userdata?.user.role === 'admin'
+      ) {
+        return await fetchData<UserResponse>(
+          `${process.env.AUTH_URL}/users/${args.id}`,
+          {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${context.userdata?.token}`,
+            },
+          },
         );
-        if (isFavorite) {
-          event.favoritedBy = event.favoritedBy.filter(
-            (userId) => userId.toString() !== context.userdata?.user.id,
-          );
-          console.log(
-            'Event ' +
-              args.eventId +
-              ' unfavorited by ' +
-              context.userdata?.user.id,
-          );
-        } else {
-          event.favoritedBy.push(context.userdata?.user.id);
-          console.log(
-            'Event ' +
-              args.eventId +
-              ' favorited by ' +
-              context.userdata?.user.id,
-          );
-        }
-        event.favoriteCount = event.favoritedBy.length;
-        await event.save();
-        return event;
-      } catch (error) {
-        throw new Error('Failed to toggle favorite event.');
       }
+      throw new Error('Not authorized');
     },
   },
+  // toggleFavoriteEvent: async (
+  //   _parent: undefined,
+  //   args: {eventId: ObjectId},
+  //   context: MyContext,
+  // ) => {
+  //   isLoggedIn(context);
+  //   try {
+  //     const event = await EventModel.findById(args.eventId);
+  //     if (!event) {
+  //       throw new Error('Event not found');
+  //     }
+  //     const userId = context.userdata?.user.id;
+  //     const isFavorite = event.favoritedBy.includes(context.userdata?.user.id);
+  //     if (isFavorite) {
+  //       event.favoritedBy = event.favoritedBy.filter(
+  //         (userId) => userId.toString() !== context.userdata?.user.id,
+  //       );
+  //       console.log(
+  //         'Event ' +
+  //           args.eventId +
+  //           ' unfavorited by ' +
+  //           context.userdata?.user.id,
+  //       );
+  //     } else {
+  //       event.favoritedBy.push(context.userdata?.user.id);
+  //       console.log(
+  //         'Event ' +
+  //           args.eventId +
+  //           ' favorited by ' +
+  //           context.userdata?.user.id,
+  //       );
+  //     }
+  //     event.favoriteCount = event.favoritedBy.length;
+  //     await event.save();
+  //     return event;
+  //   } catch (error) {
+  //     throw new Error('Failed to toggle favorite event.');
+  //   }
+  // },
 };
