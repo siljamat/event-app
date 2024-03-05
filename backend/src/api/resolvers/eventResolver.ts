@@ -7,6 +7,7 @@ import {MyContext} from '../../types/MyContext';
 import {LocationInput, Event} from '../../types/DBTypes';
 import fetchData from '../../functions/fetchData';
 import {getLocationCoordinates} from '../../functions/geocode';
+import {Console} from 'console';
 
 // API haut voi siirtää jossain vaiheessa omaan tiedostoon jos tuntuu että
 // tämä tiedosto alkaa paisumaan liikaa
@@ -228,27 +229,36 @@ export default {
       };
 
       args.input.creator = context.userdata?.user.id;
+      console.log('CREATE EVENT creator id', args.input.creator);
       return await EventModel.create(args.input);
     },
+    //TODO: Figure out why creator is undefined here and fix it
     updateEvent: async (
       _parent: undefined,
       args: {id: string; input: Partial<Omit<Event, 'id'>>},
       context: MyContext,
     ) => {
       isLoggedIn(context);
-
-      if (args.input.address) {
-        const {address} = args.input;
-        const coords = await getLocationCoordinates(address);
-        args.input.location = {
-          type: 'Point',
-          coordinates: [coords.lat, coords.lng],
-        };
+      const id = args.input.creator?.id;
+      console.log('UPDATE EVENT creator id', id);
+      console.log('UPDATE EVENT', args.input);
+      if (
+        id === context.userdata?.user.id ||
+        context.userdata?.user.role === 'admin'
+      ) {
+        // if (args.input.address) {
+        //   const {address} = args.input;
+        //   const coords = await getLocationCoordinates(address);
+        //   args.input.location = {
+        //     type: 'Point',
+        //     coordinates: [coords.lat, coords.lng],
+        //   };
+        // }
+        return await EventModel.findByIdAndUpdate(args.id, args.input, {
+          new: true,
+        });
       }
-
-      return await EventModel.findByIdAndUpdate(args.id, args.input, {
-        new: true,
-      });
+      throw new Error('Not authorized');
     },
     deleteEvent: async (
       _parent: undefined,
@@ -256,7 +266,15 @@ export default {
       context: MyContext,
     ) => {
       isLoggedIn(context);
-      return await EventModel.findByIdAndDelete(args.id);
+      const event = await EventModel.findById(args.id);
+      console.log('DELETE EVENT event creator:', event?.creator);
+      if (
+        context.userdata?.user.role === 'admin' ||
+        (event && context.userdata?.user.id === event.creator)
+      ) {
+        return await EventModel.findByIdAndDelete(args.id);
+      }
+      throw new Error('Not authorized');
     },
   },
 };
