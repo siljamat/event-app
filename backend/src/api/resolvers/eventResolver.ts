@@ -1,4 +1,3 @@
-import {ObjectId} from 'mongoose';
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import e from 'express';
@@ -11,13 +10,7 @@ import {getLocationCoordinates} from '../../functions/geocode';
 
 // API haut voi siirtää jossain vaiheessa omaan tiedostoon jos tuntuu että
 // tämä tiedosto alkaa paisumaan liikaa
-
 export default {
-  User: {
-    events: async (parent: {id: ObjectId}) => {
-      return await EventModel.find({creator: parent.id});
-    },
-  },
   Query: {
     events: async () => {
       const databaseEvents = await EventModel.find();
@@ -56,6 +49,7 @@ export default {
     event: async (_parent: undefined, args: {id: string}) => {
       return await EventModel.findById(args.id);
     },
+
     apiEvent: async (_parent: undefined, args: {id: string}) => {
       const data: any = await fetchData(
         `https://api.hel.fi/linkedevents/v1/event/${args.id}/`,
@@ -79,19 +73,15 @@ export default {
         audience_max_age: data.audience_max_age,
       };
     },
+
+    //TODO: Mistä saadaan vaadittava category id?
     eventsByCategory: async (_parent: undefined, args: {category: string}) => {
-      return await EventModel.find({category: args.category});
-    },
-    // TODO: Eventeissä ei tule kategoriaa mukana (se on null), ei voi testata sandboxissa
-    // pitäisikö katsoa suitable for avulla vai onko joku muu tapa?
-    apiEventsByCategory: async (
-      _parent: undefined,
-      args: {category: string},
-    ) => {
-      const data: any = await fetchData(
+      const databaseEvents = await EventModel.find({category: args.category});
+
+      const apiData: any = await fetchData(
         `https://api.hel.fi/linkedevents/v1/event/?suitable_for=${args.category}`,
       );
-      const events: Event[] = data.data.map((event: any) => {
+      const apiEvents: Event[] = apiData.data.map((event: any) => {
         return {
           id: event.id,
           created_at: event.created_time,
@@ -111,8 +101,10 @@ export default {
           audience_max_age: event.audience_max_age,
         };
       });
-      return events;
+      const combinedEvents = [...databaseEvents, ...apiEvents];
+      return combinedEvents;
     },
+
     eventsByDate: async (_parent: undefined, args: {date: Date}) => {
       return await EventModel.find({date: args.date});
     },
@@ -228,42 +220,35 @@ export default {
     ) => {
       isLoggedIn(context);
 
-      // const {address} = args.input;
-      // const coords = await getLocationCoordinates(address);
-      // args.input.location = {
-      //   type: 'Point',
-      //   coordinates: [coords.lat, coords.lng],
-      // };
+      const {address} = args.input;
+      const coords = await getLocationCoordinates(address);
+      args.input.location = {
+        type: 'Point',
+        coordinates: [coords.lat, coords.lng],
+      };
 
       args.input.creator = context.userdata?.user.id;
       return await EventModel.create(args.input);
     },
-    //TODO: check if creator or admin or not authorized
     updateEvent: async (
       _parent: undefined,
       args: {id: string; input: Partial<Omit<Event, 'id'>>},
       context: MyContext,
     ) => {
       isLoggedIn(context);
-      const id = args.input.creator;
-      console.log('creator id', id);
-      if (
-        id === context.userdata?.user.id ||
-        context.userdata?.user.role === 'admin'
-      ) {
-        // if (args.input.address) {
-        //   const {address} = args.input;
-        //   const coords = await getLocationCoordinates(address);
-        //   args.input.location = {
-        //     type: 'Point',
-        //     coordinates: [coords.lat, coords.lng],
-        //   };
-        // }
-        return await EventModel.findByIdAndUpdate(args.id, args.input, {
-          new: true,
-        });
+
+      if (args.input.address) {
+        const {address} = args.input;
+        const coords = await getLocationCoordinates(address);
+        args.input.location = {
+          type: 'Point',
+          coordinates: [coords.lat, coords.lng],
+        };
       }
-      throw new Error('Not authorized');
+
+      return await EventModel.findByIdAndUpdate(args.id, args.input, {
+        new: true,
+      });
     },
     deleteEvent: async (
       _parent: undefined,
@@ -271,13 +256,7 @@ export default {
       context: MyContext,
     ) => {
       isLoggedIn(context);
-      if (
-        context.userdata?.user.role === 'admin' ||
-        context.userdata?.user.id === args.id
-      ) {
-        return await EventModel.findByIdAndDelete(args.id);
-      }
-      throw new Error('Not authorized');
+      return await EventModel.findByIdAndDelete(args.id);
     },
   },
 };
