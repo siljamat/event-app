@@ -38,6 +38,13 @@ type Category = {
   category_name: string;
 };
 
+type FetchDataResponse<T> = {
+  ok: boolean;
+  data: T;
+  statusText: string;
+  status: number;
+};
+
 type UserOutput = Omit<User, 'password' | 'role'>;
 
 type UserInput = Omit<User, 'id' | 'role'>;
@@ -74,4 +81,5 @@ export {
   LocationInput,
   Event,
   Category,
+  FetchDataResponse,
 };

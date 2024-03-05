@@ -8,37 +8,15 @@ import {LocationInput, Event} from '../../types/DBTypes';
 import fetchData from '../../functions/fetchData';
 import {getLocationCoordinates} from '../../functions/geocode';
 import {Console} from 'console';
+import eventApiFetch from '../../functions/eventApiFetch';
 
 export default {
   Query: {
     events: async () => {
       const databaseEvents = await EventModel.find();
-
-      const apiData: any = await fetchData(
+      const apiEvents = await eventApiFetch(
         'https://api.hel.fi/linkedevents/v1/event/?suitable_for=12',
       );
-      const apiEvents = apiData.data.map((event: any) => {
-        //TODO: varmista et kaikki tulee oikees muodos ja hae tarvittavat jne
-        return {
-          id: event.id,
-          created_at: event.created_time,
-          event_name: event.name.fi,
-          category: event.suitable_for,
-          description: event.description.fi,
-          date: event.start_time,
-          location: event.location,
-          email: '',
-          organizer: event.publisher,
-          address: '',
-          age_restrictions: '',
-          event_site: event.info_url,
-          ticket_site: '',
-          price: '',
-          image: event.images[0],
-          audience_min_age: event.audience_min_age,
-          audience_max_age: event.audience_max_age,
-        };
-      });
       console.log('apiEvents', apiEvents);
       const combinedEvents = [...databaseEvents, ...apiEvents];
       console.log('combinedEvents', combinedEvents);
@@ -73,7 +51,7 @@ export default {
       };
     },
 
-    //TODO: Täytyy korjata se että saadaan category
+    //TODO: Täytyy odottaa että categor toimii
     eventsByCategory: async (_parent: undefined, args: {category: string}) => {
       const databaseEvents = await EventModel.find({category: args.category});
 

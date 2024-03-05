@@ -16,7 +16,7 @@ type Event {
   description: String!
   date: Date!
   location: GeoPoint
-  email: String!
+  email: String
   organizer: String!
   address: String!
   age_restriction: String!
