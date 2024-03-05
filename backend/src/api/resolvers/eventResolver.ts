@@ -172,16 +172,12 @@ export default {
       _parent: undefined,
       args: {organizer: string},
     ) => {
-      return await EventModel.find({organizer: args.organizer});
-    },
-    apiEventsByOrganizer: async (
-      _parent: undefined,
-      args: {organizer: string},
-    ) => {
-      const data: any = await fetchData(
+      const databaseEvents = await EventModel.find({organizer: args.organizer});
+
+      const apiData: any = await fetchData(
         `https://api.hel.fi/linkedevents/v1/event/?publisher=${args.organizer}`,
       );
-      const events: Event[] = data.data.map((event: any) => {
+      const apiEvents: Event[] = apiData.data.map((event: any) => {
         return {
           id: event.id,
           created_at: event.created_time,
@@ -201,8 +197,11 @@ export default {
           audience_max_age: event.audience_max_age,
         };
       });
-      return events;
+
+      const combinedEvents = [...databaseEvents, ...apiEvents];
+      return combinedEvents;
     },
+
     eventsByMinAge: async (_parent: undefined, args: {age: string}) => {
       return await EventModel.find({age_restriction: args.age});
     },
