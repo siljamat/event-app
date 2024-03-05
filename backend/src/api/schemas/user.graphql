@@ -58,4 +58,5 @@ type Mutation {
   """
   deleteUserAsAdmin(id: ID!): UserResponse
   toggleFavoriteEvent(eventId: ID!): Event!
+  toggleAttendingEvent(eventId: ID!): Event!
 }

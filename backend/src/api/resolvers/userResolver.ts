@@ -5,7 +5,6 @@ import {UserResponse} from '../../types/MessageTypes';
 import {MyContext} from '../../types/MyContext';
 import {isLoggedIn} from '../../functions/authorize';
 import {__InputValue} from 'graphql';
-import {log} from 'console';
 import {ObjectId} from 'mongoose';
 import EventModel from '../models/eventModel';
 
@@ -167,6 +166,64 @@ export default {
         throw new Error('Failed to toggle favorite event.');
       }
     },
-    // TO-DO: toggleAttendingEvent
+    toggleAttendingEvent: async (
+      _parent: undefined,
+      args: {eventId: ObjectId},
+      context: MyContext,
+    ) => {
+      isLoggedIn(context);
+      try {
+        // Päivitetään tapahtuman attendedBy-kenttä tietokantaan
+        const event = await EventModel.findById(args.eventId);
+        if (!event) {
+          throw new Error('Event not found');
+        }
+        const userId = context.userdata?.user.id;
+        const isAttending = event.attendedBy.includes(userId);
+
+        // Jos käyttäjä on jo ilmoittautunut tapahtumaan, se poistetaan event-objektista
+        if (isAttending) {
+          event.attendedBy = event.attendedBy.filter(
+            (attendedUserId) => attendedUserId.toString() !== userId,
+          );
+          console.log('Event unattended by', userId);
+        } else {
+          event.attendedBy.push(userId);
+          console.log('Event attended by', userId);
+        }
+
+        // Päivitetään tapahtuman attendeeCount-kenttä tietokantaan
+        event.attendeeCount = event.attendedBy.length;
+        // Tallennetaan muutokset
+        await event.save();
+
+        // Päivitetään käyttäjän attendedEvents-kenttä tietokantaan
+        const updatedUser = await fetchData<UserResponse>(
+          `${process.env.AUTH_URL}/users/${userId}`,
+          {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${context.userdata?.token}`,
+            },
+            body: JSON.stringify({
+              attendedEvents: isAttending
+                ? // Jos käyttäjä on jo ilmoittautunut tapahtumaan, se poistetaan käyttäjä-objektista
+                  (context.userdata?.user.attendedEvents || []).filter(
+                    (eventId) => eventId.toString() !== args.eventId.toString(),
+                  )
+                : // Jos käyttäjä ei ole vielä ilmoittautunut tapahtumaan, se lisätään käyttäjä-objektiin
+                  [
+                    ...(context.userdata?.user.attendedEvents || []),
+                    args.eventId,
+                  ],
+            }),
+          },
+        );
+        return event;
+      } catch (error) {
+        throw new Error('Failed to toggle attending event.');
+      }
+    },
   },
 };
