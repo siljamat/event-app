@@ -138,13 +138,12 @@ export default {
     },
 
     eventsByPrice: async (_parent: undefined, args: {price: string}) => {
-      return await EventModel.find({price: args.price});
-    },
-    apiEventsByPrice: async (_parent: undefined, args: {price: string}) => {
-      const data: any = await fetchData(
+      const databaseEvents = await EventModel.find({price: args.price});
+
+      const apiData: any = await fetchData(
         `https://api.hel.fi/linkedevents/v1/event/?price=${args.price}`,
       );
-      const events: Event[] = data.data.map((event: any) => {
+      const apiEvents: Event[] = apiData.data.map((event: any) => {
         return {
           id: event.id,
           created_at: event.created_time,
@@ -164,8 +163,11 @@ export default {
           audience_max_age: event.audience_max_age,
         };
       });
-      return events;
+
+      const combinedEvents = [...databaseEvents, ...apiEvents];
+      return combinedEvents;
     },
+
     eventsByOrganizer: async (
       _parent: undefined,
       args: {organizer: string},

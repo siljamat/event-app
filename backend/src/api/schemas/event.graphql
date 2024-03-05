@@ -47,7 +47,6 @@ type Query {
   eventsByCategory(categoryId: ID!): [Event]
   eventsByDate(date: Date!): [Event]
   eventsByPrice(price: String!): [Event]
-  apiEventsByPrice(price: String!): [Event]
   eventsByOrganizer(organizer: String!): [Event]
   apiEventsByOrganizer(organizer: String!): [Event]
   eventsByMinAge(age: String!): [Event]
