@@ -42,19 +42,13 @@ input InputGeoPoint {
 
 type Query {
   events: [Event]
-  apiEvents: [Event]
   event(id: ID!): Event
   apiEvent(id: ID!): Event
   eventsByCategory(categoryId: ID!): [Event]
-  apiEventsByCategory(categoryId: ID!): [Event]
   eventsByDate(date: Date!): [Event]
-  apiEventsByDate(date: Date!): [Event]
   eventsByPrice(price: String!): [Event]
-  apiEventsByPrice(price: String!): [Event]
   eventsByOrganizer(organizer: String!): [Event]
-  apiEventsByOrganizer(organizer: String!): [Event]
   eventsByMinAge(age: String!): [Event]
-  apiEventsByMinAge(age: String!): [Event]
   eventsByArea(address: String!): [Event]
   apiEventsByArea(address: String!): [Event]
   apiEventsByMinAge(age: String!): [Event]
