@@ -28,6 +28,8 @@ type Event {
   creator: User!
   favoriteCount: Int
   favoritedBy: [User]
+  attendeeCount: Int
+  attendedBy: [User]
 }
 
 input Coordinates {

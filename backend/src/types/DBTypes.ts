@@ -31,6 +31,8 @@ type Event = Partial<Document> & {
   creator: Types.ObjectId | User;
   favoriteCount: number;
   favoritedBy: Types.ObjectId[];
+  attendeeCount: number;
+  attendedBy: Types.ObjectId[];
 };
 
 type Category = {
