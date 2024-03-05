@@ -8,6 +8,7 @@ import {MyContext} from '../../types/MyContext';
 import {LocationInput, Event} from '../../types/DBTypes';
 import fetchData from '../../functions/fetchData';
 import {getLocationCoordinates} from '../../functions/geocode';
+import {Console} from 'console';
 
 // API haut voi siirtää jossain vaiheessa omaan tiedostoon jos tuntuu että
 // tämä tiedosto alkaa paisumaan liikaa
@@ -235,17 +236,19 @@ export default {
       // };
 
       args.input.creator = context.userdata?.user.id;
+      console.log('CREATE EVENT creator id', args.input.creator);
       return await EventModel.create(args.input);
     },
-    //TODO: check if creator or admin or not authorized
+    //TODO: Figure out why creator is undefined here and fix it
     updateEvent: async (
       _parent: undefined,
       args: {id: string; input: Partial<Omit<Event, 'id'>>},
       context: MyContext,
     ) => {
       isLoggedIn(context);
-      const id = args.input.creator;
-      console.log('creator id', id);
+      const id = args.input.creator?.id;
+      console.log('UPDATE EVENT creator id', id);
+      console.log('UPDATE EVENT', args.input);
       if (
         id === context.userdata?.user.id ||
         context.userdata?.user.role === 'admin'
@@ -270,9 +273,11 @@ export default {
       context: MyContext,
     ) => {
       isLoggedIn(context);
+      const event = await EventModel.findById(args.id);
+      console.log('DELETE EVENT event creator:', event?.creator);
       if (
         context.userdata?.user.role === 'admin' ||
-        context.userdata?.user.id === args.id
+        (event && context.userdata?.user.id === event.creator)
       ) {
         return await EventModel.findByIdAndDelete(args.id);
       }
