@@ -115,35 +115,53 @@ export default {
     ) => {
       isLoggedIn(context);
       try {
+        // Päivitetään tapahtuman favoritedBy-kenttä tietokantaan
         const event = await EventModel.findById(args.eventId);
         if (!event) {
           throw new Error('Event not found');
         }
         const userId = context.userdata?.user.id;
-        const isFavorite = event.favoritedBy.includes(
-          context.userdata?.user.id,
-        );
-        if (isFavorite) {
+        const isFavorited = event.favoritedBy.includes(userId);
+
+        // Jos käyttäjä on jo tykännyt tapahtumasta, se poistetaan event-objektista
+        if (isFavorited) {
           event.favoritedBy = event.favoritedBy.filter(
-            (userId) => userId.toString() !== context.userdata?.user.id,
+            (favoritedUserId) => favoritedUserId.toString() !== userId,
           );
-          console.log(
-            'Event ' +
-              args.eventId +
-              ' unfavorited by ' +
-              context.userdata?.user.id,
-          );
+          console.log('Event unfavorited by', userId);
         } else {
-          event.favoritedBy.push(context.userdata?.user.id);
-          console.log(
-            'Event ' +
-              args.eventId +
-              ' favorited by ' +
-              context.userdata?.user.id,
-          );
+          event.favoritedBy.push(userId);
+          console.log('Event favorited by', userId);
         }
+
+        // Päivitetään tapahtuman favoriteCount-kenttä tietokantaan
         event.favoriteCount = event.favoritedBy.length;
+        // Tallennetaan muutokset
         await event.save();
+
+        // Päivitetään käyttäjän favoritedEvents-kenttä tietokantaan
+        const updatedUser = await fetchData<UserResponse>(
+          `${process.env.AUTH_URL}/users/${userId}`,
+          {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${context.userdata?.token}`,
+            },
+            body: JSON.stringify({
+              favoritedEvents: isFavorited
+                ? // Jos käyttäjä on jo tykännyt tapahtumasta, se poistetaan käyttäjä-objektista
+                  (context.userdata?.user.favoritedEvents || []).filter(
+                    (eventId) => eventId.toString() !== args.eventId.toString(),
+                  )
+                : // Jos käyttäjä ei ole vielä tykännyt tapahtumasta, se lisätään käyttäjä-objektiin
+                  [
+                    ...(context.userdata?.user.favoritedEvents || []),
+                    args.eventId,
+                  ],
+            }),
+          },
+        );
         return event;
       } catch (error) {
         throw new Error('Failed to toggle favorite event.');
