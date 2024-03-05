@@ -203,8 +203,36 @@ export default {
     },
 
     eventsByMinAge: async (_parent: undefined, args: {age: string}) => {
-      return await EventModel.find({age_restriction: args.age});
+      const databaseEvents = await EventModel.find({age_restriction: args.age});
+
+      const apiData: any = await fetchData(
+        `https://api.hel.fi/linkedevents/v1/event/?audience_min_age=${args.age}`,
+      );
+      const apiEvents: Event[] = apiData.data.map((event: any) => {
+        return {
+          id: event.id,
+          created_at: event.created_time,
+          event_name: event.name.fi,
+          description: event.description.fi,
+          date: event.start_time,
+          location: event.location,
+          email: '',
+          organizer: event.publisher,
+          address: '',
+          age_restrictions: '',
+          event_site: event.info_url,
+          ticket_site: '',
+          price: '',
+          image: event.images[0],
+          audience_min_age: event.audience_min_age,
+          audience_max_age: event.audience_max_age,
+        };
+      });
+
+      const combinedEvents = [...databaseEvents, ...apiEvents];
+      return combinedEvents;
     },
+
     eventsByArea: async (_parent: undefined, args: {address: string}) => {
       const coords = await getLocationCoordinates(args.address);
       return await EventModel.find({

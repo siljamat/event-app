@@ -49,7 +49,6 @@ type Query {
   eventsByPrice(price: String!): [Event]
   eventsByOrganizer(organizer: String!): [Event]
   eventsByMinAge(age: String!): [Event]
-  apiEventsByMinAge(age: String!): [Event]
   eventsByArea(address: String!): [Event]
   apiEventsByArea(address: String!): [Event]
   apiEventsByMinAge(age: String!): [Event]
