@@ -9,8 +9,6 @@ import fetchData from '../../functions/fetchData';
 import {getLocationCoordinates} from '../../functions/geocode';
 import {Console} from 'console';
 
-// API haut voi siirtää jossain vaiheessa omaan tiedostoon jos tuntuu että
-// tämä tiedosto alkaa paisumaan liikaa
 export default {
   Query: {
     events: async () => {
@@ -233,17 +231,52 @@ export default {
       return combinedEvents;
     },
 
+    //TODO: Kesken, antaa erroria, API avain?
     eventsByArea: async (_parent: undefined, args: {address: string}) => {
-      const coords = await getLocationCoordinates(args.address);
-      return await EventModel.find({
-        location: {
-          $geoWithin: {
-            $centerSphere: [[coords.lat, coords.lng], 10 / 6378.1], //10km säteellä
+      try {
+        const coords = await getLocationCoordinates(args.address);
+
+        const databaseEvents = await EventModel.find({
+          location: {
+            $geoWithin: {
+              $centerSphere: [[coords.lat, coords.lng], 10 / 6378.1], // 10 km säteellä
+            },
           },
-        },
-      });
+        });
+
+        const apiData: any = await fetchData(
+          `https://api.hel.fi/linkedevents/v1/event/?location=${encodeURIComponent(args.address)}&radius=10000`,
+        );
+        const apiEvents: Event[] = apiData.data.map((event: any) => {
+          return {
+            id: event.id,
+            created_at: event.created_time,
+            event_name: event.name.fi,
+            description: event.description.fi,
+            date: event.start_time,
+            location: event.location,
+            email: '',
+            organizer: event.publisher,
+            address: '',
+            age_restrictions: '',
+            event_site: event.info_url,
+            ticket_site: '',
+            price: '',
+            image: event.images[0],
+            audience_min_age: event.audience_min_age,
+            audience_max_age: event.audience_max_age,
+          };
+        });
+
+        const combinedEvents = [...databaseEvents, ...apiEvents];
+        return combinedEvents;
+      } catch (error) {
+        console.error('Error fetching events by area:', error);
+        throw new Error('Error fetching events by area');
+      }
     },
   },
+
   Mutation: {
     createEvent: async (
       _parent: undefined,
