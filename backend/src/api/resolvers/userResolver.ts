@@ -29,17 +29,8 @@ export default {
     },
     // TO-DO
     createdEvents: async (_parent: undefined, context: MyContext) => {},
-    // TO-DO: fix
-    favoritedEvents: async (_parent: undefined, context: MyContext) => {
-      try {
-        const user: User = await fetchData<User>(
-          `${process.env.AUTH_URL}/users/${context.userdata?.user.id}`,
-        );
-        return user.favoritedEvents || [];
-      } catch (error) {
-        throw new Error("Failed to retrieve user's favorited events.");
-      }
-    },
+    // TO-DO:
+    favoritedEvents: async (_parent: undefined, context: MyContext) => {},
     // TO-DO
     attendedEvents: async (_parent: undefined, context: MyContext) => {},
   },
@@ -158,5 +149,6 @@ export default {
         throw new Error('Failed to toggle favorite event.');
       }
     },
+    // TO-DO: toggleAttendingEvent
   },
 };
