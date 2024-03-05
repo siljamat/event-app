@@ -73,7 +73,7 @@ export default {
       };
     },
 
-    //TODO: Mistä saadaan vaadittava category id?
+    //TODO: Täytyy korjata se että saadaan category
     eventsByCategory: async (_parent: undefined, args: {category: string}) => {
       const databaseEvents = await EventModel.find({category: args.category});
 
@@ -231,7 +231,6 @@ export default {
       return combinedEvents;
     },
 
-    //TODO: Kesken, antaa erroria, API avain?
     eventsByArea: async (_parent: undefined, args: {address: string}) => {
       try {
         const coords = await getLocationCoordinates(args.address);
