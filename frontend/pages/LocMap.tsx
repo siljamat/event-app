@@ -4,7 +4,7 @@ import maplibregl, {Marker} from 'maplibre-gl';
 const Map: React.FC = () => {
   useEffect(() => {
     const locationiq = {
-      key: 'key',
+      key: 'KEY',
     };
 
     const map = new maplibregl.Map({
@@ -50,6 +50,30 @@ const Map: React.FC = () => {
 
         new Marker(el).setLngLat([coordinates[0], coordinates[1]]).addTo(map);
       });
+
+      // Add Navigation controls to the map to the top-right corner of the map
+      map.addControl(new maplibregl.NavigationControl(), 'top-right');
+
+      // Add a 'full screen' button to the map
+      map.addControl(new maplibregl.FullscreenControl());
+
+      // Add a Scale to the map
+      map.addControl(
+        new maplibregl.ScaleControl({
+          maxWidth: 80,
+          unit: 'metric', //imperial for miles
+        }),
+      );
+
+      // Add Geolocation control to the map (will only render when page is opened over HTTPS)
+      map.addControl(
+        new maplibregl.GeolocateControl({
+          positionOptions: {
+            enableHighAccuracy: true,
+          },
+          trackUserLocation: true,
+        }),
+      );
     });
 
     return () => {
