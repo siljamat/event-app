@@ -13,13 +13,12 @@ import {getLocationCoordinates} from '../../functions/geocode';
 export default {
   Query: {
     events: async () => {
-      return await EventModel.find();
-    },
-    apiEvents: async () => {
-      const data: any = await fetchData(
+      const databaseEvents = await EventModel.find();
+
+      const apiData: any = await fetchData(
         'https://api.hel.fi/linkedevents/v1/event/?suitable_for=12',
       );
-      const events: Event[] = data.data.map((event: any) => {
+      const apiEvents = apiData.data.map((event: any) => {
         //TODO: varmista et kaikki tulee oikees muodos ja hae tarvittavat jne
         return {
           id: event.id,
@@ -41,8 +40,10 @@ export default {
           audience_max_age: event.audience_max_age,
         };
       });
-      console.log('events', events);
-      return events;
+      console.log('apiEvents', apiEvents);
+      const combinedEvents = [...databaseEvents, ...apiEvents];
+      console.log('combinedEvents', combinedEvents);
+      return combinedEvents;
     },
 
     event: async (_parent: undefined, args: {id: string}) => {

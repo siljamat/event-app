@@ -42,7 +42,6 @@ input InputGeoPoint {
 
 type Query {
   events: [Event]
-  apiEvents: [Event]
   event(id: ID!): Event
   apiEvent(id: ID!): Event
   eventsByCategory(categoryId: ID!): [Event]
