@@ -2,8 +2,9 @@ type User {
   id: ID!
   user_name: String!
   email: String!
-  events: [Event]
+  createdEvents: [Event]
   favoritedEvents: [Event]
+  attendedEvents: [Event]
 }
 
 type LoginResponse {
@@ -38,7 +39,9 @@ type Query {
   users: [User]
   userById(id: ID!): User
   checkToken: UserResponse
+  createdEvents: [Event]
   favoritedEvents: [Event]
+  attendedEvents: [Event]
 }
 
 type Mutation {

@@ -3,7 +3,7 @@ import {UserInput, User, Event} from '../../types/DBTypes';
 import fetchData from '../../functions/fetchData';
 import {UserResponse} from '../../types/MessageTypes';
 import {MyContext} from '../../types/MyContext';
-import {isAdmin, isLoggedIn} from '../../functions/authorize';
+import {isLoggedIn} from '../../functions/authorize';
 import {__InputValue} from 'graphql';
 import {log} from 'console';
 import {ObjectId} from 'mongoose';
@@ -27,6 +27,8 @@ export default {
     checkToken: async (_parent: undefined, context: MyContext) => {
       return await {user: context.userdata?.user};
     },
+    // TO-DO
+    createdEvents: async (_parent: undefined, context: MyContext) => {},
     // TO-DO: fix
     favoritedEvents: async (_parent: undefined, context: MyContext) => {
       try {
@@ -38,6 +40,8 @@ export default {
         throw new Error("Failed to retrieve user's favorited events.");
       }
     },
+    // TO-DO
+    attendedEvents: async (_parent: undefined, context: MyContext) => {},
   },
   Mutation: {
     login: async (
