@@ -7,7 +7,7 @@ type User = Partial<Document> & {
   email: string;
   role: 'user' | 'admin';
   password: string;
-  favorites: Event[];
+  favoritedEvents: Event[];
 };
 
 type Event = Partial<Document> & {
