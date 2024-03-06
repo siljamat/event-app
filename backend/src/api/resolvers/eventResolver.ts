@@ -55,92 +55,36 @@ export default {
     eventsByCategory: async (_parent: undefined, args: {category: string}) => {
       const databaseEvents = await EventModel.find({category: args.category});
 
-      const apiData: any = await fetchData(
+      const apiEvents = await eventApiFetch(
         `https://api.hel.fi/linkedevents/v1/event/?suitable_for=${args.category}`,
       );
-      const apiEvents: Event[] = apiData.data.map((event: any) => {
-        return {
-          id: event.id,
-          created_at: event.created_time,
-          event_name: event.name.fi,
-          description: event.description.fi,
-          date: event.start_time,
-          location: event.location,
-          email: '',
-          organizer: event.publisher,
-          address: '',
-          age_restrictions: '',
-          event_site: event.info_url,
-          ticket_site: '',
-          price: '',
-          image: event.images[0],
-          audience_min_age: event.audience_min_age,
-          audience_max_age: event.audience_max_age,
-        };
-      });
+      console.log('apiEvents', apiEvents);
       const combinedEvents = [...databaseEvents, ...apiEvents];
+      console.log('combinedEvents', combinedEvents);
       return combinedEvents;
     },
 
     eventsByDate: async (_parent: undefined, args: {date: Date}) => {
       const databaseEvents = await EventModel.find({date: args.date});
 
-      const apiData: any = await fetchData(
+      const apiEvents = await eventApiFetch(
         `https://api.hel.fi/linkedevents/v1/event/?start=${args.date}`,
       );
-      const apiEvents: Event[] = apiData.data.map((event: any) => {
-        return {
-          id: event.id,
-          created_at: event.created_time,
-          event_name: event.name.fi,
-          description: event.description.fi,
-          date: event.start_time,
-          location: event.location,
-          email: '',
-          organizer: event.publisher,
-          address: '',
-          age_restrictions: '',
-          event_site: event.info_url,
-          ticket_site: '',
-          price: '',
-          image: event.images[0],
-          audience_min_age: event.audience_min_age,
-          audience_max_age: event.audience_max_age,
-        };
-      });
-
+      console.log('apiEvents', apiEvents);
       const combinedEvents = [...databaseEvents, ...apiEvents];
+      console.log('combinedEvents', combinedEvents);
       return combinedEvents;
     },
 
     eventsByPrice: async (_parent: undefined, args: {price: string}) => {
       const databaseEvents = await EventModel.find({price: args.price});
 
-      const apiData: any = await fetchData(
+      const apiEvents = await eventApiFetch(
         `https://api.hel.fi/linkedevents/v1/event/?price=${args.price}`,
       );
-      const apiEvents: Event[] = apiData.data.map((event: any) => {
-        return {
-          id: event.id,
-          created_at: event.created_time,
-          event_name: event.name.fi,
-          description: event.description.fi,
-          date: event.start_time,
-          location: event.location,
-          email: '',
-          organizer: event.publisher,
-          address: '',
-          age_restrictions: '',
-          event_site: event.info_url,
-          ticket_site: '',
-          price: '',
-          image: event.images[0],
-          audience_min_age: event.audience_min_age,
-          audience_max_age: event.audience_max_age,
-        };
-      });
-
+      console.log('apiEvents', apiEvents);
       const combinedEvents = [...databaseEvents, ...apiEvents];
+      console.log('combinedEvents', combinedEvents);
       return combinedEvents;
     },
 
@@ -150,62 +94,24 @@ export default {
     ) => {
       const databaseEvents = await EventModel.find({organizer: args.organizer});
 
-      const apiData: any = await fetchData(
+      const apiEvents = await eventApiFetch(
         `https://api.hel.fi/linkedevents/v1/event/?publisher=${args.organizer}`,
       );
-      const apiEvents: Event[] = apiData.data.map((event: any) => {
-        return {
-          id: event.id,
-          created_at: event.created_time,
-          event_name: event.name.fi,
-          description: event.description.fi,
-          date: event.start_time,
-          location: event.location,
-          email: '',
-          organizer: event.publisher,
-          address: '',
-          age_restrictions: '',
-          event_site: event.info_url,
-          ticket_site: '',
-          price: '',
-          image: event.images[0],
-          audience_min_age: event.audience_min_age,
-          audience_max_age: event.audience_max_age,
-        };
-      });
-
+      console.log('apiEvents', apiEvents);
       const combinedEvents = [...databaseEvents, ...apiEvents];
+      console.log('combinedEvents', combinedEvents);
       return combinedEvents;
     },
 
     eventsByMinAge: async (_parent: undefined, args: {age: string}) => {
       const databaseEvents = await EventModel.find({age_restriction: args.age});
 
-      const apiData: any = await fetchData(
+      const apiEvents = await eventApiFetch(
         `https://api.hel.fi/linkedevents/v1/event/?audience_min_age=${args.age}`,
       );
-      const apiEvents: Event[] = apiData.data.map((event: any) => {
-        return {
-          id: event.id,
-          created_at: event.created_time,
-          event_name: event.name.fi,
-          description: event.description.fi,
-          date: event.start_time,
-          location: event.location,
-          email: '',
-          organizer: event.publisher,
-          address: '',
-          age_restrictions: '',
-          event_site: event.info_url,
-          ticket_site: '',
-          price: '',
-          image: event.images[0],
-          audience_min_age: event.audience_min_age,
-          audience_max_age: event.audience_max_age,
-        };
-      });
-
+      console.log('apiEvents', apiEvents);
       const combinedEvents = [...databaseEvents, ...apiEvents];
+      console.log('combinedEvents', combinedEvents);
       return combinedEvents;
     },
 
@@ -221,31 +127,12 @@ export default {
           },
         });
 
-        const apiData: any = await fetchData(
+        const apiEvents = await eventApiFetch(
           `https://api.hel.fi/linkedevents/v1/event/?location=${encodeURIComponent(args.address)}&radius=10000`,
         );
-        const apiEvents: Event[] = apiData.data.map((event: any) => {
-          return {
-            id: event.id,
-            created_at: event.created_time,
-            event_name: event.name.fi,
-            description: event.description.fi,
-            date: event.start_time,
-            location: event.location,
-            email: '',
-            organizer: event.publisher,
-            address: '',
-            age_restrictions: '',
-            event_site: event.info_url,
-            ticket_site: '',
-            price: '',
-            image: event.images[0],
-            audience_min_age: event.audience_min_age,
-            audience_max_age: event.audience_max_age,
-          };
-        });
-
+        console.log('apiEvents', apiEvents);
         const combinedEvents = [...databaseEvents, ...apiEvents];
+        console.log('combinedEvents', combinedEvents);
         return combinedEvents;
       } catch (error) {
         console.error('Error fetching events by area:', error);
