@@ -1,4 +1,5 @@
 import React from 'react';
+import EventCard from '../src/components/eventCard';
 
 // Määrittele komponentti, joka vastaa etusivua
 const Home: React.FC = () => {
@@ -12,6 +13,7 @@ const Home: React.FC = () => {
   return (
     <div>
       <h1>FrontPage</h1>
+      <EventCard />
       <button onClick={handleGoToMapPage}>To map page</button>
     </div>
   );
