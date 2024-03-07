@@ -1,11 +1,11 @@
 import {useState} from 'react';
-import {doGraphQLFetch} from '../../graphql/fetch';
-import {checkToken, login} from '../../graphql/queries';
-import {User} from '../../types/User';
-import {Credentials} from '../../types/Credentials';
-import {LoginMessageResponse} from '../../types/LoginMessageResponse';
-import RegisterModal from '../registerModal';
-import LoginModal from '../loginModal';
+import {doGraphQLFetch} from '../graphql/fetch';
+import {checkToken, login} from '../graphql/queries';
+import {User} from '../types/User';
+import {Credentials} from '../types/Credentials';
+import {LoginMessageResponse} from '../types/LoginMessageResponse';
+import RegisterModal from './registerModal';
+import LoginModal from './LoginModal';
 
 //TODO:  figure out how to move the login modal and register modal to own components
 //and how to pass all data etc
