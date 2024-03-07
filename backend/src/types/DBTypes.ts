@@ -7,7 +7,7 @@ type User = Partial<Document> & {
   email: string;
   role: 'user' | 'admin';
   password: string;
-  createdEevents: Types.ObjectId[];
+  createdEvents: Types.ObjectId[];
   favoritedEvents: Types.ObjectId[];
   attendedEvents: Types.ObjectId[];
 };
