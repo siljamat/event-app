@@ -56,10 +56,14 @@ app.use(
       includeStacktraceInErrorResponses: false,
     });
     await server.start();
-
+    app.use(
+      cors<cors.CorsRequest>({
+        origin: true, // reflect the request origin in the Access-Control-Allow-Origin header
+        methods: ['GET', 'POST', 'PUT', 'DELETE'],
+      }),
+    );
     app.use(
       '/graphql',
-      cors<cors.CorsRequest>(),
       express.json(),
       expressMiddleware(server, {
         context: async ({req}) => authenticate(req),

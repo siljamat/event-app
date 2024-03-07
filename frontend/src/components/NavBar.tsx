@@ -85,14 +85,14 @@ const NavBar = () => {
       username: email,
       password: password,
     };
-
+    console.log(credentials);
     try {
       const loginData = (await doGraphQLFetch(API_URL, login, {
         credentials,
       })) as LoginMessageResponse;
       console.log(loginData);
       localStorage.setItem('token', loginData.login.token!);
-      window.location.href = '/home';
+      window.location.href = '/';
     } catch (error) {
       console.log(error);
     }
