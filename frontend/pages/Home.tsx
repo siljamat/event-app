@@ -1,5 +1,5 @@
 import React from 'react';
-import EventCard from '../src/components/eventCard';
+import EventCard from '../src/components/EventCard';
 
 // Määrittele komponentti, joka vastaa etusivua
 const Home: React.FC = () => {

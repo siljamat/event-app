@@ -20,6 +20,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "pages/createEvent.tsx", "pages/userSettings.ts"],
+  "include": ["src", "pages/CreateEvent.tsx", "pages/userSettings.ts"],
   "references": [{"path": "./tsconfig.node.json"}]
 }
