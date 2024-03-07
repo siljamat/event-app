@@ -1,5 +1,6 @@
 import React from 'react';
 
+//TODO: Hae oikean eventin tiedot
 const EventCard: React.FC = () => {
   const event = {
     name: 'Event 1',
