@@ -27,11 +27,17 @@ export default {
       return await {user: context.userdata?.user};
     },
     // TO-DO
-    createdEvents: async (_parent: undefined, context: MyContext) => {},
+    createdEventsByUserId: async (_parent: undefined, context: MyContext) => {},
     // TO-DO:
-    favoritedEvents: async (_parent: undefined, context: MyContext) => {},
+    favoritedEventsByUserId: async (
+      _parent: undefined,
+      context: MyContext,
+    ) => {},
     // TO-DO
-    attendedEvents: async (_parent: undefined, context: MyContext) => {},
+    attendedEventsByUserId: async (
+      _parent: undefined,
+      context: MyContext,
+    ) => {},
   },
   Mutation: {
     login: async (
