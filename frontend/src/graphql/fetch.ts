@@ -7,7 +7,6 @@ const doGraphQLFetch = async (
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
   };
-  console.log('token do fetch', token);
 
   if (token) {
     headers.Authorization = `Bearer ${token}`;

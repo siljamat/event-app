@@ -39,9 +39,9 @@ type Query {
   users: [User]
   userById(id: ID!): User
   checkToken: UserResponse
-  createdEvents: [Event]
-  favoritedEvents: [Event]
-  attendedEvents: [Event]
+  createdEventsByUserId: [Event]
+  favoritedEventsByUserId: [Event]
+  attendedEventsByUserId: [Event]
 }
 
 type Mutation {

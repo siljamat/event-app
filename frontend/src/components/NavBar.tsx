@@ -1,65 +1,53 @@
-import {useState} from 'react';
-import {doGraphQLFetch} from '../../graphql/fetch';
-import {checkToken, login} from '../../graphql/queries';
-import {User} from '../../types/User';
-import {Credentials} from '../../types/Credentials';
-import {LoginMessageResponse} from '../../types/LoginMessageResponse';
-import RegisterModal from '../registerModal';
-import LoginModal from '../loginModal';
+import {useContext, useEffect, useState} from 'react';
+import {doGraphQLFetch} from '../graphql/fetch';
+import {checkToken, login, register} from '../graphql/queries';
+import {Credentials} from '../types/Credentials';
+import {LoginMessageResponse} from '../types/LoginMessageResponse';
+import {AuthContext} from '../context/AuthContext'; // adjust the path based on where you created AuthContext.tsx
+import RegisterModal from './registerModal';
+import LoginModal from './LoginModal';
+import {UserContext} from '../context/UserContext';
+import RegisterSuccessModal from './RegisterSuccessModal';
 
 //TODO:  figure out how to move the login modal and register modal to own components
 //and how to pass all data etc
 const NavBar = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const {isAuthenticated, setIsAuthenticated} = useContext(AuthContext);
   const [isLoginModalOpen, setLoginModalOpen] = useState(false);
   const [isRegisterModalOpen, setRegistermodalOpen] = useState(false);
+  const [isRegisterSuccessModalOpen, setRegisterSuccessModalOpen] =
+    useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
-
-  const loginButton = document.getElementById('loginButton');
-  const logoutButton = document.getElementById('logoutButton');
+  const {setUser} = useContext(UserContext);
 
   // Global variables
   const API_URL = import.meta.env.VITE_API_URL;
   //const UPLOAD_URL = import.meta.env.VITE_UPLOAD_URL;
 
-  const user: User = {
-    email: '',
-    id: '',
-    image: '',
-    user_name: '',
-    favoriteEvents: [],
-    createdEvents: [],
-  };
+  useEffect(() => {
+    (async () => {
+      const token = localStorage.getItem('token');
 
-  (async () => {
-    const token = localStorage.getItem('token');
-
-    if (token !== null) {
-      try {
-        const isTokenValid = await doGraphQLFetch(
-          API_URL,
-          checkToken,
-          {},
-          token,
-        );
-        if (isTokenValid.checkToken?.message === 'Token is valid') {
-          setIsAuthenticated(true);
-          console.log('token valid');
-          if (loginButton && loginButton.parentElement) {
-            loginButton.parentElement.classList.add('d-none');
+      if (token !== null) {
+        try {
+          const isTokenValid = await doGraphQLFetch(
+            API_URL,
+            checkToken,
+            {},
+            token,
+          );
+          if (isTokenValid.checkToken?.message === 'Token is valid') {
+            setIsAuthenticated(true);
+            console.log('token valid');
           }
-          if (logoutButton && logoutButton.parentElement) {
-            logoutButton.parentElement.classList.remove('d-none');
-          }
-          user.user_name = isTokenValid.checkToken.user.user_name;
+        } catch (error) {
+          console.log(error);
         }
-      } catch (error) {
-        console.log(error);
       }
-    }
-  })();
+    })();
+  }, [API_URL, setIsAuthenticated]);
 
   const openLoginModal = () => {
     setRegistermodalOpen(false);
@@ -79,39 +67,64 @@ const NavBar = () => {
     setRegistermodalOpen(false);
   };
 
+  const OpenRegisterSuccessModal = () => {
+    setLoginModalOpen(false);
+    setRegistermodalOpen(false);
+    setRegisterSuccessModalOpen(true);
+  };
+  const closeRegisterSuccessModal = () => {
+    setRegistermodalOpen(false);
+  };
+
   const handleLogin = async () => {
     console.log('Login');
     const credentials: Credentials = {
       username: email,
       password: password,
     };
-
+    console.log(credentials);
     try {
       const loginData = (await doGraphQLFetch(API_URL, login, {
         credentials,
       })) as LoginMessageResponse;
       console.log(loginData);
       localStorage.setItem('token', loginData.login.token!);
-      window.location.href = '/home';
+      const userData = {
+        email: loginData.login.user.email,
+        id: loginData.login.user.id,
+        image: loginData.login.user.image,
+        user_name: loginData.login.user.user_name,
+        favoriteEvents: loginData.login.user.favoriteEvents,
+        createdEvents: loginData.login.user.createdEvents,
+      };
+      setUser(userData);
+      // Store the user data in localStorage
+      localStorage.setItem('user', JSON.stringify(userData));
+      setIsAuthenticated(true);
     } catch (error) {
       console.log(error);
     }
   };
 
   const handleRegister = async () => {
-    //TODO: add register logic
     console.log('Register', username, password, email);
+    const userDta = {
+      username: username,
+      password: password,
+      email: email,
+    };
+    console.log(userDta);
+    const registerData = await doGraphQLFetch(API_URL, register, {userDta});
+    console.log(registerData);
+    OpenRegisterSuccessModal();
   };
 
   const handleLogout = () => {
+    console.log('Logout');
     localStorage.removeItem('token');
-    if (loginButton && loginButton.parentElement) {
-      loginButton.parentElement.classList.remove('d-none');
-    }
-    if (logoutButton && logoutButton.parentElement) {
-      logoutButton.parentElement.classList.add('d-none');
-    }
-    user.user_name = '';
+    localStorage.removeItem('user');
+    setUser(null);
+    setIsAuthenticated(false);
   };
 
   return (
@@ -245,6 +258,11 @@ const NavBar = () => {
         setUsername={setUsername}
         setPassword={setPassword}
         handleRegister={handleRegister}
+        openLoginModal={openLoginModal}
+      />
+      <RegisterSuccessModal
+        isRegisterSuccessModalOpen={isRegisterSuccessModalOpen}
+        closeRegisterSuccessModal={closeRegisterSuccessModal}
         openLoginModal={openLoginModal}
       />
     </>
