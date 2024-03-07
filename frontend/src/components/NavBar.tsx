@@ -4,10 +4,10 @@ import {checkToken, login, register} from '../graphql/queries';
 import {Credentials} from '../types/Credentials';
 import {LoginMessageResponse} from '../types/LoginMessageResponse';
 import {AuthContext} from '../context/AuthContext'; // adjust the path based on where you created AuthContext.tsx
-import RegisterModal from './registerModal';
-import LoginModal from './loginModal';
 import {UserContext} from '../context/UserContext';
 import RegisterSuccessModal from './RegisterSuccessModal';
+import LoginModal from './LoginModal';
+import RegisterModal from './RegisterModal';
 
 //TODO:  figure out how to move the login modal and register modal to own components
 //and how to pass all data etc
