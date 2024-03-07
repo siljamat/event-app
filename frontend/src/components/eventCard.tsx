@@ -8,10 +8,16 @@ const EventCard: React.FC = () => {
   };
 
   return (
-    <div>
-      <h2>{event.name}</h2>
-      <p>{event.description}</p>
-      <img src={event.image} alt={event.name} />
+    <div className="w-1/4">
+      <div className="card-body rounded bg-base-100 shadow-md">
+        <img
+          src={event.image}
+          alt={event.name}
+          className="w-full rounded-t-md"
+        />
+        <h2 className="font-bold text-md text-center">{event.name}</h2>
+        <p className="text-center">{event.description}</p>
+      </div>
     </div>
   );
 };
