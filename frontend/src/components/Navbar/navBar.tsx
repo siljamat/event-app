@@ -5,7 +5,7 @@ import {User} from '../../types/User';
 import {Credentials} from '../../types/Credentials';
 import {LoginMessageResponse} from '../../types/LoginMessageResponse';
 import RegisterModal from '../registerModal';
-import LoginModal from '../LoginModal';
+import LoginModal from '../loginModal';
 
 //TODO:  figure out how to move the login modal and register modal to own components
 //and how to pass all data etc
