@@ -5,7 +5,7 @@ import {Credentials} from '../types/Credentials';
 import {LoginMessageResponse} from '../types/LoginMessageResponse';
 import {AuthContext} from '../context/AuthContext'; // adjust the path based on where you created AuthContext.tsx
 import RegisterModal from './registerModal';
-import LoginModal from './LoginModal';
+import LoginModal from './loginModal';
 import {UserContext} from '../context/UserContext';
 import RegisterSuccessModal from './RegisterSuccessModal';
 
