@@ -1,5 +1,5 @@
 import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
-import React, {useState, useEffect, useContext} from 'react';
+import {useState, useEffect, useContext} from 'react';
 import Home from '../pages/Home';
 import Map from '../pages/LocMap';
 import Layout from './components/Layout';
