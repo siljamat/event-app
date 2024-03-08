@@ -154,6 +154,69 @@ const getEventsByMinAge = gql`
     }
   }
 `;
+
+const getEventsByDate = gql`
+  query EventsByDate($date: String!) {
+    eventsByDate(date: $date) {
+      address
+      age_restriction
+      category {
+        category_name
+      }
+      created_at
+      creator {
+        user_name
+      }
+      date
+      description
+      email
+      event_name
+      event_site
+      favoriteCount
+      id
+      image
+      location {
+        coordinates
+        type
+      }
+      organizer
+      price
+      ticket_site
+    }
+  }
+`;
+
+const getEventsByPrice = gql`
+  query EventsByPrice($price: String!) {
+    eventsByPrice(price: $price) {
+      address
+      age_restriction
+      category {
+        category_name
+      }
+      created_at
+      creator {
+        user_name
+      }
+      date
+      description
+      email
+      event_name
+      event_site
+      favoriteCount
+      id
+      image
+      location {
+        coordinates
+        type
+      }
+      organizer
+      price
+      ticket_site
+    }
+  }
+`;
+
 const addEvent = gql`
   mutation CreateEvent($event: EventInput!) {
     createEvent(event: $event) {
@@ -228,6 +291,8 @@ export {
   getAllEvents,
   getEventById,
   getEventsByCategory,
+  getEventsByDate,
+  getEventsByPrice,
   getEventsByOrganizer,
   getEventsByMinAge,
   addEvent,

@@ -1,4 +1,5 @@
 import React from 'react';
+//import EventDashboard from '../src/components/EventDashboard';
 import EventCard from '../src/components/EventCard';
 
 // Määrittele komponentti, joka vastaa etusivua

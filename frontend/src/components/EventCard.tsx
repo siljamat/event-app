@@ -1,26 +1,48 @@
-import React from 'react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+// EventCard.tsx
+import {getEventsByMinAge} from '../graphql/eventQueries';
+import {Suspense} from 'react';
+import {TypedDocumentNode, useSuspenseQuery} from '@apollo/client';
 
-//TODO: Hae oikean eventin tiedot
-const EventCard: React.FC = () => {
-  const event = {
-    name: 'Event 1',
-    description: 'Älä välitä tästä kuvasta vielä lol',
-    image: 'https://picsum.photos/400/250',
-  };
+interface Event {
+  id: string;
+  created_at: Date;
+  event_name: string;
+  description: string;
+  date: Date;
+  location: string;
+  email: string;
+  organizer: string;
+  address: string;
+  age_restriction: string;
+  event_site: string;
+  ticket_site: string;
+  price: string;
+  image: string;
+  category: string;
+  creator: string;
+  favoriteCount: number;
+}
 
+interface EventVars {
+  id: string;
+}
+
+interface EventProps {
+  id: string;
+}
+
+function EventCard() {
   return (
-    <div className="w-1/4">
-      <div className="card-body rounded bg-base-100 shadow-md">
-        <img
-          src={event.image}
-          alt={event.name}
-          className="w-full rounded-t-md"
-        />
-        <h2 className="font-bold text-md text-center">{event.name}</h2>
-        <p className="text-center">{event.description}</p>
-      </div>
-    </div>
+    <Suspense fallback={<div>Loading...</div>}>
+      <Event id="65eaef57f510009dada82fec" />
+    </Suspense>
   );
-};
+}
 
-export default EventCard;
+function Eventti({ id }: EventProps) {
+  const { data } = useSuspenseQuery(get, {
+      variables: { id },
+    });
+export default EventList;
