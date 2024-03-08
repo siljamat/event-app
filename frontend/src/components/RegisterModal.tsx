@@ -12,6 +12,7 @@ interface RegisterModalProps {
   setPassword: (password: string) => void;
   handleRegister: () => void;
   openLoginModal: () => void;
+  error: string | null;
 }
 
 const RegisterModal: React.FC<RegisterModalProps> = ({
@@ -25,6 +26,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
   setPassword,
   handleRegister,
   openLoginModal,
+  error,
 }) => {
   return (
     <Transition show={isRegisterModalOpen} as="div">
@@ -36,6 +38,12 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
           >
             {/* Modal content */}
             <div className="bg-white p-8 rounded-lg shadow-lg relative">
+              {/*Error message*/}
+              {error && (
+                <div role="alert" className="alert alert-error mt-5 mb-5">
+                  <span>Registering failed</span>
+                </div>
+              )}
               <button
                 className="absolute top-0 right-0 mt-4 mr-4 text-gray-500 hover:text-gray-700"
                 onClick={closeRegisterModal}

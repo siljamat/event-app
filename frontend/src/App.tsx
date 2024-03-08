@@ -9,6 +9,13 @@ import {AuthContext} from './context/AuthContext';
 import {doGraphQLFetch} from './graphql/fetch';
 import {checkToken} from './graphql/queries';
 import {UserContext} from './context/UserContext';
+import {ApolloProvider} from '@apollo/client';
+import {ApolloClient, InMemoryCache} from '@apollo/client';
+
+const client = new ApolloClient({
+  uri: import.meta.env.VITE_API_URL,
+  cache: new InMemoryCache(),
+});
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -49,18 +56,20 @@ function App() {
   }, []);
 
   return (
-    <AuthContext.Provider value={{isAuthenticated, setIsAuthenticated}}>
-      <Router>
-        <div>
-          {/* Wrap the JSX elements inside a parent element */}
-          <Layout />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/LocMap" element={<Map />} />
-          </Routes>
-        </div>
-      </Router>
-    </AuthContext.Provider>
+    <ApolloProvider client={client}>
+      <AuthContext.Provider value={{isAuthenticated, setIsAuthenticated}}>
+        <Router>
+          <div>
+            {/* Wrap the JSX elements inside a parent element */}
+            <Layout />
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/LocMap" element={<Map />} />
+            </Routes>
+          </div>
+        </Router>
+      </AuthContext.Provider>
+    </ApolloProvider>
   );
 }
 

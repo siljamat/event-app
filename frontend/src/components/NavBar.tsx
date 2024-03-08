@@ -1,26 +1,53 @@
 import {useContext, useEffect, useState} from 'react';
 import {doGraphQLFetch} from '../graphql/fetch';
-import {checkToken, login, register} from '../graphql/queries';
+import {checkToken, loginMutation, registerMutation} from '../graphql/queries';
 import {Credentials} from '../types/Credentials';
-import {LoginMessageResponse} from '../types/LoginMessageResponse';
-import {AuthContext} from '../context/AuthContext'; // adjust the path based on where you created AuthContext.tsx
+import {AuthContext} from '../context/AuthContext';
 import {UserContext} from '../context/UserContext';
 import RegisterSuccessModal from './RegisterSuccessModal';
 import LoginModal from './LoginModal';
 import RegisterModal from './RegisterModal';
+import {useMutation} from '@apollo/client';
 
-//TODO:  figure out how to move the login modal and register modal to own components
-//and how to pass all data etc
+//TODO:  context/keep user logged even when refreshing the page
+//TODO: validate user input on register
+//TODO: better errors messages?
 const NavBar = () => {
+  const [loginErrorMessage, setLoginError] = useState<string | null>(null);
+  const [registerErrorMessage, setRegisterError] = useState<string | null>(
+    null,
+  );
+  const [register, {error}] = useMutation(registerMutation, {
+    onError: (error) => {
+      setRegisterError(error.message);
+    },
+  });
+  const [login, {data: loginData, loading: loginLoading, error: loginError}] =
+    useMutation(loginMutation, {
+      onError: (error) => {
+        setLoginError(error.message);
+      },
+    });
+
   const {isAuthenticated, setIsAuthenticated} = useContext(AuthContext);
   const [isLoginModalOpen, setLoginModalOpen] = useState(false);
   const [isRegisterModalOpen, setRegistermodalOpen] = useState(false);
   const [isRegisterSuccessModalOpen, setRegisterSuccessModalOpen] =
     useState(false);
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
   const {setUser} = useContext(UserContext);
+
+  // Function to reset all states
+  const resetStates = () => {
+    setEmail('');
+    setPassword('');
+    setUsername('');
+    setLoginError(null);
+    // Add any other states you want to reset
+  };
 
   // Global variables
   const API_URL = import.meta.env.VITE_API_URL;
@@ -50,29 +77,36 @@ const NavBar = () => {
   }, [API_URL, setIsAuthenticated]);
 
   const openLoginModal = () => {
-    setRegistermodalOpen(false);
+    resetStates();
+    closeRegisterSuccessModal();
+    closeRegisterModal;
     setLoginModalOpen(true);
   };
 
   const closeLoginModal = () => {
+    resetStates();
     setLoginModalOpen(false);
   };
 
   const openRegisterModal = () => {
+    resetStates();
     setLoginModalOpen(false);
     setRegistermodalOpen(true);
   };
 
   const closeRegisterModal = () => {
+    resetStates();
     setRegistermodalOpen(false);
   };
 
   const OpenRegisterSuccessModal = () => {
+    resetStates();
     setLoginModalOpen(false);
     setRegistermodalOpen(false);
     setRegisterSuccessModalOpen(true);
   };
   const closeRegisterSuccessModal = () => {
+    resetStates();
     setRegistermodalOpen(false);
   };
 
@@ -84,39 +118,54 @@ const NavBar = () => {
     };
     console.log(credentials);
     try {
-      const loginData = (await doGraphQLFetch(API_URL, login, {
-        credentials,
-      })) as LoginMessageResponse;
-      console.log(loginData);
-      localStorage.setItem('token', loginData.login.token!);
-      const userData = {
-        email: loginData.login.user.email,
-        id: loginData.login.user.id,
-        image: loginData.login.user.image,
-        user_name: loginData.login.user.user_name,
-        favoriteEvents: loginData.login.user.favoriteEvents,
-        createdEvents: loginData.login.user.createdEvents,
-      };
-      setUser(userData);
-      // Store the user data in localStorage
-      localStorage.setItem('user', JSON.stringify(userData));
-      setIsAuthenticated(true);
+      await login({variables: {credentials}});
+      if (loginLoading) {
+        // Display a loading message or spinner
+        console.log('Loading...');
+      }
+      if (loginError) {
+        // Display an error message
+        console.log(`Error: ${loginError.message}`);
+      }
+      if (loginData && loginData.login) {
+        console.log(loginData);
+
+        //Store user data
+        localStorage.setItem('token', loginData.login.token!);
+        const userData = {
+          email: loginData.login.user.email,
+          id: loginData.login.user.id,
+          image: loginData.login.user.image,
+          user_name: loginData.login.user.user_name,
+          favoriteEvents: loginData.login.user.favoriteEvents,
+          createdEvents: loginData.login.user.createdEvents,
+        };
+        setUser(userData);
+        localStorage.setItem('user', JSON.stringify(userData));
+        setIsAuthenticated(true);
+        closeLoginModal();
+      }
     } catch (error) {
       console.log(error);
     }
   };
-
   const handleRegister = async () => {
     console.log('Register', username, password, email);
     const userDta = {
-      username: username,
+      user_name: username,
       password: password,
       email: email,
     };
-    console.log(userDta);
-    const registerData = await doGraphQLFetch(API_URL, register, {userDta});
-    console.log(registerData);
-    OpenRegisterSuccessModal();
+
+    try {
+      const registerData = await register({variables: {user: userDta}});
+      console.log(registerData);
+      if (registerData) {
+        OpenRegisterSuccessModal();
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleLogout = () => {
@@ -245,8 +294,8 @@ const NavBar = () => {
         setPassword={setPassword}
         handleLogin={handleLogin}
         openRegisterModal={openRegisterModal}
+        loginError={loginErrorMessage || null}
       />
-
       {/* Register Modal */}
       <RegisterModal
         isRegisterModalOpen={isRegisterModalOpen}
@@ -259,6 +308,7 @@ const NavBar = () => {
         setPassword={setPassword}
         handleRegister={handleRegister}
         openLoginModal={openLoginModal}
+        error={registerErrorMessage || null}
       />
       <RegisterSuccessModal
         isRegisterSuccessModalOpen={isRegisterSuccessModalOpen}

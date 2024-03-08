@@ -1,5 +1,6 @@
-const login = `
-mutation Login($credentials: Credentials!) {
+import {gql} from '@apollo/client';
+const loginMutation = gql`
+  mutation Login($credentials: Credentials!) {
     login(credentials: $credentials) {
       message
       token
@@ -10,14 +11,16 @@ mutation Login($credentials: Credentials!) {
       }
     }
   }
-  `;
+`;
 
-const register = `
-mutation Register($user: UserInput!) {
+const registerMutation = gql`
+  mutation Register($user: UserInput!) {
     register(user: $user) {
-      email
-      id
-      user_name
+      user {
+        email
+        id
+        user_name
+      }
     }
   }
 `;
@@ -69,8 +72,8 @@ mutation DeleteCategory($id: String!) {
 `;
 
 export {
-  login,
-  register,
+  loginMutation,
+  registerMutation,
   checkToken,
   getCategories,
   addCategory,

@@ -10,6 +10,7 @@ interface LoginModalProps {
   setPassword: (password: string) => void;
   handleLogin: () => void;
   openRegisterModal: () => void;
+  loginError: string | null;
 }
 
 const LoginModal: React.FC<LoginModalProps> = ({
@@ -21,6 +22,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
   setPassword,
   handleLogin,
   openRegisterModal,
+  loginError,
 }) => {
   return (
     <Transition show={isLoginModalOpen} as="div">
@@ -32,6 +34,12 @@ const LoginModal: React.FC<LoginModalProps> = ({
           >
             {/* Modal content */}
             <div className="bg-white p-8 rounded-lg shadow-lg relative">
+              {/*Error message*/}
+              {loginError && (
+                <div role="alert" className="alert alert-error mt-5 mb-5">
+                  <span>Login failed, check your input</span>
+                </div>
+              )}
               <button
                 className="absolute top-0 right-0 mt-4 mr-4 text-gray-500 hover:text-gray-700"
                 onClick={closeLoginModal}
