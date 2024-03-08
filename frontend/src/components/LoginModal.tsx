@@ -1,6 +1,8 @@
 import React from 'react';
 import {Transition} from '@headlessui/react';
 
+//TODO: center the loading animation
+
 interface LoginModalProps {
   isLoginModalOpen: boolean;
   closeLoginModal: () => void;
@@ -75,6 +77,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
                   className="w-full border border-gray-300 rounded px-3 py-2"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  required
                 />
               </div>
               <div className="mb-4">
@@ -86,6 +89,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
                   id="password"
                   className="w-full border border-gray-300 rounded px-3 py-2"
                   value={password}
+                  required
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
