@@ -1,16 +1,14 @@
 import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
-import React, {useState, useEffect, useContext} from 'react';
+import {useState, useEffect, useContext} from 'react';
 import Home from '../pages/Home';
 import Map from '../pages/LocMap';
 import Layout from './components/Layout';
-
 // Import the AuthContext
 import {AuthContext} from './context/AuthContext';
-import {doGraphQLFetch} from './graphql/fetch';
-import {checkToken} from './graphql/queries';
 import {UserContext} from './context/UserContext';
 import {ApolloProvider} from '@apollo/client';
 import {ApolloClient, InMemoryCache} from '@apollo/client';
+import CreateEvent from '../pages/CreateEvent';
 
 const client = new ApolloClient({
   uri: import.meta.env.VITE_API_URL,
@@ -20,31 +18,6 @@ const client = new ApolloClient({
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Check the token when the component mounts
-  useEffect(() => {
-    async function checkTokenValidity() {
-      const API_URL = import.meta.env.VITE_API_URL;
-      const token = localStorage.getItem('token');
-      if (token !== null) {
-        try {
-          const isTokenValid = await doGraphQLFetch(
-            API_URL,
-            checkToken,
-            {},
-            token,
-          );
-          if (isTokenValid.checkToken?.message === 'Token is valid') {
-            setIsAuthenticated(true);
-          }
-        } catch (error) {
-          console.log(error);
-        }
-      }
-    }
-
-    checkTokenValidity();
-  }, []);
-
   const {setUser} = useContext(UserContext);
 
   useEffect(() => {
@@ -53,7 +26,7 @@ function App() {
     if (storedUserData) {
       setUser(JSON.parse(storedUserData));
     }
-  }, []);
+  }, [setUser]);
 
   return (
     <ApolloProvider client={client}>
@@ -65,6 +38,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/LocMap" element={<Map />} />
+              <Route path="/createEvent" element={<CreateEvent />} />
             </Routes>
           </div>
         </Router>

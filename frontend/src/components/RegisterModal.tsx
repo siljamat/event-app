@@ -41,7 +41,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
               {/*Error message*/}
               {error && (
                 <div role="alert" className="alert alert-error mt-5 mb-5">
-                  <span>Registering failed</span>
+                  <span>{error}</span>
                 </div>
               )}
               <button
