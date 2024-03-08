@@ -9,7 +9,6 @@ const eventSchema = new mongoose.Schema<Event>({
   event_name: {
     type: String,
     required: true,
-    unique: true,
   },
   category: {
     type: mongoose.Schema.Types.ObjectId,
