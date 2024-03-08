@@ -198,7 +198,9 @@ export default {
           new: true,
         });
       }
-      throw new Error('Not authorized');
+      throw new Error(
+        'Not authorized. You must be the creator of this event to edit it.',
+      );
     },
     deleteEvent: async (
       _parent: undefined,
@@ -207,14 +209,34 @@ export default {
     ) => {
       isLoggedIn(context);
       const event = await EventModel.findById(args.id);
-      console.log('DELETE EVENT event creator:', event?.creator);
-      if (
-        context.userdata?.user.role === 'admin' ||
-        (event && context.userdata?.user.id === event.creator)
-      ) {
-        return await EventModel.findByIdAndDelete(args.id);
+      if (!event) {
+        throw new Error('Event not found from database!');
       }
-      throw new Error('Not authorized');
+      // Tarkistetaan, että käyttäjä on tapahtuman luoja
+      if (String(context.userdata?.user.id) === String(event.creator)) {
+        // Poistetaan tapahtuma
+        await EventModel.findByIdAndDelete(args.id);
+        // Poistetaan tapahtuma myös käyttäjän tiedoista
+        await fetchData<Response>(
+          `${process.env.AUTH_URL}/users/${context.userdata?.user.id}`,
+          {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${context.userdata?.token}`,
+            },
+            body: JSON.stringify({
+              $pull: {createdEvents: args.id},
+            }),
+          },
+        );
+        console.log('Event deleted successfully!');
+        return true;
+      } else {
+        throw new Error(
+          'Not authorized. You must be the creator of this event to delete it.',
+        );
+      }
     },
   },
 };
