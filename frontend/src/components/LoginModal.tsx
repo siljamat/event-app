@@ -11,6 +11,7 @@ interface LoginModalProps {
   handleLogin: () => void;
   openRegisterModal: () => void;
   loginError: string | null;
+  isLoading: boolean;
 }
 
 const LoginModal: React.FC<LoginModalProps> = ({
@@ -23,6 +24,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
   handleLogin,
   openRegisterModal,
   loginError,
+  isLoading,
 }) => {
   return (
     <Transition show={isLoginModalOpen} as="div">
@@ -34,6 +36,9 @@ const LoginModal: React.FC<LoginModalProps> = ({
           >
             {/* Modal content */}
             <div className="bg-white p-8 rounded-lg shadow-lg relative">
+              {isLoading && (
+                <span className="loading loading-spinner loading-xs"></span>
+              )}
               {/*Error message*/}
               {loginError && (
                 <div role="alert" className="alert alert-error mt-5 mb-5">
