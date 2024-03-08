@@ -148,17 +148,29 @@ export default {
       context: MyContext,
     ) => {
       isLoggedIn(context);
-
       const {address} = args.input;
       const coords = await getLocationCoordinates(address);
       args.input.location = {
         type: 'Point',
         coordinates: [coords.lat, coords.lng],
       };
-
       args.input.creator = context.userdata?.user.id;
-      console.log('CREATE EVENT creator id', args.input.creator);
-      return await EventModel.create(args.input);
+      // Lisätään luodun tapahtuman id käyttäjän tietoihin
+      const createdEvent = await EventModel.create(args.input);
+      await fetchData<Response>(
+        `${process.env.AUTH_URL}/users/${context.userdata?.user.id}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${context.userdata?.token}`,
+          },
+          body: JSON.stringify({
+            $push: {createdEvents: createdEvent._id},
+          }),
+        },
+      );
+      return createdEvent;
     },
     //TODO: Figure out why creator is undefined here and fix it
     updateEvent: async (
