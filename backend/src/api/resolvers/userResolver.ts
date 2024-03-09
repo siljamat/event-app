@@ -76,10 +76,32 @@ export default {
       console.log('favoritedEvents:', favoritedEvents);
       return favoritedEvents;
     },
-    attendedEventsByUserId: async (
-      _parent: undefined,
-      args: {id: string},
-    ) => {},
+    attendedEventsByUserId: async (_parent: undefined, args: {id: string}) => {
+      const response = await fetchData<User>(
+        `${process.env.AUTH_URL}/users/${args.id}`,
+      );
+      if (!response) {
+        throw new Error(`No user found with id ${args.id}`);
+      }
+      const eventIds = response.attendedEvents;
+      if (!eventIds) {
+        throw new Error(
+          `No favorited events found for user with id ${args.id}`,
+        );
+      }
+      // Haetaan kaikki osallistutut tapahtumat, joiden id:t löytyivät käyttäjän attendedEvents-kentästä
+      const attendedEvents = await Promise.all(
+        eventIds.map(async (id: Types.ObjectId) => {
+          const event = await EventModel.findById(id);
+          if (!event) {
+            throw new Error(`No event found with eventId ${id}`);
+          }
+          return event;
+        }),
+      );
+      console.log('attendedEvents:', attendedEvents);
+      return attendedEvents;
+    },
   },
   Mutation: {
     login: async (
