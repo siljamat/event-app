@@ -9,6 +9,7 @@ import fetchData from '../../functions/fetchData';
 import {getLocationCoordinates} from '../../functions/geocode';
 import {Console} from 'console';
 import eventApiFetch from '../../functions/eventApiFetch';
+import mongoose from 'mongoose';
 import {updateUsersFields} from '../../utils/user';
 
 export default {
@@ -24,11 +25,17 @@ export default {
       return combinedEvents;
     },
 
-    event: async (_parent: undefined, args: {id: string}) => {
-      return await EventModel.findById(args.id);
-    },
+    // ...
 
-    apiEvent: async (_parent: undefined, args: {id: string}) => {
+    event: async (_parent: undefined, args: {id: string}) => {
+      if (mongoose.Types.ObjectId.isValid(args.id)) {
+        const eventFromDb = await EventModel.findById(args.id);
+
+        if (eventFromDb) {
+          return eventFromDb;
+        }
+      }
+
       const data: any = await fetchData(
         `https://api.hel.fi/linkedevents/v1/event/${args.id}/`,
       );

@@ -1,6 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {useContext, useEffect, useState} from 'react';
-import {doGraphQLFetch} from '../graphql/fetch';
-import {checkToken, loginMutation, registerMutation} from '../graphql/queries';
+import {loginMutation, registerMutation} from '../graphql/queries';
 import {Credentials} from '../types/Credentials';
 import {AuthContext} from '../context/AuthContext';
 import {UserContext} from '../context/UserContext';
@@ -10,35 +10,38 @@ import RegisterModal from './RegisterModal';
 import {useMutation} from '@apollo/client';
 
 //TODO:  context/keep user logged even when refreshing the page
-//TODO: validate user input on register
 //TODO: better errors messages?
 const NavBar = () => {
-  const [loginErrorMessage, setLoginError] = useState<string | null>(null);
-  const [registerErrorMessage, setRegisterError] = useState<string | null>(
-    null,
-  );
-  const [register, {error}] = useMutation(registerMutation, {
-    onError: (error) => {
-      setRegisterError(error.message);
-    },
-  });
-  const [login, {data: loginData, loading: loginLoading, error: loginError}] =
-    useMutation(loginMutation, {
-      onError: (error) => {
-        setLoginError(error.message);
-      },
-    });
-
   const {isAuthenticated, setIsAuthenticated} = useContext(AuthContext);
   const [isLoginModalOpen, setLoginModalOpen] = useState(false);
   const [isRegisterModalOpen, setRegistermodalOpen] = useState(false);
   const [isRegisterSuccessModalOpen, setRegisterSuccessModalOpen] =
     useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
   const {setUser} = useContext(UserContext);
+
+  const [registerErrorMessage, setRegisterError] = useState<string | null>(
+    null,
+  );
+  const [register] = useMutation(registerMutation, {
+    onError: (error) => {
+      setRegisterError(error.message);
+    },
+  });
+
+  const [loginErrorMessage, setLoginError] = useState<string | null>(null);
+  const [login, {data: loginData}] = useMutation(loginMutation, {
+    onError: (error) => {
+      setLoginError(error.message);
+    },
+  });
+
+  // Global variables
+  const API_URL = import.meta.env.VITE_API_URL;
 
   // Function to reset all states
   const resetStates = () => {
@@ -46,36 +49,43 @@ const NavBar = () => {
     setPassword('');
     setUsername('');
     setLoginError(null);
-    // Add any other states you want to reset
   };
 
-  // Global variables
-  const API_URL = import.meta.env.VITE_API_URL;
-  //const UPLOAD_URL = import.meta.env.VITE_UPLOAD_URL;
-
+  //check token and set user if token is valid
   useEffect(() => {
-    (async () => {
-      const token = localStorage.getItem('token');
+    console.log('hook ');
+    const token = localStorage.getItem('token');
+    if (token !== null) {
+      console.log('token found');
+      setIsAuthenticated(true);
+      const userData = JSON.parse(localStorage.getItem('user') as string);
+      setUser(userData);
+    }
+  }, [API_URL, setIsAuthenticated, setUser]);
 
-      if (token !== null) {
-        try {
-          const isTokenValid = await doGraphQLFetch(
-            API_URL,
-            checkToken,
-            {},
-            token,
-          );
-          if (isTokenValid.checkToken?.message === 'Token is valid') {
-            setIsAuthenticated(true);
-            console.log('token valid');
-          }
-        } catch (error) {
-          console.log(error);
-        }
-      }
-    })();
-  }, [API_URL, setIsAuthenticated]);
+  //register validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const usernameRegex = /^[a-zA-Z0-9]+$/;
+  const validateInput = () => {
+    if (!emailRegex.test(email)) {
+      setRegisterError('Invalid email');
+      return false;
+    }
 
+    if (!usernameRegex.test(username)) {
+      setRegisterError('Username can only contain alphanumeric characters');
+      return false;
+    }
+
+    if (password.length < 5) {
+      setRegisterError('Password must be at least 5 characters long');
+      return false;
+    }
+
+    return true;
+  };
+
+  //Modal handling TODO: make more functional?
   const openLoginModal = () => {
     resetStates();
     closeRegisterSuccessModal();
@@ -110,26 +120,16 @@ const NavBar = () => {
     setRegistermodalOpen(false);
   };
 
+  //Login and register handling
   const handleLogin = async () => {
-    console.log('Login');
+    setIsLoading(true);
     const credentials: Credentials = {
       username: email,
       password: password,
     };
-    console.log(credentials);
     try {
       await login({variables: {credentials}});
-      if (loginLoading) {
-        // Display a loading message or spinner
-        console.log('Loading...');
-      }
-      if (loginError) {
-        // Display an error message
-        console.log(`Error: ${loginError.message}`);
-      }
       if (loginData && loginData.login) {
-        console.log(loginData);
-
         //Store user data
         localStorage.setItem('token', loginData.login.token!);
         const userData = {
@@ -147,9 +147,14 @@ const NavBar = () => {
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setIsLoading(false);
     }
   };
   const handleRegister = async () => {
+    if (!validateInput()) {
+      return;
+    }
     console.log('Register', username, password, email);
     const userDta = {
       user_name: username,
@@ -163,6 +168,7 @@ const NavBar = () => {
       if (registerData) {
         OpenRegisterSuccessModal();
       }
+      setRegisterError('Registering failed');
     } catch (error) {
       console.log(error);
     }
@@ -266,7 +272,9 @@ const NavBar = () => {
                     <a className="justify-between">User settings</a>
                   </li>
                   <li>
-                    <a>Create event</a>
+                    <a className="link" href="/createEvent">
+                      Create event
+                    </a>
                   </li>
                   <li>
                     <a id="logoutButton" onClick={handleLogout}>
@@ -295,6 +303,7 @@ const NavBar = () => {
         handleLogin={handleLogin}
         openRegisterModal={openRegisterModal}
         loginError={loginErrorMessage || null}
+        isLoading={isLoading}
       />
       {/* Register Modal */}
       <RegisterModal

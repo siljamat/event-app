@@ -1,5 +1,7 @@
-const getAllEvents = `
-query Events {
+import {gql} from '@apollo/client';
+
+const getAllEvents = gql`
+  query Events {
     events {
       address
       age_restriction
@@ -29,8 +31,8 @@ query Events {
   }
 `;
 
-const getEventById = `
-query Event($id: String!) {
+const getEventById = gql`
+  query Event($id: String!) {
     event(id: $id) {
       address
       age_restriction
@@ -60,8 +62,8 @@ query Event($id: String!) {
   }
 `;
 
-const getEventsByCategory = `
-query EventsByCategory($category: String!) {
+const getEventsByCategory = gql`
+  query EventsByCategory($category: String!) {
     eventsByCategory(category: $category) {
       address
       age_restriction
@@ -91,8 +93,8 @@ query EventsByCategory($category: String!) {
   }
 `;
 
-const getEventsByOrganizer = `
-query EventsByOrganizer($organizer: String!) {
+const getEventsByOrganizer = gql`
+  query EventsByOrganizer($organizer: String!) {
     eventsByOrganizer(organizer: $organizer) {
       address
       age_restriction
@@ -122,8 +124,8 @@ query EventsByOrganizer($organizer: String!) {
   }
 `;
 
-const getEventsByMinAge = `
-query EventsByMinAge($age: String!) {
+const getEventsByMinAge = gql`
+  query EventsByMinAge($age: String!) {
     eventsByMinAge(age: $age) {
       address
       age_restriction
@@ -152,8 +154,71 @@ query EventsByMinAge($age: String!) {
     }
   }
 `;
-const addEvent = `
-mutation CreateEvent($event: EventInput!) {
+
+const getEventsByDate = gql`
+  query EventsByDate($date: String!) {
+    eventsByDate(date: $date) {
+      address
+      age_restriction
+      category {
+        category_name
+      }
+      created_at
+      creator {
+        user_name
+      }
+      date
+      description
+      email
+      event_name
+      event_site
+      favoriteCount
+      id
+      image
+      location {
+        coordinates
+        type
+      }
+      organizer
+      price
+      ticket_site
+    }
+  }
+`;
+
+const getEventsByPrice = gql`
+  query EventsByPrice($price: String!) {
+    eventsByPrice(price: $price) {
+      address
+      age_restriction
+      category {
+        category_name
+      }
+      created_at
+      creator {
+        user_name
+      }
+      date
+      description
+      email
+      event_name
+      event_site
+      favoriteCount
+      id
+      image
+      location {
+        coordinates
+        type
+      }
+      organizer
+      price
+      ticket_site
+    }
+  }
+`;
+
+const addEvent = gql`
+  mutation CreateEvent($event: EventInput!) {
     createEvent(event: $event) {
       address
       age_restriction
@@ -183,8 +248,8 @@ mutation CreateEvent($event: EventInput!) {
   }
 `;
 
-const updateEvent = `
-mutation UpdateEvent($id: String!, $event: EventInput!) {
+const updateEvent = gql`
+  mutation UpdateEvent($id: String!, $event: EventInput!) {
     updateEvent(id: $id, event: $event) {
       address
       age_restriction
@@ -214,8 +279,8 @@ mutation UpdateEvent($id: String!, $event: EventInput!) {
   }
 `;
 
-const deleteEvent = `
-mutation DeleteEvent($id: String!) {
+const deleteEvent = gql`
+  mutation DeleteEvent($id: String!) {
     deleteEvent(id: $id) {
       message
     }
@@ -226,6 +291,8 @@ export {
   getAllEvents,
   getEventById,
   getEventsByCategory,
+  getEventsByDate,
+  getEventsByPrice,
   getEventsByOrganizer,
   getEventsByMinAge,
   addEvent,

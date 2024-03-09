@@ -1,6 +1,8 @@
 import React from 'react';
 import {Transition} from '@headlessui/react';
 
+//TODO: center the loading animation
+
 interface LoginModalProps {
   isLoginModalOpen: boolean;
   closeLoginModal: () => void;
@@ -11,6 +13,7 @@ interface LoginModalProps {
   handleLogin: () => void;
   openRegisterModal: () => void;
   loginError: string | null;
+  isLoading: boolean;
 }
 
 const LoginModal: React.FC<LoginModalProps> = ({
@@ -23,6 +26,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
   handleLogin,
   openRegisterModal,
   loginError,
+  isLoading,
 }) => {
   return (
     <Transition show={isLoginModalOpen} as="div">
@@ -34,6 +38,9 @@ const LoginModal: React.FC<LoginModalProps> = ({
           >
             {/* Modal content */}
             <div className="bg-white p-8 rounded-lg shadow-lg relative">
+              {isLoading && (
+                <span className="loading loading-spinner loading-xs"></span>
+              )}
               {/*Error message*/}
               {loginError && (
                 <div role="alert" className="alert alert-error mt-5 mb-5">
@@ -70,6 +77,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
                   className="w-full border border-gray-300 rounded px-3 py-2"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  required
                 />
               </div>
               <div className="mb-4">
@@ -81,6 +89,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
                   id="password"
                   className="w-full border border-gray-300 rounded px-3 py-2"
                   value={password}
+                  required
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
