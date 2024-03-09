@@ -3,7 +3,7 @@ import {UserInput, User, Event} from '../../types/DBTypes';
 import fetchData from '../../functions/fetchData';
 import {UserResponse} from '../../types/MessageTypes';
 import {MyContext} from '../../types/MyContext';
-import {isLoggedIn} from '../../functions/authorize';
+import {isAdmin, isLoggedIn} from '../../functions/authorize';
 import {__InputValue} from 'graphql';
 import {Types, ObjectId} from 'mongoose';
 import EventModel from '../models/eventModel';
@@ -176,6 +176,41 @@ export default {
         );
       }
       throw new Error('Not authorized');
+    },
+    updateUserAsAdmin: async (
+      _parent: undefined,
+      args: {user: Partial<UserInput>},
+      context: MyContext,
+    ) => {
+      isAdmin(context);
+      return await fetchData<UserResponse>(
+        `${process.env.AUTH_URL}/users/${context.userdata?.user}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${context.userdata?.token}`,
+          },
+          body: JSON.stringify(args.user),
+        },
+      );
+    },
+    deleteUserAsAdmin: async (
+      _parent: undefined,
+      args: {id: string},
+      context: MyContext,
+    ) => {
+      isAdmin(context);
+      return await fetchData<UserResponse>(
+        `${process.env.AUTH_URL}/users/${args.id}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${context.userdata?.token}`,
+          },
+        },
+      );
     },
     toggleFavoriteEvent: async (
       _parent: undefined,
