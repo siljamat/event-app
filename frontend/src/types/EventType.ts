@@ -2,7 +2,7 @@ import {Point} from 'geojson';
 import {User} from './User';
 import {Category} from './Category';
 
-type Event = {
+type EventType = {
   address: string;
   age_restriction: string;
   category: Category;
@@ -25,4 +25,4 @@ type Event = {
   ticket_site: string;
 };
 
-export type {Event};
+export type {EventType};
