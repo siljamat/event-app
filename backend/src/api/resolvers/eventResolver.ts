@@ -9,6 +9,7 @@ import fetchData from '../../functions/fetchData';
 import {getLocationCoordinates} from '../../functions/geocode';
 import {Console} from 'console';
 import eventApiFetch from '../../functions/eventApiFetch';
+import {updateUsersFields} from '../../utils/user';
 
 export default {
   Query: {
@@ -208,34 +209,20 @@ export default {
       context: MyContext,
     ) => {
       isLoggedIn(context);
-      const event = await EventModel.findById(args.id);
-      if (!event) {
-        throw new Error('Event not found from database!');
-      }
-      // Tarkistetaan, että käyttäjä on tapahtuman luoja
-      if (String(context.userdata?.user.id) === String(event.creator)) {
-        // Poistetaan tapahtuma
+      try {
+        const event = await EventModel.findById(args.id);
+        if (!event) {
+          throw new Error(
+            'Event not found from the database! eventResolver.ts',
+          );
+        }
+        await updateUsersFields(event.id, context);
         await EventModel.findByIdAndDelete(args.id);
-        // Poistetaan tapahtuma myös käyttäjän tiedoista
-        await fetchData<Response>(
-          `${process.env.AUTH_URL}/users/${context.userdata?.user.id}`,
-          {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${context.userdata?.token}`,
-            },
-            body: JSON.stringify({
-              $pull: {createdEvents: args.id},
-            }),
-          },
-        );
         console.log('Event deleted successfully!');
-        return true;
-      } else {
-        throw new Error(
-          'Not authorized. You must be the creator of this event to delete it.',
-        );
+        return true; // Indicate successful deletion
+      } catch (error) {
+        console.error('Error deleting event:', error);
+        throw new Error('Failed to delete event.');
       }
     },
   },

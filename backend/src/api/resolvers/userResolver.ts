@@ -5,7 +5,7 @@ import {UserResponse} from '../../types/MessageTypes';
 import {MyContext} from '../../types/MyContext';
 import {isLoggedIn} from '../../functions/authorize';
 import {__InputValue} from 'graphql';
-import {ObjectId} from 'mongoose';
+import {Types, ObjectId} from 'mongoose';
 import EventModel from '../models/eventModel';
 
 export default {
@@ -27,22 +27,16 @@ export default {
       return await {user: context.userdata?.user};
     },
     // TO-DO
-    createdEventsByUserId: async (_parent: undefined, context: MyContext) => {},
+    createdEventsByUserId: async (_parent: undefined, args: {id: string}) => {},
     // TO-DO:
-    favoritedEventsByUserId: async (
-      _parent: undefined,
-      context: MyContext,
-    ) => {},
+    favoritedEventsByUserId: async (_parent: undefined) => {},
     // TO-DO
-    attendedEventsByUserId: async (
-      _parent: undefined,
-      context: MyContext,
-    ) => {},
+    attendedEventsByUserId: async (_parent: undefined) => {},
   },
   Mutation: {
     login: async (
       _parent: undefined,
-      args: {credentials: {username: string; password: string}},
+      args: {credentials: {email: string; password: string}},
     ) => {
       return await fetchData<UserResponse>(
         `${process.env.AUTH_URL}/auth/login`,
