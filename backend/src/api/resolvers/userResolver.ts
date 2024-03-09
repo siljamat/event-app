@@ -26,12 +26,82 @@ export default {
     checkToken: async (_parent: undefined, context: MyContext) => {
       return await {user: context.userdata?.user};
     },
-    // TO-DO
-    createdEventsByUserId: async (_parent: undefined, args: {id: string}) => {},
-    // TO-DO:
-    favoritedEventsByUserId: async (_parent: undefined) => {},
-    // TO-DO
-    attendedEventsByUserId: async (_parent: undefined) => {},
+    createdEventsByUserId: async (_parent: undefined, args: {id: string}) => {
+      const response = await fetchData<User>(
+        `${process.env.AUTH_URL}/users/${args.id}`,
+      );
+      if (!response) {
+        throw new Error(`No user found with id ${args.id}`);
+      }
+      const eventIds = response.createdEvents;
+      if (!eventIds) {
+        throw new Error(`No created events found for user with id ${args.id}`);
+      }
+      // Haetaan kaikki luodut tapahtumat, joiden id:t löytyivät käyttäjän createdEvents-kentästä
+      const createdEvents = await Promise.all(
+        eventIds.map(async (id: Types.ObjectId) => {
+          const event = await EventModel.findById(id);
+          if (!event) {
+            throw new Error(`No event found with eventId ${id}`);
+          }
+          return event;
+        }),
+      );
+      console.log('createdEvents:', createdEvents);
+      return createdEvents;
+    },
+    favoritedEventsByUserId: async (_parent: undefined, args: {id: string}) => {
+      const response = await fetchData<User>(
+        `${process.env.AUTH_URL}/users/${args.id}`,
+      );
+      if (!response) {
+        throw new Error(`No user found with id ${args.id}`);
+      }
+      const eventIds = response.favoritedEvents;
+      if (!eventIds) {
+        throw new Error(
+          `No favorited events found for user with id ${args.id}`,
+        );
+      }
+      // Haetaan kaikki tykätyt tapahtumat, joiden id:t löytyivät käyttäjän favoritedEvents-kentästä
+      const favoritedEvents = await Promise.all(
+        eventIds.map(async (id: Types.ObjectId) => {
+          const event = await EventModel.findById(id);
+          if (!event) {
+            throw new Error(`No event found with eventId ${id}`);
+          }
+          return event;
+        }),
+      );
+      console.log('favoritedEvents:', favoritedEvents);
+      return favoritedEvents;
+    },
+    attendedEventsByUserId: async (_parent: undefined, args: {id: string}) => {
+      const response = await fetchData<User>(
+        `${process.env.AUTH_URL}/users/${args.id}`,
+      );
+      if (!response) {
+        throw new Error(`No user found with id ${args.id}`);
+      }
+      const eventIds = response.attendedEvents;
+      if (!eventIds) {
+        throw new Error(
+          `No favorited events found for user with id ${args.id}`,
+        );
+      }
+      // Haetaan kaikki osallistutut tapahtumat, joiden id:t löytyivät käyttäjän attendedEvents-kentästä
+      const attendedEvents = await Promise.all(
+        eventIds.map(async (id: Types.ObjectId) => {
+          const event = await EventModel.findById(id);
+          if (!event) {
+            throw new Error(`No event found with eventId ${id}`);
+          }
+          return event;
+        }),
+      );
+      console.log('attendedEvents:', attendedEvents);
+      return attendedEvents;
+    },
   },
   Mutation: {
     login: async (
