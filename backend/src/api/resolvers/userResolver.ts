@@ -35,14 +35,14 @@ export default {
       }
       const eventIds = response.createdEvents;
       if (!eventIds) {
-        throw new Error(`No events found for user with id ${args.id}`);
+        throw new Error(`No created events found for user with id ${args.id}`);
       }
-      // Haetaan kaikki tapahtumat, joiden id:t löytyivät käyttäjän createdEvents-kentästä
+      // Haetaan kaikki luodut tapahtumat, joiden id:t löytyivät käyttäjän createdEvents-kentästä
       const createdEvents = await Promise.all(
         eventIds.map(async (id: Types.ObjectId) => {
           const event = await EventModel.findById(id);
           if (!event) {
-            throw new Error(`No event found with id ${id}`);
+            throw new Error(`No event found with eventId ${id}`);
           }
           return event;
         }),
@@ -50,10 +50,32 @@ export default {
       console.log('createdEvents:', createdEvents);
       return createdEvents;
     },
-    favoritedEventsByUserId: async (
-      _parent: undefined,
-      args: {id: string},
-    ) => {},
+    favoritedEventsByUserId: async (_parent: undefined, args: {id: string}) => {
+      const response = await fetchData<User>(
+        `${process.env.AUTH_URL}/users/${args.id}`,
+      );
+      if (!response) {
+        throw new Error(`No user found with id ${args.id}`);
+      }
+      const eventIds = response.favoritedEvents;
+      if (!eventIds) {
+        throw new Error(
+          `No favorited events found for user with id ${args.id}`,
+        );
+      }
+      // Haetaan kaikki tykätyt tapahtumat, joiden id:t löytyivät käyttäjän favoritedEvents-kentästä
+      const favoritedEvents = await Promise.all(
+        eventIds.map(async (id: Types.ObjectId) => {
+          const event = await EventModel.findById(id);
+          if (!event) {
+            throw new Error(`No event found with eventId ${id}`);
+          }
+          return event;
+        }),
+      );
+      console.log('favoritedEvents:', favoritedEvents);
+      return favoritedEvents;
+    },
     attendedEventsByUserId: async (
       _parent: undefined,
       args: {id: string},
