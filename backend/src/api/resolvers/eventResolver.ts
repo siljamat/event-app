@@ -17,7 +17,7 @@ export default {
     events: async () => {
       const databaseEvents = await EventModel.find();
       const apiEvents = await eventApiFetch(
-        'https://api.hel.fi/linkedevents/v1/event/?suitable_for=12',
+        'https://api.hel.fi/linkedevents/v1/event/?page_size=100',
       );
       console.log('apiEvents', apiEvents);
       const combinedEvents = [...databaseEvents, ...apiEvents];

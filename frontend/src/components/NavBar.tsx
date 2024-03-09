@@ -122,6 +122,7 @@ const NavBar = () => {
   //Login and register handling
   const handleLogin = async () => {
     setIsLoading(true);
+    console.log('Login, email:', email, 'password:', password);
     const credentials: Credentials = {
       username: email,
       password: password,
