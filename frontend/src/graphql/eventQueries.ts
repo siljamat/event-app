@@ -1,6 +1,6 @@
 import {gql} from '@apollo/client';
 
-const getAllEvents = gql`
+const getAllEvents = `
   query Events {
     events {
       address
