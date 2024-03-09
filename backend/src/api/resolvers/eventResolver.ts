@@ -4,28 +4,55 @@ import e from 'express';
 import EventModel from '../models/eventModel';
 import {isLoggedIn} from '../../functions/authorize';
 import {MyContext} from '../../types/MyContext';
-import {LocationInput, Event} from '../../types/DBTypes';
+import {LocationInput, Event, User} from '../../types/DBTypes';
 import fetchData from '../../functions/fetchData';
 import {getLocationCoordinates} from '../../functions/geocode';
 import {Console} from 'console';
 import eventApiFetch from '../../functions/eventApiFetch';
 import mongoose from 'mongoose';
 import {updateUsersFields} from '../../utils/user';
+import userResolver from './userResolver';
 
+//TODO: Add The apiUser to the eventApi fetch and fix the creator to be the apiUser._id and other fields.
 export default {
   Query: {
     events: async () => {
       const databaseEvents = await EventModel.find();
-      const apiEvents = await eventApiFetch(
+      const apiEventData = await eventApiFetch(
         'https://api.hel.fi/linkedevents/v1/event/?page_size=100',
       );
-      console.log('apiEvents', apiEvents);
-      const combinedEvents = [...databaseEvents, ...apiEvents];
-      console.log('combinedEvents', combinedEvents);
-      return combinedEvents;
-    },
+      const apiUser = await fetchData<User>(
+        `${process.env.AUTH_URL}/users/65ec9e7def56a518d78085cb`,
+      );
+      console.log('user', apiUser);
 
-    // ...
+      const apiEvents = apiEventData.map((event: any) => ({
+        address: event.address,
+        age_restriction: event.audience_min_age
+          ? event.audience_min_age + '-' + event.audience_max_age
+          : '',
+        //TODO: FIX!! maybe map and check if any keywords match our cateogry names and then add them as catgory?
+        category: event.keywords
+          ? event.keywords.map((keyword: any) => keyword.name)
+          : [],
+        created_at: event.created_at,
+        date: event.date,
+        description: event.description,
+        email: event.email,
+        event_name: event.event_name,
+        event_site: event.event_site ? event.event_site.fi : '',
+        favoriteCount: 0,
+        id: event.id,
+        image: event.image ? event.image.url : '',
+        location: event.location,
+        organizer: event.organizer,
+        price: event.price,
+        ticket_site: event.ticket_site,
+        creator: apiUser._id,
+      }));
+      const allEvents = [...databaseEvents, ...apiEvents];
+      return allEvents;
+    },
 
     event: async (_parent: undefined, args: {id: string}) => {
       if (mongoose.Types.ObjectId.isValid(args.id)) {
@@ -35,6 +62,10 @@ export default {
           return eventFromDb;
         }
       }
+      const apiUser = await fetchData<User>(
+        `${process.env.AUTH_URL}/users/65ec9e7def56a518d78085cb`,
+      );
+      console.log('user', apiUser);
 
       const data: any = await fetchData(
         `https://api.hel.fi/linkedevents/v1/event/${args.id}/`,
@@ -56,6 +87,7 @@ export default {
         image: data.images[0],
         audience_min_age: data.audience_min_age,
         audience_max_age: data.audience_max_age,
+        creator: apiUser._id,
       };
     },
 

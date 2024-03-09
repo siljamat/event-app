@@ -17,31 +17,42 @@ const Home: React.FC = () => {
     const fetchData = async () => {
       const data = await doGraphQLFetch(API_URL, getAllEvents, {});
       console.log('data', data);
-      if (data && data.data) {
-        setEvents(data.data);
+      if (data && data.events) {
+        const validEvents = data.events.filter((event) => event !== null);
+        setEvents(validEvents);
       }
     };
 
     fetchData();
   }, [API_URL, eventData]);
 
+  //TODO: Add loading state
+  //TODO: add error state
+  //TODO: add different sections for authenticated and non-authenticated users
+  //TODO: add styiling/grid for the events
   return (
     <div>
       <h1>FrontPage</h1>
       {isAuthenticated ? (
         <>
-          {/*saved events, attending featured etc when user logged in create containers etc*/}
-          <div>
+          <div className="">
             <h1>AUTHENTICATED</h1>
-            {/* TODO: add fix event card and take out of comments after that and make sure the mapping works*/}
-            {/* {eventData &&
-        eventData.map((event: EventType) => <EventCard eventType={event} />)} */}
+            {eventData.slice(0, 10).map((event: EventType) => (
+              <div className="">
+                <EventCard event={event} />
+              </div>
+            ))}
           </div>
         </>
       ) : (
         <>
-          <div>
+          <div className="">
             <h1>NOT AUTHENTICATED</h1>
+            {eventData.slice(0, 10).map((event: EventType) => (
+              <div className="">
+                <EventCard event={event} />
+              </div>
+            ))}
           </div>
         </>
       )}

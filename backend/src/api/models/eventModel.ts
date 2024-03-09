@@ -32,7 +32,6 @@ const eventSchema = new mongoose.Schema<Event>({
   creator: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
   },
   description: {
     type: String,
