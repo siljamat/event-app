@@ -16,12 +16,17 @@ const client = new ApolloClient({
 });
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    localStorage.getItem('isAuthenticated') === 'true',
+  );
 
   const {setUser} = useContext(UserContext);
 
   useEffect(() => {
-    // Load the user data from localStorage when the application starts
+    localStorage.setItem('isAuthenticated', String(isAuthenticated));
+  }, [isAuthenticated]);
+
+  useEffect(() => {
     const storedUserData = localStorage.getItem('user');
     if (storedUserData) {
       setUser(JSON.parse(storedUserData));
@@ -33,7 +38,6 @@ function App() {
       <AuthContext.Provider value={{isAuthenticated, setIsAuthenticated}}>
         <Router>
           <div>
-            {/* Wrap the JSX elements inside a parent element */}
             <Layout />
             <Routes>
               <Route path="/" element={<Home />} />
@@ -46,5 +50,4 @@ function App() {
     </ApolloProvider>
   );
 }
-
 export default App;

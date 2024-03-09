@@ -53,7 +53,6 @@ const NavBar = () => {
 
   //check token and set user if token is valid
   useEffect(() => {
-    console.log('hook ');
     const token = localStorage.getItem('token');
     if (token !== null) {
       console.log('token found');
