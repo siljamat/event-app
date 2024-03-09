@@ -26,12 +26,38 @@ export default {
     checkToken: async (_parent: undefined, context: MyContext) => {
       return await {user: context.userdata?.user};
     },
-    // TO-DO
-    createdEventsByUserId: async (_parent: undefined, args: {id: string}) => {},
-    // TO-DO:
-    favoritedEventsByUserId: async (_parent: undefined) => {},
-    // TO-DO
-    attendedEventsByUserId: async (_parent: undefined) => {},
+    createdEventsByUserId: async (_parent: undefined, args: {id: string}) => {
+      const response = await fetchData<User>(
+        `${process.env.AUTH_URL}/users/${args.id}`,
+      );
+      if (!response) {
+        throw new Error(`No user found with id ${args.id}`);
+      }
+      const eventIds = response.createdEvents;
+      if (!eventIds) {
+        throw new Error(`No events found for user with id ${args.id}`);
+      }
+      // Haetaan kaikki tapahtumat, joiden id:t löytyivät käyttäjän createdEvents-kentästä
+      const createdEvents = await Promise.all(
+        eventIds.map(async (id: Types.ObjectId) => {
+          const event = await EventModel.findById(id);
+          if (!event) {
+            throw new Error(`No event found with id ${id}`);
+          }
+          return event;
+        }),
+      );
+      console.log('createdEvents:', createdEvents);
+      return createdEvents;
+    },
+    favoritedEventsByUserId: async (
+      _parent: undefined,
+      args: {id: string},
+    ) => {},
+    attendedEventsByUserId: async (
+      _parent: undefined,
+      args: {id: string},
+    ) => {},
   },
   Mutation: {
     login: async (
