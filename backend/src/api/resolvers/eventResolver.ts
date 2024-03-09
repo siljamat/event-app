@@ -10,6 +10,7 @@ import {getLocationCoordinates} from '../../functions/geocode';
 import {Console} from 'console';
 import eventApiFetch from '../../functions/eventApiFetch';
 import mongoose from 'mongoose';
+import {updateUsersFields} from '../../utils/user';
 
 export default {
   Query: {
@@ -155,17 +156,29 @@ export default {
       context: MyContext,
     ) => {
       isLoggedIn(context);
-
       const {address} = args.input;
       const coords = await getLocationCoordinates(address);
       args.input.location = {
         type: 'Point',
         coordinates: [coords.lat, coords.lng],
       };
-
       args.input.creator = context.userdata?.user.id;
-      console.log('CREATE EVENT creator id', args.input.creator);
-      return await EventModel.create(args.input);
+      // Lisätään luodun tapahtuman id käyttäjän tietoihin
+      const createdEvent = await EventModel.create(args.input);
+      await fetchData<Response>(
+        `${process.env.AUTH_URL}/users/${context.userdata?.user.id}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${context.userdata?.token}`,
+          },
+          body: JSON.stringify({
+            $push: {createdEvents: createdEvent._id},
+          }),
+        },
+      );
+      return createdEvent;
     },
     //TODO: Figure out why creator is undefined here and fix it
     updateEvent: async (
@@ -193,7 +206,9 @@ export default {
           new: true,
         });
       }
-      throw new Error('Not authorized');
+      throw new Error(
+        'Not authorized. You must be the creator of this event to edit it.',
+      );
     },
     deleteEvent: async (
       _parent: undefined,
@@ -201,15 +216,21 @@ export default {
       context: MyContext,
     ) => {
       isLoggedIn(context);
-      const event = await EventModel.findById(args.id);
-      console.log('DELETE EVENT event creator:', event?.creator);
-      if (
-        context.userdata?.user.role === 'admin' ||
-        (event && context.userdata?.user.id === event.creator)
-      ) {
-        return await EventModel.findByIdAndDelete(args.id);
+      try {
+        const event = await EventModel.findById(args.id);
+        if (!event) {
+          throw new Error(
+            'Event not found from the database! eventResolver.ts',
+          );
+        }
+        await updateUsersFields(event.id, context);
+        await EventModel.findByIdAndDelete(args.id);
+        console.log('Event deleted successfully!');
+        return true; // Indicate successful deletion
+      } catch (error) {
+        console.error('Error deleting event:', error);
+        throw new Error('Failed to delete event.');
       }
-      throw new Error('Not authorized');
     },
   },
 };
