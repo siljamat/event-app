@@ -17,7 +17,7 @@ type EventType = {
   id: string;
   image: string;
   location: {
-    coordinates: Point;
+    coordinates: [number, number];
     type: string;
   };
   organizer: string;
