@@ -13,48 +13,20 @@ import mongoose from 'mongoose';
 import {updateUsersFields} from '../../utils/user';
 import userResolver from './userResolver';
 
-//TODO: Add The apiUser to the eventApi fetch and fix the creator to be the apiUser._id and other fields.
 export default {
   Query: {
     events: async () => {
       const databaseEvents = await EventModel.find();
-      const apiEventData = await eventApiFetch(
+      const apiEvents = await eventApiFetch(
         'https://api.hel.fi/linkedevents/v1/event/?page_size=100',
       );
-      const apiUser = await fetchData<User>(
-        `${process.env.AUTH_URL}/users/65ec9e7def56a518d78085cb`,
-      );
-      console.log('user', apiUser);
-
-      const apiEvents = apiEventData.map((event: any) => ({
-        address: event.address,
-        age_restriction: event.audience_min_age
-          ? event.audience_min_age + '-' + event.audience_max_age
-          : '',
-        //TODO: FIX!! maybe map and check if any keywords match our cateogry names and then add them as catgory?
-        category: event.keywords
-          ? event.keywords.map((keyword: any) => keyword.name)
-          : [],
-        created_at: event.created_at,
-        date: event.date,
-        description: event.description,
-        email: event.email,
-        event_name: event.event_name,
-        event_site: event.event_site ? event.event_site.fi : '',
-        favoriteCount: 0,
-        id: event.id,
-        image: event.image ? event.image.url : '',
-        location: event.location,
-        organizer: event.organizer,
-        price: event.price,
-        ticket_site: event.ticket_site,
-        creator: apiUser._id,
-      }));
+      console.log('apiEvents', apiEvents);
       const allEvents = [...databaseEvents, ...apiEvents];
       return allEvents;
     },
 
     event: async (_parent: undefined, args: {id: string}) => {
+      console.log('EVENT ID', args.id);
       if (mongoose.Types.ObjectId.isValid(args.id)) {
         const eventFromDb = await EventModel.findById(args.id);
 
@@ -62,39 +34,18 @@ export default {
           return eventFromDb;
         }
       }
-      const apiUser = await fetchData<User>(
-        `${process.env.AUTH_URL}/users/65ec9e7def56a518d78085cb`,
-      );
-      console.log('user', apiUser);
 
-      const data: any = await fetchData(
+      const apiEvent: any = await eventApiFetch(
         `https://api.hel.fi/linkedevents/v1/event/${args.id}/`,
       );
-      return {
-        id: data.id,
-        created_at: data.created_time,
-        event_name: data.name.fi,
-        description: data.description.fi,
-        date: data.start_time,
-        location: data.location,
-        email: '',
-        organizer: data.publisher,
-        address: '',
-        age_restrictions: '',
-        event_site: data.info_url,
-        ticket_site: '',
-        price: '',
-        image: data.images[0],
-        audience_min_age: data.audience_min_age,
-        audience_max_age: data.audience_max_age,
-        creator: apiUser._id,
-      };
+      return apiEvent;
     },
 
     //TODO: Täytyy odottaa että categor toimii
     eventsByCategory: async (_parent: undefined, args: {category: string}) => {
       const databaseEvents = await EventModel.find({category: args.category});
 
+      //TODO: switch to keywrds and map through cateogry names and cee if matches
       const apiEvents = await eventApiFetch(
         `https://api.hel.fi/linkedevents/v1/event/?suitable_for=${args.category}`,
       );
