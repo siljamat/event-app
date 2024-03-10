@@ -1,4 +1,9 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useContext} from 'react';
+import {doGraphQLFetch} from '../src/graphql/fetch';
+import {getAllEvents} from '../src/graphql/eventQueries';
+import {EventType} from '../src/types/EventType';
+import {AuthContext} from '../src/context/AuthContext';
+import EventCard from '../src/components/EventCard';
 
 declare global {
   interface Window {
@@ -8,143 +13,220 @@ declare global {
 }
 
 const Map: React.FC = () => {
-  // Define window.initMap here, outside of useEffect but still within the component
-  window.initMap = async () => {
-    const {Map, InfoWindow} = window.google.maps;
+  const [eventData, setEvents] = React.useState<EventType[]>([]);
+  const {isAuthenticated} = useContext(AuthContext);
+  const [displayedEvents, setDisplayedEvents] = React.useState<EventType[]>([]);
 
-    const map = new Map(document.getElementById('map'), {
-      zoom: 12,
-      center: {lat: 60.17, lng: 24.93},
-      mapId: '4504f8b37365c3d0',
-    });
+  const API_URL = import.meta.env.VITE_API_URL;
 
-    const infoWindow = new InfoWindow();
-
-    const locationButton = document.createElement('button');
-    locationButton.textContent = 'Locate';
-    locationButton.style.backgroundColor = '#fff';
-    locationButton.style.color = 'black';
-    locationButton.style.padding = '0.5rem 1rem';
-    locationButton.style.borderRadius = '0.25rem';
-    locationButton.style.fontSize = '1rem';
-    locationButton.style.cursor = 'pointer';
-    locationButton.className = 'custom-map-control-button';
-    map.controls[window.google.maps.ControlPosition.BOTTOM_CENTER].push(
-      locationButton,
-    );
-
-    locationButton.addEventListener('click', () => {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const pos = {
-              lat: position.coords.latitude,
-              lng: position.coords.longitude,
-            };
-
-            infoWindow.setPosition(pos);
-            infoWindow.setContent('Location found.');
-            infoWindow.open(map);
-            map.setCenter(pos);
-          },
-          () => {
-            handleLocationError(true, infoWindow, map.getCenter());
-          },
-        );
-      } else {
-        handleLocationError(false, infoWindow, map.getCenter());
+  useEffect(() => {
+    console.log('fetching data');
+    console.log('isAuthenticated', isAuthenticated);
+    const fetchData = async () => {
+      const data = await doGraphQLFetch(API_URL, getAllEvents, {});
+      console.log('data', data);
+      if (data && data.events) {
+        const validEvents = data.events.filter((event) => event !== null);
+        setEvents(validEvents);
       }
-    });
-
-    const handleLocationError = (
-      browserHasGeolocation: boolean,
-      infoWindow: any,
-      pos: {lat: number; lng: number},
-    ) => {
-      infoWindow.setPosition(pos);
-      infoWindow.setContent(
-        browserHasGeolocation
-          ? 'Error: The Geolocation service failed.'
-          : "Error: Your browser doesn't support geolocation.",
-      );
-      infoWindow.open(map);
     };
 
-    const input = document.getElementById('pac-input');
-    const searchBox = new window.google.maps.places.SearchBox(input);
+    fetchData();
+  }, [API_URL, isAuthenticated]);
 
-    map.controls[window.google.maps.ControlPosition.TOP_CENTER].push(input);
+  useEffect(() => {
+    if (window.google && eventData.length > 0) {
+      const {Map} = window.google.maps;
 
-    map.addListener('bounds_changed', () => {
-      searchBox.setBounds(map.getBounds());
-    });
+      const map = new Map(document.getElementById('map'), {
+        zoom: 12,
+        center: {lat: 60.17, lng: 24.93},
+        mapId: '4504f8b37365c3d0',
+      });
 
-    let markers: google.maps.Marker[] = [];
+      map.addListener('dragend', updateDisplayedEvents);
+      map.addListener('zoom_changed', updateDisplayedEvents);
+      map.addListener('idle', updateDisplayedEvents);
 
-    searchBox.addListener('places_changed', () => {
-      const places = searchBox.getPlaces();
-
-      if (places.length == 0) {
-        return;
+      function updateDisplayedEvents() {
+        const bounds = map.getBounds();
+        if (bounds) {
+          const newDisplayedEvents = eventData.filter((event) => {
+            // Check if the first coordinate is larger than the second coordinate
+            const isLatLongOrder =
+              event.location.coordinates[0] > event.location.coordinates[1];
+            const eventPosition = new google.maps.LatLng(
+              isLatLongOrder
+                ? event.location.coordinates[0]
+                : event.location.coordinates[1],
+              isLatLongOrder
+                ? event.location.coordinates[1]
+                : event.location.coordinates[0],
+            );
+            return bounds.contains(eventPosition);
+          });
+          setDisplayedEvents(newDisplayedEvents);
+        }
       }
 
-      markers.forEach((marker) => {
-        marker.setMap(null);
+      // Call updateDisplayedEvents immediately after the map is initialized
+      console.log('eventData before first update', eventData);
+      updateDisplayedEvents();
+
+      // Add markers for events based on their location/coordinates
+      eventData.forEach((event: EventType) => {
+        // Check if the first coordinate is larger than the second coordinate
+        const isLatLongOrder =
+          event.location.coordinates[0] > event.location.coordinates[1];
+
+        const marker = new window.google.maps.Marker({
+          position: {
+            lat: isLatLongOrder
+              ? event.location.coordinates[0] + Math.random() * 0.001 - 0.0005
+              : event.location.coordinates[1] + Math.random() * 0.001 - 0.0005,
+            lng: isLatLongOrder
+              ? event.location.coordinates[1] + Math.random() * 0.001 - 0.0005
+              : event.location.coordinates[0] + Math.random() * 0.001 - 0.0005,
+          },
+          map,
+          title: event.event_name,
+        });
+
+        const infowindow = new window.google.maps.InfoWindow({
+          content: `<div>
+            <div className="card w-96 bg-base-100 shadow-xl mt-5">
+              <figure>
+                <img src="${event.image}"></img>
+              </figure>
+              <div className="card-body">
+                <h2 className="card-title">${event.event_name}</h2>
+                <p>${event.date}</p>
+                <p>${event.address}</p>
+                <div className="card-actions justify-end">
+                  <a className="link" href="/event/${event.id}">
+                    More...
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>`,
+        });
+
+        marker.addListener('click', () => {
+          infowindow.open(map, marker);
+        });
       });
-      markers = [];
 
-      const bounds = new window.google.maps.LatLngBounds();
+      const infoWindow = new window.google.maps.InfoWindow();
 
-      places.forEach((place: google.maps.places.PlaceResult) => {
-        if (!place.geometry || !place.geometry.location) {
-          console.log('Returned place contains no geometry');
-          return;
+      const locationButton = document.createElement('button');
+      locationButton.textContent = 'Locate';
+      locationButton.style.backgroundColor = '#fff';
+      locationButton.style.color = 'black';
+      locationButton.style.padding = '0.5rem 1rem';
+      locationButton.style.borderRadius = '0.25rem';
+      locationButton.style.fontSize = '1rem';
+      locationButton.style.cursor = 'pointer';
+      locationButton.className = 'custom-map-control-button';
+      map.controls[window.google.maps.ControlPosition.BOTTOM_CENTER].push(
+        locationButton,
+      );
+
+      locationButton.addEventListener('click', () => {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const pos = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude,
+              };
+
+              infoWindow.setPosition(pos);
+              infoWindow.setContent('Location found.');
+              infoWindow.open(map);
+              map.setCenter(pos);
+            },
+            () => {
+              handleLocationError(true, infoWindow, map.getCenter());
+            },
+          );
+        } else {
+          handleLocationError(false, infoWindow, map.getCenter());
         }
+      });
 
-        const icon = {
-          url: place.icon,
-          size: new window.google.maps.Size(71, 71),
-          origin: new window.google.maps.Point(0, 0),
-          anchor: new window.google.maps.Point(17, 34),
-          scaledSize: new window.google.maps.Size(25, 25),
-        };
+      const handleLocationError = (
+        browserHasGeolocation: boolean,
+        infoWindow: any,
+        pos: {lat: number; lng: number},
+      ) => {
+        infoWindow.setPosition(pos);
+        infoWindow.setContent(
+          browserHasGeolocation
+            ? 'Error: The Geolocation service failed.'
+            : "Error: Your browser doesn't support geolocation.",
+        );
+        infoWindow.open(map);
+      };
 
-        markers.push(
-          new window.google.maps.Marker({
-            map,
-            icon,
-            title: place.name,
-            position: place.geometry.location,
-          }),
+      const input = document.getElementById('pac-input');
+      if (input) {
+        input.style.zIndex = '1000';
+        const searchBox = new window.google.maps.places.SearchBox(input);
+        map.controls[window.google.maps.ControlPosition.BOTTOM_LEFT].push(
+          input,
         );
 
-        if (place.geometry.viewport) {
-          bounds.union(place.geometry.viewport);
-        } else {
-          bounds.extend(place.geometry.location);
-        }
-      });
-      map.fitBounds(bounds);
-    });
+        let markers: google.maps.Marker[] = [];
 
-    const tourStops = [
-      {position: {lat: 60.1512, lng: 24.9173}, title: 'Boynton Pass'},
-    ];
+        searchBox.addListener('places_changed', () => {
+          const places = searchBox.getPlaces();
 
-    tourStops.forEach(({position, title}, i) => {
-      const marker = new window.google.maps.Marker({
-        position,
-        map,
-        title: `${i + 1}. ${title}`,
-      });
+          if (places.length == 0) {
+            return;
+          }
 
-      marker.addListener('click', () => {
-        infoWindow.close();
-        infoWindow.setContent(marker.title);
-        infoWindow.open(map, marker);
-      });
-    });
-  };
+          markers.forEach((marker) => {
+            marker.setMap(null);
+          });
+          markers = [];
+
+          const bounds = new window.google.maps.LatLngBounds();
+
+          places.forEach((place: google.maps.places.PlaceResult) => {
+            if (!place.geometry || !place.geometry.location) {
+              console.log('Returned place contains no geometry');
+              return;
+            }
+
+            const icon = {
+              url: place.icon,
+              size: new window.google.maps.Size(71, 71),
+              origin: new window.google.maps.Point(0, 0),
+              anchor: new window.google.maps.Point(17, 34),
+              scaledSize: new window.google.maps.Size(25, 25),
+            };
+
+            markers.push(
+              new window.google.maps.Marker({
+                map,
+                icon,
+                title: place.name,
+                position: place.geometry.location,
+              }),
+            );
+
+            if (place.geometry.viewport) {
+              bounds.union(place.geometry.viewport);
+            } else {
+              bounds.extend(place.geometry.location);
+            }
+          });
+          map.fitBounds(bounds);
+        });
+      }
+    }
+  }, [eventData, window.google]);
 
   useEffect(() => {
     const loadGoogleMapsApi = () => {
@@ -172,7 +254,7 @@ const Map: React.FC = () => {
 
         // If the script is not in the document, create it
         const script = document.createElement('script');
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_MAP_API_KEY}&libraries=places&callback=initMap`;
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_MAP_API_KEY}&libraries=places`;
         script.async = true;
         script.defer = true;
         document.body.appendChild(script);
@@ -192,6 +274,31 @@ const Map: React.FC = () => {
         placeholder="Search Box"
       />
       <div id="map" style={{width: '80%', height: '80vh'}} />
+      <div>
+        {isAuthenticated ? (
+          <>
+            <div className="">
+              <h1>AUTHENTICATED</h1>
+              {displayedEvents.map((event: EventType) => (
+                <div className="" key={event.id}>
+                  <EventCard event={event} />
+                </div>
+              ))}
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="">
+              <h1>NOT AUTHENTICATED</h1>
+              {displayedEvents.map((event: EventType) => (
+                <div className="" key={event.id}>
+                  <EventCard event={event} />
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 };
