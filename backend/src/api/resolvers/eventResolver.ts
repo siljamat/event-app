@@ -202,11 +202,25 @@ export default {
       try {
         const event = await EventModel.findById(args.id);
         if (!event) {
-          throw new Error(
-            'Event not found from the database! eventResolver.ts',
-          );
+          throw new Error('Event not found from the database!');
         }
-        await updateUsersFields(event.id, context);
+        // Poistetaan tapahtuman id käyttäjän createdEvents kentästä
+        await fetchData<Response>(
+          `${process.env.AUTH_URL}/users/${event.creator}`,
+          {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${context.userdata?.token}`,
+            },
+            body: JSON.stringify({
+              createdEvents: (
+                context.userdata?.user.createdEvents || []
+              ).filter((eventId) => eventId.toString() !== args.id),
+            }),
+          },
+        );
+        // Poistetaan tapahtuma tietokannasta
         await EventModel.findByIdAndDelete(args.id);
         console.log('Event deleted successfully!');
         return true; // Indicate successful deletion
