@@ -4,6 +4,7 @@ import {getAllEvents} from '../src/graphql/eventQueries';
 import {EventType} from '../src/types/EventType';
 import {doGraphQLFetch} from '../src/graphql/fetch';
 import {AuthContext} from '../src/context/AuthContext';
+import {is} from '@babel/types';
 
 const Home: React.FC = () => {
   const [eventData, setEvents] = React.useState<EventType[]>([]);
@@ -24,7 +25,7 @@ const Home: React.FC = () => {
     };
 
     fetchData();
-  }, [API_URL, eventData]);
+  }, [API_URL, isAuthenticated]);
 
   //TODO: Add loading state
   //TODO: add error state
@@ -39,7 +40,7 @@ const Home: React.FC = () => {
             <h1>AUTHENTICATED</h1>
             {eventData.slice(0, 10).map((event: EventType) => (
               <div className="">
-                <EventCard event={event} />
+                <EventCard key={event.id} event={event} />
               </div>
             ))}
           </div>
