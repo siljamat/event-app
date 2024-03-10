@@ -31,7 +31,7 @@ const getAllEvents = `
   }
 `;
 
-const getEventById = gql`
+const getEventById = `
   query Event($id: String!) {
     event(id: $id) {
       address

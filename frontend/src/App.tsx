@@ -9,6 +9,7 @@ import {UserContext} from './context/UserContext';
 import {ApolloProvider} from '@apollo/client';
 import {ApolloClient, InMemoryCache} from '@apollo/client';
 import CreateEvent from '../pages/CreateEvent';
+import EventPage from '../pages/EventPage';
 
 const client = new ApolloClient({
   uri: import.meta.env.VITE_API_URL,
@@ -43,6 +44,7 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/LocMap" element={<Map />} />
               <Route path="/createEvent" element={<CreateEvent />} />
+              <Route path="/event/:id" element={<EventPage />} />
             </Routes>
           </div>
         </Router>
