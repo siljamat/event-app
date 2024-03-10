@@ -31,16 +31,11 @@ app.use(
 
 (async () => {
   try {
-    // TODO Create a rate limit rule instance (not WSK2 course)
-
-    // TODO Create a permissions object (not WSK2 course)
-
     const schema = applyMiddleware(
       makeExecutableSchema({
         typeDefs,
         resolvers,
       }),
-      // permissions,
     );
 
     const server = new ApolloServer<MyContext>({
