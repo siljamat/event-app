@@ -40,7 +40,7 @@ const Home: React.FC = () => {
       setIsLoading(false);
     };
     const fetchAttending = async () => {
-      const response = await fetch('http://localhost:3000/graphql', {
+      const response = await fetch(API_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -62,7 +62,7 @@ const Home: React.FC = () => {
       setAttendingEvents(data.data.attendedEventsByUserId);
     };
     const fetchLikedEvents = async () => {
-      const response = await fetch('http://localhost:3000/graphql', {
+      const response = await fetch(API_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

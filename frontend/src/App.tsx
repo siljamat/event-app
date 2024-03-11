@@ -44,7 +44,7 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/LocMap" element={<Map />} />
               <Route path="/createEvent" element={<CreateEvent />} />
-              <Route path="/event/:id" element={<EventPage />} />
+              <Route path="/event/:eventId" element={<EventPage />} />
             </Routes>
           </div>
         </Router>
