@@ -26,8 +26,15 @@ const Map: React.FC = () => {
       const data = await doGraphQLFetch(API_URL, getAllEvents, {});
       console.log('data', data);
       if (data && data.events) {
-        const validEvents = data.events.filter((event) => event !== null);
-        setEvents(validEvents);
+        const eventNames = new Set();
+        const uniqueEvents = data.events.filter((event) => {
+          if (event !== null && !eventNames.has(event.event_name)) {
+            eventNames.add(event.event_name);
+            return true;
+          }
+          return false;
+        });
+        setEvents(uniqueEvents);
       }
     };
 
