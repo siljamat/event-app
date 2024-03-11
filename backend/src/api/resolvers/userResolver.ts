@@ -134,25 +134,19 @@ export default {
       context: MyContext,
     ) => {
       isLoggedIn(context);
-      if (
-        context.userdata?.user.id === args.user.id ||
-        context.userdata?.user.role === 'admin'
-      ) {
-        const {id, role, ...input} = args.user;
-        console.log('user Input for update user:', input);
-        return await fetchData<UserResponse>(
-          `${process.env.AUTH_URL}/users/${args.user.id}`,
-          {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${context.userdata?.token}`,
-            },
-            body: JSON.stringify(input),
+      const {id, role, ...input} = args.user;
+      console.log('user Input for update user:', input);
+      return await fetchData<UserResponse>(
+        `${process.env.AUTH_URL}/users/${args.user.id}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${context.userdata?.token}`,
           },
-        );
-      }
-      throw new Error('Not authorized');
+          body: JSON.stringify(input),
+        },
+      );
     },
     deleteUser: async (
       _parent: undefined,
@@ -160,22 +154,16 @@ export default {
       context: MyContext,
     ) => {
       isLoggedIn(context);
-      if (
-        context.userdata?.user.id === args.id ||
-        context.userdata?.user.role === 'admin'
-      ) {
-        return await fetchData<UserResponse>(
-          `${process.env.AUTH_URL}/users/${args.id}`,
-          {
-            method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${context.userdata?.token}`,
-            },
+      return await fetchData<UserResponse>(
+        `${process.env.AUTH_URL}/users/${args.id}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${context.userdata?.token}`,
           },
-        );
-      }
-      throw new Error('Not authorized');
+        },
+      );
     },
     updateUserAsAdmin: async (
       _parent: undefined,

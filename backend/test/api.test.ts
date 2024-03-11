@@ -51,7 +51,7 @@ describe('Testing graphql api', () => {
   };
 
   const adminUser: UserTest = {
-    email: 'admin@metropolia.fi',
+    email: 'admin@test.fi',
     password: '12345',
   };
 
