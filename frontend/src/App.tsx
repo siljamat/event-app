@@ -2,8 +2,6 @@ import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
 import {useState, useEffect, useContext} from 'react';
 import Home from '../pages/Home';
 import Map from '../pages/LocMap';
-import Layout from './components/Layout';
-// Import the AuthContext
 import {AuthContext} from './context/AuthContext';
 import {UserContext} from './context/UserContext';
 import {ApolloProvider} from '@apollo/client';
