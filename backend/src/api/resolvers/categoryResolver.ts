@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import {isAdmin} from '../../functions/authorize';
 import {Category, Event} from '../../types/DBTypes';
 import {MyContext} from '../../types/MyContext';
@@ -43,7 +44,26 @@ export default {
       context: MyContext,
     ) => {
       isAdmin(context);
-      return await CategoryModel.findByIdAndDelete(args.id);
+      try {
+        const categoryId = new mongoose.Types.ObjectId(args.id);
+        const events = await EventModel.find({category: categoryId});
+        // Poistetaan kategoria jokaisesta tapahtumasta
+        await Promise.all(
+          events.map(async (event) => {
+            const index = event.category.indexOf(categoryId);
+            if (index !== -1) {
+              event.category.splice(index, 1);
+              await event.save();
+            }
+          }),
+        );
+        // Poistetaan kategoria
+        await CategoryModel.findByIdAndDelete(categoryId);
+        return true;
+      } catch (error) {
+        console.error('Error deleting category and updating events:', error);
+        throw new Error('Failed to delete category and update events.');
+      }
     },
   },
 };
