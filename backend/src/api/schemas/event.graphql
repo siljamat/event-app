@@ -67,7 +67,7 @@ input InputEvent {
   ticket_site: String
   price: String!
   image: String
-  category: [InputCategory]
+  category: [ID]
 }
 #TODO: varmista pitääks täs olla noita pakollisia vai voiko olla valinnaisia ja miten se vaikuttaa resolveriin
 input updateEvent {
@@ -83,7 +83,7 @@ input updateEvent {
   ticket_site: String
   price: String!
   image: String
-  category: ID
+  category: [ID]
 }
 
 type Mutation {
