@@ -13,9 +13,12 @@ const getUser = gql`
 const userSettings = gql`
   mutation updateUser($user: UserModify!) {
     updateUser(user: $user) {
-      id
-      user_name
-      email
+      message
+      user {
+        id
+        user_name
+        email
+      }
     }
   }
 `;
