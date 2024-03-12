@@ -2,8 +2,6 @@ import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
 import {useState, useEffect, useContext} from 'react';
 import Home from '../pages/Home';
 import Map from '../pages/LocMap';
-import Layout from './components/Layout';
-// Import the AuthContext
 import {AuthContext} from './context/AuthContext';
 import {UserContext} from './context/UserContext';
 import {ApolloProvider} from '@apollo/client';
@@ -11,6 +9,7 @@ import {ApolloClient, InMemoryCache} from '@apollo/client';
 import CreateEvent from '../pages/CreateEvent';
 import EventPage from '../pages/EventPage';
 import UserPage from '../pages/UserPage';
+import NavBar from './components/NavBar';
 
 const client = new ApolloClient({
   uri: import.meta.env.VITE_API_URL,
@@ -42,14 +41,16 @@ function App() {
         <UserContext.Provider value={{user, setUser}}>
           <Router>
             <div>
-              <Layout />
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/LocMap" element={<Map />} />
-                <Route path="/createEvent" element={<CreateEvent />} />
-                <Route path="/userPage" element={<UserPage />} />
-                <Route path="/event/:id" element={<EventPage />} />
-              </Routes>
+              <NavBar />
+              <div className="w-full">
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/LocMap" element={<Map />} />
+                  <Route path="/createEvent" element={<CreateEvent />} />
+                  <Route path="/userPage" element={<UserPage />} />
+                  <Route path="/event/:id" element={<EventPage />} />
+                </Routes>
+              </div>
             </div>
           </Router>
         </UserContext.Provider>

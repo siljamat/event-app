@@ -33,10 +33,11 @@ export default {
           return eventFromDb;
         }
       }
-
-      const apiEvent: any = await eventApiFetch(
-        `https://api.hel.fi/linkedevents/v1/event/${args.id}/`,
+      const apiEventResponse: any = await eventApiFetch(
+        `https://api.hel.fi/linkedevents/v1/event/?ids=${args.id}/`,
       );
+      const apiEvent = apiEventResponse[0]; // Extract the first event from the response array
+
       return apiEvent;
     },
 

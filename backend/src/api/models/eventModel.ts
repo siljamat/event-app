@@ -8,7 +8,6 @@ const eventSchema = new mongoose.Schema<Event>({
   },
   event_name: {
     type: String,
-    required: true,
   },
   category: {
     type: mongoose.Schema.Types.ObjectId,
@@ -27,7 +26,6 @@ const eventSchema = new mongoose.Schema<Event>({
   },
   address: {
     type: String,
-    required: true,
   },
   creator: {
     type: mongoose.Schema.Types.ObjectId,
@@ -43,11 +41,9 @@ const eventSchema = new mongoose.Schema<Event>({
   },
   email: {
     type: String,
-    required: true,
   },
   organizer: {
     type: String,
-    required: true,
   },
   age_restriction: {
     type: String,
@@ -60,7 +56,6 @@ const eventSchema = new mongoose.Schema<Event>({
   },
   price: {
     type: String,
-    required: true,
   },
   image: {
     type: String,
