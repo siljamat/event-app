@@ -219,8 +219,8 @@ const getEventsByPrice = gql`
 `;
 
 const addEvent = gql`
-  mutation CreateEvent($event: EventInput!) {
-    createEvent(event: $event) {
+  mutation CreateEvent($input: InputEvent!) {
+    createEvent(input: $input) {
       address
       age_restriction
       category {
