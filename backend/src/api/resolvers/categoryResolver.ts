@@ -27,13 +27,13 @@ export default {
     },
     updateCategory: async (
       _parent: undefined,
-      args: {id: string; category_name: string},
+      args: {id: string; input: {category_name: string}},
       context: MyContext,
     ) => {
       isAdmin(context);
       return await CategoryModel.findByIdAndUpdate(
         args.id,
-        {category_name: args.category_name},
+        {category_name: args.input.category_name},
         {new: true},
       );
     },
