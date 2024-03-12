@@ -31,8 +31,8 @@ const getAllEvents = `
   }
 `;
 
-const getEventById = `
-  query Event($id: String!) {
+const getEventById = gql`
+  query GetEvent($id: ID!) {
     event(id: $id) {
       address
       age_restriction
@@ -48,6 +48,7 @@ const getEventById = `
       email
       event_name
       event_site
+      attendeeCount
       favoriteCount
       id
       image

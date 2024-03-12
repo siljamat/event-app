@@ -20,7 +20,6 @@ export default {
       const apiEvents = await eventApiFetch(
         'https://api.hel.fi/linkedevents/v1/event/?page_size=100',
       );
-      console.log('apiEvents', apiEvents);
       const allEvents = [...databaseEvents, ...apiEvents];
       return allEvents;
     },
@@ -90,7 +89,6 @@ export default {
       );
       console.log('apiEvents', apiEvents);
       const combinedEvents = [...databaseEvents, ...apiEvents];
-      console.log('combinedEvents', combinedEvents);
       return combinedEvents;
     },
 
@@ -100,9 +98,7 @@ export default {
       const apiEvents = await eventApiFetch(
         `https://api.hel.fi/linkedevents/v1/event/?audience_min_age=${args.age}`,
       );
-      console.log('apiEvents', apiEvents);
       const combinedEvents = [...databaseEvents, ...apiEvents];
-      console.log('combinedEvents', combinedEvents);
       return combinedEvents;
     },
 

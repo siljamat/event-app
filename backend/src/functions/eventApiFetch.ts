@@ -7,7 +7,6 @@ const eventApiFetch = async (url: string, options: RequestInit = {}) => {
   const apiUser = await fetchData<User>(
     `${process.env.AUTH_URL}/users/65ec9e7def56a518d78085cb`,
   );
-  console.log('user', apiUser);
   if (data) {
     const apiEventData: Partial<Event>[] = await Promise.all(
       (data as any).data.map(async (event: any) => {

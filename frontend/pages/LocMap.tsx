@@ -2,7 +2,6 @@ import React, {useEffect, useContext} from 'react';
 import {doGraphQLFetch} from '../src/graphql/fetch';
 import {getAllEvents} from '../src/graphql/eventQueries';
 import {EventType} from '../src/types/EventType';
-import {AuthContext} from '../src/context/AuthContext';
 import EventCard from '../src/components/EventCard';
 
 declare global {
@@ -14,25 +13,30 @@ declare global {
 
 const Map: React.FC = () => {
   const [eventData, setEvents] = React.useState<EventType[]>([]);
-  const {isAuthenticated} = useContext(AuthContext);
   const [displayedEvents, setDisplayedEvents] = React.useState<EventType[]>([]);
 
   const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     console.log('fetching data');
-    console.log('isAuthenticated', isAuthenticated);
     const fetchData = async () => {
       const data = await doGraphQLFetch(API_URL, getAllEvents, {});
       console.log('data', data);
       if (data && data.events) {
-        const validEvents = data.events.filter((event) => event !== null);
-        setEvents(validEvents);
+        const eventNames = new Set();
+        const uniqueEvents = data.events.filter((event: EventType) => {
+          if (event !== null && !eventNames.has(event.event_name)) {
+            eventNames.add(event.event_name);
+            return true;
+          }
+          return false;
+        });
+        setEvents(uniqueEvents);
       }
     };
 
     fetchData();
-  }, [API_URL, isAuthenticated]);
+  }, [API_URL]);
 
   useEffect(() => {
     if (window.google && eventData.length > 0) {
@@ -123,8 +127,7 @@ const Map: React.FC = () => {
       locationButton.textContent = 'Locate';
       locationButton.style.backgroundColor = '#fff';
       locationButton.style.color = 'black';
-      locationButton.style.padding = '0.5rem 1rem';
-      locationButton.style.borderRadius = '0.25rem';
+      locationButton.style.padding = '0.5rem';
       locationButton.style.fontSize = '1rem';
       locationButton.style.cursor = 'pointer';
       locationButton.className = 'custom-map-control-button';
@@ -171,7 +174,6 @@ const Map: React.FC = () => {
 
       const input = document.getElementById('pac-input');
       if (input) {
-        input.style.zIndex = '1000';
         const searchBox = new window.google.maps.places.SearchBox(input);
         map.controls[window.google.maps.ControlPosition.BOTTOM_LEFT].push(
           input,
@@ -267,37 +269,20 @@ const Map: React.FC = () => {
 
   return (
     <div>
-      <input
-        id="pac-input"
-        className="controls text-lg py-2"
-        type="text"
-        placeholder="Search Box"
-      />
+      <div className="search-box-container">
+        <input id="pac-input" type="text" placeholder="Search for places" />
+      </div>
       <div id="map" style={{width: '80%', height: '80vh'}} />
       <div>
-        {isAuthenticated ? (
-          <>
-            <div className="">
-              <h1>AUTHENTICATED</h1>
-              {displayedEvents.map((event: EventType) => (
-                <div className="" key={event.id}>
-                  <EventCard event={event} />
-                </div>
-              ))}
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="">
-              <h1>NOT AUTHENTICATED</h1>
-              {displayedEvents.map((event: EventType) => (
-                <div className="" key={event.id}>
-                  <EventCard event={event} />
-                </div>
-              ))}
-            </div>
-          </>
-        )}
+        <>
+          <div className="">
+            {displayedEvents.map((event: EventType) => (
+              <div className="" key={event.id}>
+                <EventCard event={event} />
+              </div>
+            ))}
+          </div>
+        </>
       </div>
     </div>
   );

@@ -1,8 +1,8 @@
 import React, {useEffect} from 'react';
 import {useParams} from 'react-router-dom';
 import {getEventById} from '../src/graphql/eventQueries';
-import {doGraphQLFetch} from '../src/graphql/fetch';
 import {EventType} from '../src/types/EventType';
+import {useQuery} from '@apollo/client';
 
 interface EventPageParams {
   id: string;
@@ -10,32 +10,50 @@ interface EventPageParams {
 }
 
 const EventPage: React.FC = () => {
-  const API_URL = import.meta.env.VITE_API_URL;
-  const {id} = useParams<EventPageParams>();
+  const {eventId} = useParams<EventPageParams>();
   const [event, setEvent] = React.useState<EventType | undefined>(undefined);
+  const {loading, error, data} = useQuery(getEventById, {
+    variables: {id: eventId},
+  });
 
   useEffect(() => {
-    console.log('id', id);
-    console.log('fetching data');
-    if (!id) {
-      console.log('no id');
-      return;
+    if (data && data.event) {
+      setEvent(data.event);
     }
-    const fetchData = async () => {
-      const data = await doGraphQLFetch(API_URL, getEventById, {id});
-      console.log('data', data);
-      if (data) {
-        setEvent(data.event);
-      }
-    };
+  }, [data]);
 
-    fetchData();
-  }, [API_URL, id]);
+  console.log('data', data);
 
-  console.log('data', event);
+  //TODO: Add a loading spinner
+  // add styling
+  //add share button
+  //add like button
+  //add attending button
+  //show attending count
+  //show like count
   return (
     <div>
-      <h1>Event Page</h1>
+      {loading && <p>Loading...</p>}
+      {error && <p>Error: {error.message}</p>}
+      <div>
+        <h1>{event?.event_name}</h1>
+        <p>{event?.description}</p>
+        <p>{event?.date}</p>
+        <p>{event?.address}</p>
+        <p>{event?.price}</p>
+        <p>{event?.organizer}</p>
+        <p>{event?.email}</p>
+        <p>{event?.event_site}</p>
+        <p>{event?.ticket_site}</p>
+        <p>{event?.age_restriction}</p>
+        <p>{event?.category?.category_name}</p>
+        <p>{event?.location?.coordinates}</p>
+        <p>{event?.favoriteCount}</p>
+        <p>{event?.attendeeCount}</p>
+        <p>{event?.image}</p>
+        <button>Share</button>
+        <button>Like</button>
+      </div>
     </div>
   );
 };

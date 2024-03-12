@@ -14,6 +14,7 @@ type EventType = {
   event_name: string;
   event_site: string;
   favoriteCount: number;
+  attendeeCount: number;
   id: string;
   image: string;
   location: {

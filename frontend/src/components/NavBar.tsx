@@ -38,6 +38,10 @@ const NavBar = () => {
     onError: (error) => {
       setLoginError(error.message);
     },
+    onCompleted: (data) => {
+      setUser(data.login.user);
+      console.log('user', data.login.user);
+    },
   });
 
   // Global variables
