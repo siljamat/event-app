@@ -4,6 +4,7 @@ import {userSettings} from '../src/graphql/userQueries';
 
 function UpdateUserForm() {
   const token = localStorage.getItem('token');
+  console.log('Token from localStorage:', token);
   const userFromLocal = localStorage.getItem('user');
   const [user, setUser] = useState({
     user_name: '',
@@ -18,6 +19,8 @@ function UpdateUserForm() {
     },
   });
 
+  console.log('Authorization header:', token ? `Bearer ${token}` : '');
+
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setUser({
       ...user,
@@ -31,6 +34,10 @@ function UpdateUserForm() {
 
     // Ensure userFromLocalObj is defined and contains an id
     if (userFromLocalObj && userFromLocalObj.id) {
+      console.log('userFromLocalObj.id:', userFromLocalObj.id);
+      console.log('user.user_name:', user.user_name);
+      console.log('user.email:', user.email);
+
       const {data} = await updateUser({
         variables: {
           user: {

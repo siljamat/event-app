@@ -30,6 +30,7 @@ input UserInput {
 }
 
 input UserModify {
+  id: ID!
   user_name: String
   email: String
   password: String
@@ -47,7 +48,7 @@ type Query {
 type Mutation {
   login(credentials: Credentials!): LoginResponse
   register(user: UserInput!): UserResponse
-  updateUser(user: UserModify!): UserResponse
+  updateUser(user: UserModify!): UserResponse!
   deleteUser: UserResponse
   """
   Separate mutations for admin because of rest api
