@@ -24,7 +24,7 @@ type Event {
   ticket_site: String
   price: String!
   image: String
-  category: [Category]
+  category: [Category]!
   creator: User!
   favoriteCount: Int
   favoritedBy: [User]
@@ -67,7 +67,7 @@ input InputEvent {
   ticket_site: String
   price: String!
   image: String
-  category: InputCategory
+  category: [InputCategory]
 }
 #TODO: varmista pitääks täs olla noita pakollisia vai voiko olla valinnaisia ja miten se vaikuttaa resolveriin
 input updateEvent {

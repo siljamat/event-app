@@ -43,13 +43,6 @@ export default {
       context: MyContext,
     ) => {
       isAdmin(context);
-      // delete events within category
-      const events = await EventModel.find({category: args.id});
-      for (const event of events) {
-        await EventModel.deleteMany({
-          event: event._id,
-        });
-      }
       return await CategoryModel.findByIdAndDelete(args.id);
     },
   },
