@@ -10,6 +10,7 @@ import {ApolloProvider} from '@apollo/client';
 import {ApolloClient, InMemoryCache} from '@apollo/client';
 import CreateEvent from '../pages/CreateEvent';
 import EventPage from '../pages/EventPage';
+import NavBar from './components/NavBar';
 
 const client = new ApolloClient({
   uri: import.meta.env.VITE_API_URL,
@@ -39,13 +40,15 @@ function App() {
       <AuthContext.Provider value={{isAuthenticated, setIsAuthenticated}}>
         <Router>
           <div>
-            <Layout />
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/LocMap" element={<Map />} />
-              <Route path="/createEvent" element={<CreateEvent />} />
-              <Route path="/event/:eventId" element={<EventPage />} />
-            </Routes>
+            <NavBar />
+            <div className="w-full">
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/LocMap" element={<Map />} />
+                <Route path="/createEvent" element={<CreateEvent />} />
+                <Route path="/event/:eventId" element={<EventPage />} />
+              </Routes>
+            </div>
           </div>
         </Router>
       </AuthContext.Provider>

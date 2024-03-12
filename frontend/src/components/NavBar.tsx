@@ -188,7 +188,7 @@ const NavBar = () => {
 
   return (
     <>
-      <div className="navbar bg-accent">
+      <div className="navbar bg-accent mb-20 w-full">
         <div className="navbar-start">
           <div className="dropdown">
             <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">

@@ -132,6 +132,46 @@ const attendingEvents = gql`
     }
   }
 `;
+
+const getUserEvents = `
+  query CreatedEventsByUserId($id: String!) {
+    createdEventsByUserId(id: $id) {
+      address
+      age_restriction
+      category {
+        category_name
+      }
+      created_at
+      creator {
+        user_name
+      }
+      date
+      description
+      email
+      event_name
+      event_site
+      favoriteCount
+      id
+      image
+      location {
+        coordinates
+        type
+      }
+      organizer
+      price
+      ticket_site
+    }
+  }
+`;
+const toggleFavoriteEvent = gql`
+  mutation ToggleFavoriteEvent($eventId: String!) {
+    toggleFavoriteEvent(eventId: $eventId) {
+      id
+      favoritedBy
+      favoriteCount
+    }
+  }
+`;
 export {
   loginMutation,
   registerMutation,
@@ -142,4 +182,6 @@ export {
   deleteCategory,
   likedEvents,
   attendingEvents,
+  getUserEvents,
+  toggleFavoriteEvent,
 };

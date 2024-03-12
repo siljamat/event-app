@@ -46,76 +46,153 @@ const Home: React.FC = () => {
         setEvents(validEvents);
       }
       // Set liked events data
+      console.log('likedData', likedData);
       if (likedData && likedData.favoritedEventsByUserId) {
         setLikedEventsData(likedData.favoritedEventsByUserId);
       }
+      console.log('attendingData', attendingData);
       if (attendingData && attendingData.attendedEventsByUserId) {
         setAttendingEvents(attendingData.attendedEventsByUserId);
       }
       setIsLoading(false);
     };
     fetchData();
-  }, [API_URL, isAuthenticated]);
+  }, [API_URL, attendingData, isAuthenticated, likedData]);
 
   //TODO: Add loading state
   //TODO: add error state
   //TODO: add different sections for authenticated and non-authenticated users
   //TODO: add styiling/grid for the events
   return (
-    <div className="flex items-center justify-center grid grid-cols-3 ">
-      <div className="flex items-center justify-center ">
-        {isLoading && (
+    <div className="">
+      {isLoading && (
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100vh',
+          }}
+        >
           <span className="loading loading-spinner loading-xs"></span>
-        )}
-      </div>
-
+        </div>
+      )}
       {isAuthenticated ? (
         <>
-          <div className="">
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              gap: '1rem',
+              maxWidth: '100%',
+              overflowX: 'auto',
+            }}
+          >
             <div>
-              {likedEventsData && (
-                <>
-                  <h1>Liked Events</h1>
-                  {likedEventsData.map((event: EventType) => (
-                    <div key={event.id}>
-                      <EventCard event={event} />
-                    </div>
-                  ))}
-                </>
-              )}
-            </div>
-            <div>
-              {attendingEvents && (
-                <>
-                  <h1>Attending</h1>
-                  {attendingEventsData.map((event: EventType) => (
-                    <div key={event.id}>
-                      <EventCard event={event} />
-                    </div>
-                  ))}
-                </>
-              )}
-            </div>
-            <div>
-              <h1>Featured Events</h1>
-              {eventData.slice(0, 10).map((event: EventType) => (
-                <div key={event.id}>
-                  <EventCard event={event} />
+              <div
+                className="bg-accent"
+                style={{
+                  padding: '2rem',
+                  borderRadius: '1rem',
+                  marginBottom: '1rem',
+                }}
+              >
+                <h1 className="title">Liked Events</h1>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(2, 1fr)',
+                    gap: '1rem',
+                  }}
+                >
+                  {likedEventsData && (
+                    <>
+                      {likedEventsData.map((event: EventType) => (
+                        <div key={event.id}>
+                          <EventCard event={event} />
+                        </div>
+                      ))}
+                    </>
+                  )}
                 </div>
-              ))}
+              </div>
+              <div>
+                <div
+                  className="bg-accent"
+                  style={{
+                    padding: '2rem',
+                    borderRadius: '1rem',
+                    marginBottom: '1rem',
+                  }}
+                >
+                  <h1>attending Events</h1>
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(2, 1fr)',
+                      gap: '1rem',
+                    }}
+                  >
+                    {attendingEvents && (
+                      <>
+                        {attendingEventsData.map((event: EventType) => (
+                          <div key={event.id}>
+                            <EventCard event={event} />
+                          </div>
+                        ))}
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div
+              className="bg-accent"
+              style={{
+                padding: '2rem',
+                borderRadius: '1rem',
+                marginBottom: '1rem',
+              }}
+            >
+              <h1>Featured Events</h1>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(2, 1fr)',
+                  gap: '1rem',
+                }}
+              >
+                {eventData.slice(0, 10).map((event: EventType) => (
+                  <div key={event.id}>
+                    <EventCard event={event} />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </>
       ) : (
         <>
-          <div className="flex flex-row ">
-            <div className="">
-              <h1 className="text-2xl font-bold text-center mb-4">
-                Featured Events
-              </h1>
+          <div
+            className="bg-accent"
+            style={{
+              padding: '2rem',
+              borderRadius: '1rem',
+              marginBottom: '1rem',
+            }}
+          >
+            <h1>Featured Events</h1>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, 1fr)',
+                gap: '1rem',
+              }}
+            >
               {eventData.slice(0, 10).map((event: EventType) => (
-                <div className="">
-                  <EventCard key={event.id} event={event} />
+                <div key={event.id}>
+                  <EventCard event={event} />
                 </div>
               ))}
             </div>

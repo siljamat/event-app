@@ -202,9 +202,12 @@ export default {
     },
     toggleFavoriteEvent: async (
       _parent: undefined,
-      args: {eventId: ObjectId},
+      args: {eventId: String},
       context: MyContext,
     ) => {
+      console.log('toggleFavoriteEvent');
+      console.log('token', context);
+
       isLoggedIn(context);
       try {
         // Päivitetään tapahtuman favoritedBy-kenttä tietokantaan
@@ -230,7 +233,6 @@ export default {
         event.favoriteCount = event.favoritedBy.length;
         // Tallennetaan muutokset
         await event.save();
-
         // Päivitetään käyttäjän favoritedEvents-kenttä tietokantaan
         const updatedUser = await fetchData<UserResponse>(
           `${process.env.AUTH_URL}/users/${userId}`,
