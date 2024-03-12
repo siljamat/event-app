@@ -33,7 +33,17 @@ const eventApiFetch = async (url: string, options: RequestInit = {}) => {
         };
       }),
     );
-    const apiEvents = apiEventData.map((event: any) => ({
+    const eventNames = new Set();
+    const uniqueEvents = apiEventData.filter((event: any) => {
+      if (eventNames.has(event.event_name) || event.event_name === null) {
+        return false;
+      }
+      eventNames.add(event.event_name);
+      return true;
+    });
+    console.log('uniqueEvents', uniqueEvents);
+
+    const apiEvents = uniqueEvents.map((event: any) => ({
       address: event.address,
       age_restriction: event.audience_min_age
         ? event.audience_min_age + '-' + event.audience_max_age

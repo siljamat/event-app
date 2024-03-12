@@ -100,7 +100,6 @@ export default {
           return event;
         }),
       );
-      console.log('attendedEvents:', attendedEvents);
       return attendedEvents;
     },
   },
