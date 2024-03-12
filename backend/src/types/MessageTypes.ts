@@ -25,10 +25,15 @@ type UploadResponse = MessageResponse & {
   };
 };
 
+type ToggleResponse = MessageResponse & {
+  isTrue: boolean;
+};
+
 export {
   MessageResponse,
   ErrorResponse,
   UserResponse,
   LoginResponse,
   UploadResponse,
+  ToggleResponse,
 };

@@ -4,17 +4,25 @@ import Home from '../pages/Home';
 import Map from '../pages/LocMap';
 import {AuthContext} from './context/AuthContext';
 import {UserContext} from './context/UserContext';
-import {ApolloProvider} from '@apollo/client';
+import {ApolloProvider, createHttpLink} from '@apollo/client';
 import {ApolloClient, InMemoryCache} from '@apollo/client';
 import CreateEvent from '../pages/CreateEvent';
 import EventPage from '../pages/EventPage';
 import NavBar from './components/NavBar';
 
-const client = new ApolloClient({
+const httpLink = createHttpLink({
   uri: import.meta.env.VITE_API_URL,
-  cache: new InMemoryCache(),
+  headers: {
+    authorization: localStorage.getItem('token')
+      ? `Bearer ${localStorage.getItem('token')}`
+      : '',
+  },
 });
 
+const client = new ApolloClient({
+  link: httpLink,
+  cache: new InMemoryCache(),
+});
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(
     localStorage.getItem('isAuthenticated') === 'true',

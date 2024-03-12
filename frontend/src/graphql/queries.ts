@@ -164,14 +164,14 @@ const getUserEvents = `
   }
 `;
 const toggleFavoriteEvent = gql`
-  mutation ToggleFavoriteEvent($eventId: String!) {
+  mutation ToggleFavoriteEvent($eventId: ID!) {
     toggleFavoriteEvent(eventId: $eventId) {
-      id
-      favoritedBy
-      favoriteCount
+      isTrue
+      message
     }
   }
 `;
+
 export {
   loginMutation,
   registerMutation,

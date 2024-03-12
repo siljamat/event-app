@@ -28,6 +28,10 @@ input UserInput {
   email: String!
   password: String!
 }
+type ToggleResponse {
+  message: String!
+  isTrue: Boolean!
+}
 
 input UserModify {
   user_name: String
@@ -57,6 +61,6 @@ type Mutation {
   Separate mutations for admin because of rest api
   """
   deleteUserAsAdmin(id: ID!): UserResponse
-  toggleFavoriteEvent(eventId: ID!): Event!
-  toggleAttendingEvent(eventId: ID!): Event!
+  toggleFavoriteEvent(eventId: ID!): ToggleResponse
+  toggleAttendingEvent(eventId: ID!): ToggleResponse
 }

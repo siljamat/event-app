@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {useParams} from 'react-router-dom';
 import {getEventById} from '../src/graphql/eventQueries';
 import {useMutation, useQuery} from '@apollo/client';
@@ -11,6 +11,12 @@ interface EventPageParams {
 
 const EventPage: React.FC = () => {
   const {eventId} = useParams<EventPageParams>();
+  const token = localStorage.getItem('token');
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [favorite, setFavorite] = useState(false);
+
+  console.log('token', token);
+  //get event data
   const {
     loading,
     error,
@@ -19,24 +25,46 @@ const EventPage: React.FC = () => {
     variables: {id: eventId},
   });
 
-  const [handleToggleFavoriteEvent, {data: toggleFavoriteEventData}] =
-    useMutation(toggleFavoriteEvent, {
-      context: {
-        headers: {
-          authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      },
+  //toggle favorite
+  const [toggleFavorite, {data: favoriteData}] =
+    useMutation(toggleFavoriteEvent);
+
+  const handleToggleFavoriteEvent = async () => {
+    // Call the mutate function to execute the mutation
+    if (!token) {
+      alert('You must be logged in to favorite an event');
+      return;
+    }
+    if (!eventId) {
+      console.log('no eventId');
+      return;
+    }
+    const favorite = await toggleFavorite({
+      variables: {eventId: eventId},
     });
-  console.log('toggleFavoriteEventData', toggleFavoriteEventData);
+    if (favorite) {
+      console.log('favorite', favorite.data.toggleFavoriteEvent.isTrue);
+      setIsFavorite(favorite.data.toggleFavoriteEvent.isTrue);
+      setFavorite(favorite.data.toggleFavoriteEvent.isTrue);
+    }
+  };
 
   const event = useMemo(() => {
     console.log('data', eventData);
+    console.log('eventId', eventId);
     if (eventData && eventData.event) {
       console.log('data.event', eventData.event);
       return eventData.event;
     }
     return undefined;
   }, [eventData]);
+
+  useEffect(() => {
+    console.log('isFavorite', isFavorite);
+    if (event) {
+      setIsFavorite(favorite);
+    }
+  }, [favorite]);
 
   if (loading) {
     return (
@@ -56,9 +84,6 @@ const EventPage: React.FC = () => {
     return <div>Error! {error.message}</div>;
   }
 
-  //TODO: Add a loading spinner
-  //show attending count
-  //show like count
   return (
     <div>
       <div
@@ -75,33 +100,40 @@ const EventPage: React.FC = () => {
             style={{
               display: 'flex',
               justifyContent: 'space-between',
-              alignItems: 'center',
             }}
           >
             <h2 className="card-title">{event.event_name}</h2>
-            <div>
+            <div className="flex flex-row">
               <button
                 className="btn"
-                style={{marginRight: '10px'}}
-                onClick={() =>
-                  handleToggleFavoriteEvent({variables: {eventId: event.id}})
-                }
+                style={{marginRight: '5px'}}
+                onClick={handleToggleFavoriteEvent}
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="w-6 h-6"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"
-                  />
-                </svg>
-                Like
+                {isFavorite ? (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="w-6 h-6"
+                  >
+                    <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
+                  </svg>
+                ) : (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-6 h-6"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"
+                    />
+                  </svg>
+                )}
               </button>
               <button className="btn">
                 <svg
