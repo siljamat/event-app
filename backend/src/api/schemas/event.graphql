@@ -24,7 +24,7 @@ type Event {
   ticket_site: String
   price: String!
   image: String
-  category: [Category]!
+  category: [Category]
   creator: User!
   favoriteCount: Int
   favoritedBy: [User]
