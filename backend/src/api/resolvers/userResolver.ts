@@ -27,6 +27,7 @@ export default {
       return await {user: context.userdata?.user};
     },
     createdEventsByUserId: async (_parent: undefined, args: {id: string}) => {
+      console.log('args:', args);
       const response = await fetchData<User>(
         `${process.env.AUTH_URL}/users/${args.id}`,
       );
@@ -100,7 +101,6 @@ export default {
           return event;
         }),
       );
-      console.log('attendedEvents:', attendedEvents);
       return attendedEvents;
     },
   },
@@ -203,9 +203,12 @@ export default {
     },
     toggleFavoriteEvent: async (
       _parent: undefined,
-      args: {eventId: ObjectId},
+      args: {eventId: String},
       context: MyContext,
     ) => {
+      console.log('toggleFavoriteEvent');
+      console.log('token', context);
+
       isLoggedIn(context);
       try {
         // Päivitetään tapahtuman favoritedBy-kenttä tietokantaan
@@ -231,7 +234,6 @@ export default {
         event.favoriteCount = event.favoritedBy.length;
         // Tallennetaan muutokset
         await event.save();
-
         // Päivitetään käyttäjän favoritedEvents-kenttä tietokantaan
         const updatedUser = await fetchData<UserResponse>(
           `${process.env.AUTH_URL}/users/${userId}`,

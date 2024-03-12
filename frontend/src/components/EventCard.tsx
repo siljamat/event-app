@@ -5,7 +5,7 @@ function EventCard({event}: {event: EventType}) {
 
   return (
     <>
-      <div className="card w-96 bg-base-100 shadow-xl mt-5">
+      <div className="card w-80 bg-base-100 shadow-xl mt-5 ">
         <figure>
           <img src={event.image}></img>
         </figure>

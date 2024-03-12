@@ -188,7 +188,7 @@ const NavBar = () => {
 
   return (
     <>
-      <div className="navbar bg-accent">
+      <div className="navbar bg-accent mb-20 w-full">
         <div className="navbar-start">
           <div className="dropdown">
             <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
@@ -273,7 +273,9 @@ const NavBar = () => {
                   className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52"
                 >
                   <li>
-                    <a className="justify-between">User settings</a>
+                    <a className="justify-between" href="/userPage">
+                      My account
+                    </a>
                   </li>
                   <li>
                     <a className="link" href="/createEvent">

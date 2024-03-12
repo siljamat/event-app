@@ -71,66 +71,106 @@ mutation DeleteCategory($id: String!) {
   }
 `;
 
-const likedEvents = `
-query FavoritedEventsByUserId($userId: ID!) {
-  favoritedEventsByUserId(id: $userId) {
-    address
-    age_restriction
-    category {
-      category_name
+const likedEvents = gql`
+  query FavoritedEventsByUserId($userId: ID!) {
+    favoritedEventsByUserId(id: $userId) {
+      address
+      age_restriction
+      category {
+        category_name
+      }
+      created_at
+      creator {
+        user_name
+      }
+      date
+      description
+      email
+      event_name
+      event_site
+      favoriteCount
+      id
+      image
+      location {
+        coordinates
+        type
+      }
+      organizer
+      price
+      ticket_site
     }
-    created_at
-    creator {
-      user_name
-    }
-    date
-    description
-    email
-    event_name
-    event_site
-    favoriteCount
-    id
-    image
-    location {
-      coordinates
-      type
-    }
-    organizer
-    price
-    ticket_site
   }
-}
 `;
 
-const attendingEvents = `
-query AttendedEventsByUserId($userId: ID!) {
-  attendedEventsByUserId(id: $userId) {
-    address
-    age_restriction
-    category {
-      category_name
+const attendingEvents = gql`
+  query AttendedEventsByUserId($userId: ID!) {
+    attendedEventsByUserId(id: $userId) {
+      address
+      age_restriction
+      category {
+        category_name
+      }
+      created_at
+      creator {
+        user_name
+      }
+      date
+      description
+      email
+      event_name
+      event_site
+      favoriteCount
+      id
+      image
+      location {
+        coordinates
+        type
+      }
+      organizer
+      price
+      ticket_site
     }
-    created_at
-    creator {
-      user_name
-    }
-    date
-    description
-    email
-    event_name
-    event_site
-    favoriteCount
-    id
-    image
-    location {
-      coordinates
-      type
-    }
-    organizer
-    price
-    ticket_site
   }
-}
+`;
+
+const getUserEvents = `
+  query CreatedEventsByUserId($id: String!) {
+    createdEventsByUserId(id: $id) {
+      address
+      age_restriction
+      category {
+        category_name
+      }
+      created_at
+      creator {
+        user_name
+      }
+      date
+      description
+      email
+      event_name
+      event_site
+      favoriteCount
+      id
+      image
+      location {
+        coordinates
+        type
+      }
+      organizer
+      price
+      ticket_site
+    }
+  }
+`;
+const toggleFavoriteEvent = gql`
+  mutation ToggleFavoriteEvent($eventId: String!) {
+    toggleFavoriteEvent(eventId: $eventId) {
+      id
+      favoritedBy
+      favoriteCount
+    }
+  }
 `;
 export {
   loginMutation,
@@ -142,4 +182,6 @@ export {
   deleteCategory,
   likedEvents,
   attendingEvents,
+  getUserEvents,
+  toggleFavoriteEvent,
 };

@@ -33,8 +33,18 @@ const eventApiFetch = async (url: string, options: RequestInit = {}) => {
         };
       }),
     );
-    const apiEvents = apiEventData.map((event: any) => ({
-      address: event.address,
+    const eventNames = new Set();
+    const uniqueEvents = apiEventData.filter((event: any) => {
+      if (eventNames.has(event.event_name) || event.event_name === null) {
+        return false;
+      }
+      eventNames.add(event.event_name);
+      return true;
+    });
+    console.log('uniqueEvents', uniqueEvents);
+
+    const apiEvents = uniqueEvents.map((event: any) => ({
+      address: event.address ? event.address : 'No address',
       age_restriction: event.audience_min_age
         ? event.audience_min_age + '-' + event.audience_max_age
         : '',
@@ -47,10 +57,10 @@ const eventApiFetch = async (url: string, options: RequestInit = {}) => {
       description: event.description,
       email: event.email,
       event_name: event.event_name,
-      event_site: event.event_site ? event.event_site.fi : '',
+      event_site: event.event_site ? event.event_site.fi : 'no site',
       favoriteCount: 0,
       id: event.id,
-      image: event.image ? event.image.url : '',
+      image: event.image ? event.image.url : 'No image',
       location: event.location,
       organizer: event.organizer,
       price: event.price,
