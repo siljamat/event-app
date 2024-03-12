@@ -10,6 +10,7 @@ import {ApolloProvider} from '@apollo/client';
 import {ApolloClient, InMemoryCache} from '@apollo/client';
 import CreateEvent from '../pages/CreateEvent';
 import EventPage from '../pages/EventPage';
+import UserPage from '../pages/UserPage';
 
 const client = new ApolloClient({
   uri: import.meta.env.VITE_API_URL,
@@ -21,7 +22,7 @@ function App() {
     localStorage.getItem('isAuthenticated') === 'true',
   );
 
-  const {setUser} = useContext(UserContext);
+  const {user, setUser} = useContext(UserContext);
 
   useEffect(() => {
     localStorage.setItem('isAuthenticated', String(isAuthenticated));
@@ -29,6 +30,7 @@ function App() {
 
   useEffect(() => {
     const storedUserData = localStorage.getItem('user');
+    console.log('storedUserData', storedUserData);
     if (storedUserData) {
       setUser(JSON.parse(storedUserData));
     }
@@ -36,18 +38,21 @@ function App() {
 
   return (
     <ApolloProvider client={client}>
-      <AuthContext.Provider value={{isAuthenticated, setIsAuthenticated}}>
-        <Router>
-          <div>
-            <Layout />
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/LocMap" element={<Map />} />
-              <Route path="/createEvent" element={<CreateEvent />} />
-              <Route path="/event/:id" element={<EventPage />} />
-            </Routes>
-          </div>
-        </Router>
+      <AuthContext.Provider value={{isAuthenticated, setIsAuthenticated, user}}>
+        <UserContext.Provider value={{user, setUser}}>
+          <Router>
+            <div>
+              <Layout />
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/LocMap" element={<Map />} />
+                <Route path="/createEvent" element={<CreateEvent />} />
+                <Route path="/userPage" element={<UserPage />} />
+                <Route path="/event/:id" element={<EventPage />} />
+              </Routes>
+            </div>
+          </Router>
+        </UserContext.Provider>
       </AuthContext.Provider>
     </ApolloProvider>
   );

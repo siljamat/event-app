@@ -27,6 +27,7 @@ export default {
       return await {user: context.userdata?.user};
     },
     createdEventsByUserId: async (_parent: undefined, args: {id: string}) => {
+      console.log('args:', args);
       const response = await fetchData<User>(
         `${process.env.AUTH_URL}/users/${args.id}`,
       );
