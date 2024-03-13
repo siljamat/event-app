@@ -1,14 +1,17 @@
 import {ChangeEvent, FormEvent, useState} from 'react';
 import {useMutation} from '@apollo/client';
 import {userSettings} from '../src/graphql/userQueries';
+import bcrypt from 'bcryptjs';
 
 function UpdateUserForm() {
   const token = localStorage.getItem('token');
-  console.log('Token from localStorage:', token);
   const userFromLocal = localStorage.getItem('user');
+  const userFromLocalObj = JSON.parse(userFromLocal || '{}');
+  //console.log('Token from localStorage:', token);
   const [user, setUser] = useState({
-    user_name: '',
-    email: '',
+    user_name: userFromLocalObj.user_name || '',
+    email: userFromLocalObj.email || '',
+    password: '',
   });
 
   const [updateUser] = useMutation(userSettings, {
@@ -19,7 +22,7 @@ function UpdateUserForm() {
     },
   });
 
-  console.log('Authorization header:', token ? `Bearer ${token}` : '');
+  //console.log('Authorization header:', token ? `Bearer ${token}` : '');
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setUser({
@@ -28,7 +31,6 @@ function UpdateUserForm() {
     });
   };
 
-  const userFromLocalObj = JSON.parse(userFromLocal || '{}');
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -37,6 +39,9 @@ function UpdateUserForm() {
       console.log('userFromLocalObj.id:', userFromLocalObj.id);
       console.log('user.user_name:', user.user_name);
       console.log('user.email:', user.email);
+      console.log(' (laitonta, tiedän) user.password:', user.password);
+
+      const hashedPassword = await bcrypt.hash(user.password, 10);
 
       const {data} = await updateUser({
         variables: {
@@ -44,6 +49,7 @@ function UpdateUserForm() {
             id: userFromLocalObj.id,
             user_name: user.user_name,
             email: user.email,
+            password: hashedPassword,
           },
         },
       });
@@ -72,6 +78,15 @@ function UpdateUserForm() {
             type="email"
             name="email"
             value={user.email}
+            onChange={handleChange}
+          />
+        </label>
+        <label>
+          Password: {/* Add password input field */}
+          <input
+            type="password"
+            name="password"
+            value={user.password}
             onChange={handleChange}
           />
         </label>
