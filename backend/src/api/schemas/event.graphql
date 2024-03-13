@@ -31,6 +31,10 @@ type Event {
   attendeeCount: Int
   attendedBy: [User]
 }
+type deleteEventResponse {
+  message: String!
+  success: Boolean!
+}
 
 input Coordinates {
   lat: Float!
@@ -89,5 +93,5 @@ input updateEvent {
 type Mutation {
   createEvent(input: InputEvent): Event
   updateEvent(id: ID!, input: updateEvent!): Event
-  deleteEvent(id: ID!): Event
+  deleteEvent(id: ID!): deleteEventResponse
 }

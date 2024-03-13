@@ -52,7 +52,6 @@ export default {
       return createdEvents;
     },
     favoritedEventsByUserId: async (_parent: undefined, args: {id: string}) => {
-      console.log('favoritedEventsByUserId');
       const response = await fetchData<User>(
         `${process.env.AUTH_URL}/users/${args.id}`,
       );

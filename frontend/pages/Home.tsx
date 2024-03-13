@@ -22,15 +22,14 @@ const Home: React.FC = () => {
   const userId = user?.id;
   const API_URL = import.meta.env.VITE_API_URL;
 
-  // Use the useQuery hook to make a query to get liked events and attending events
   const {data: likedData} = useQuery(likedEvents, {
     variables: {userId},
-    skip: !userId, // Skip the query if userId is not defined
+    skip: !userId,
   });
 
   const {data: attendingData} = useQuery(attendingEvents, {
     variables: {userId},
-    skip: !userId, // Skip the query if userId is not defined
+    skip: !userId,
   });
   useEffect(() => {
     setIsLoading(true);
@@ -198,7 +197,7 @@ const Home: React.FC = () => {
                 <div
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(2, 1fr)',
+                    gridTemplateColumns: 'repeat(3, 1fr)',
                     gap: '1rem',
                   }}
                 >
