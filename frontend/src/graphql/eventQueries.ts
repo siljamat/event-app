@@ -281,8 +281,8 @@ const addEvent = gql`
 `;
 
 const updateEvent = gql`
-  mutation UpdateEvent($id: String!, $event: EventInput!) {
-    updateEvent(id: $id, event: $event) {
+  mutation UpdateEvent($updateEventId: ID!, $input: updateEvent!) {
+    updateEvent(id: $updateEventId, input: $input) {
       address
       age_restriction
       category {
@@ -312,9 +312,10 @@ const updateEvent = gql`
 `;
 
 const deleteEvent = gql`
-  mutation DeleteEvent($id: String!) {
-    deleteEvent(id: $id) {
+  mutation eleteEvent($deleteEventId: ID!) {
+    deleteEvent(id: $deleteEventId) {
       message
+      success
     }
   }
 `;
