@@ -50,7 +50,7 @@ type Query {
   events: [Event]
   event(id: ID!): Event
   apiEvent(id: ID!): Event
-  eventsByCategory(categoryId: ID!): [Event]
+  eventsByCategory(category_name: String!): [Event]
   eventsByDate(date: Date!): [Event]
   eventsByPrice(price: String!): [Event]
   eventsByOrganizer(organizer: String!): [Event]

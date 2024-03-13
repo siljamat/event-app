@@ -9,9 +9,10 @@ import fetchData from '../../functions/fetchData';
 import {getLocationCoordinates} from '../../functions/geocode';
 import {Console} from 'console';
 import eventApiFetch from '../../functions/eventApiFetch';
-import mongoose from 'mongoose';
+import mongoose, {ObjectId} from 'mongoose';
 import {updateUsersFields} from '../../utils/user';
 import userResolver from './userResolver';
+import CategoryModel from '../models/categoryModel';
 
 export default {
   Query: {
@@ -45,7 +46,6 @@ export default {
       console.log('EVENT ID', args.id);
       if (mongoose.Types.ObjectId.isValid(args.id)) {
         const eventFromDb = await EventModel.findById(args.id);
-
         if (eventFromDb) {
           return eventFromDb;
         }
@@ -57,17 +57,41 @@ export default {
 
       return apiEvent;
     },
-    //TODO: Täytyy odottaa että categor toimii
-    eventsByCategory: async (_parent: undefined, args: {category: string}) => {
-      const databaseEvents = await EventModel.find({category: args.category});
-
-      //TODO: switch to keywrds and map through cateogry names and cee if matches
+    eventsByCategory: async (
+      _parent: undefined,
+      args: {category_name: string},
+    ) => {
+      // Haetaan kategoria nimen perusteella
+      const categoryObj = await CategoryModel.findOne({
+        category_name: args.category_name,
+      });
+      if (!categoryObj) {
+        console.log(`Category ${args.category_name} not found from database`);
+        return [];
+      }
+      // Haetaan tapahtumat kategorian id:n perusteella
+      const databaseEvents = await EventModel.aggregate([
+        {
+          $lookup: {
+            from: 'categories',
+            localField: 'category',
+            foreignField: '_id',
+            as: 'categoryObj',
+          },
+        },
+        {
+          $match: {
+            'categoryObj._id': new mongoose.Types.ObjectId(categoryObj._id),
+          },
+        },
+      ]);
+      // Haetaan APIsta kaikki tapahtumat kategorian perusteella
       const apiEvents = await eventApiFetch(
-        `https://api.hel.fi/linkedevents/v1/event/?suitable_for=${args.category}`,
+        `https://api.hel.fi/linkedevents/v1/event/?text=${args.category_name}`,
       );
-      console.log('apiEvents', apiEvents);
+      console.log('apiEvents lenght:', apiEvents.length);
+      // Yhdistetään tietokannasta ja APIsta haetut tapahtumat ja palautetaan ne
       const combinedEvents = [...databaseEvents, ...apiEvents];
-      console.log('combinedEvents', combinedEvents);
       return combinedEvents;
     },
     eventsByDate: async (_parent: undefined, args: {date: Date}) => {
@@ -125,7 +149,6 @@ export default {
             },
           },
         });
-
         const apiEvents = await eventApiFetch(
           `https://api.hel.fi/linkedevents/v1/event/?location=${encodeURIComponent(args.address)}&radius=10000`,
         );
@@ -195,7 +218,6 @@ export default {
         },
       );
       console.log('Event updated successfully!' + updatedEvent);
-
       return updatedEvent;
     },
     deleteEvent: async (
@@ -225,11 +247,8 @@ export default {
             }),
           },
         );
-        // TO-DO: Poistetaan tapahtuma käyttäjien tiedoista
-        console.log('event._id', event._id);
-        await updateUsersFields(event._id, context);
         // Poistetaan tapahtuma tietokannasta
-        //await EventModel.findByIdAndDelete(args.id);
+        await EventModel.findByIdAndDelete(args.id);
         console.log('Event deleted successfully!');
         return {
           message: 'Event deleted successfully!',
