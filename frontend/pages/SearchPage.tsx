@@ -2,7 +2,11 @@
 import {useLazyQuery} from '@apollo/client';
 import React from 'react';
 import {useState} from 'react';
-import {getEventsByDate, getEventsByMinAge} from '../src/graphql/eventQueries';
+import {
+  getEventsByAddress,
+  getEventsByDate,
+  getEventsByMinAge,
+} from '../src/graphql/eventQueries';
 import EventCard from '../src/components/EventCard';
 
 function SearchPage() {
@@ -24,6 +28,11 @@ function SearchPage() {
     {loading: loadingByDate, error: errorByDate, data: dataByDate},
   ] = useLazyQuery(getEventsByDate);
 
+  const [
+    executeSearchByAddress,
+    {loading: loadingByAddress, error: errorByAddress, data: dataByAddress},
+  ] = useLazyQuery(getEventsByAddress);
+
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerms({
       ...searchTerms,
@@ -36,14 +45,22 @@ function SearchPage() {
     if (searchTerms.age) {
       executeSearchByAge({variables: {age: searchTerms.age}});
     }
+    console.log('searchTerms.date before if:', searchTerms.date);
     if (searchTerms.date) {
-      executeSearchByDate({variables: {date: searchTerms.date}});
+      console.log('searchTerms.date:', searchTerms.date);
+      const date = new Date(searchTerms.date);
+      console.log('Parsed date:', date);
+      console.log('Sending date:', date.toISOString());
+      executeSearchByDate({variables: {date: date.toISOString()}});
+    }
+    if (searchTerms.address) {
+      executeSearchByAddress({variables: {address: searchTerms.address}});
     }
   };
 
-  if (loadingByAge || loadingByDate) return <p>Loading...</p>; // check both loading states
-  if (errorByAge || errorByDate) return <p>Error</p>; // check both error states
-
+  if (loadingByAge || loadingByDate || loadingByAddress)
+    return <p>Loading...</p>;
+  if (errorByAge || errorByDate || errorByAddress) return <p>Error</p>;
   return (
     <div>
       <form onSubmit={handleSubmit}>
@@ -86,6 +103,13 @@ function SearchPage() {
       {dataByDate && (
         <div>
           {dataByDate.eventsByDate.map((event: any, index: number) => (
+            <EventCard key={index} event={event} />
+          ))}
+        </div>
+      )}
+      {dataByAddress && (
+        <div>
+          {dataByAddress.eventsByAddress.map((event: any, index: number) => (
             <EventCard key={index} event={event} />
           ))}
         </div>

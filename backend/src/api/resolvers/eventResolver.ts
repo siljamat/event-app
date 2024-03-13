@@ -70,12 +70,18 @@ export default {
       console.log('combinedEvents', combinedEvents);
       return combinedEvents;
     },
-    eventsByDate: async (_parent: undefined, args: {date: Date}) => {
-      const databaseEvents = await EventModel.find({date: args.date});
+    eventsByDate: async (_parent: undefined, args: {date: Date | string}) => {
+      let {date} = args;
+      if (typeof date === 'string') {
+        date = new Date(date);
+      }
+
+      const databaseEvents = await EventModel.find({date: date});
 
       const apiEvents = await eventApiFetch(
-        `https://api.hel.fi/linkedevents/v1/event/?start=${args.date}`,
+        `https://api.hel.fi/linkedevents/v1/event/?start=${date.toISOString()}`,
       );
+
       console.log('apiEvents', apiEvents);
       const combinedEvents = [...databaseEvents, ...apiEvents];
       console.log('combinedEvents', combinedEvents);
