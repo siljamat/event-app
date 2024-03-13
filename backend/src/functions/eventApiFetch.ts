@@ -5,8 +5,9 @@ import fetchData from './fetchData';
 const eventApiFetch = async (url: string, options: RequestInit = {}) => {
   const data: any[] = await fetchData(url, options);
   const apiUser = await fetchData<User>(
-    `${process.env.AUTH_URL}/users/65ec9e7def56a518d78085cb`,
+    `${process.env.AUTH_URL}/users/65f1516db4691e19125aa2c6`,
   );
+  if (!apiUser) throw new Error('No user');
   if (data) {
     const apiEventData: Partial<Event>[] = await Promise.all(
       (data as any).data.map(async (event: any) => {
@@ -42,31 +43,35 @@ const eventApiFetch = async (url: string, options: RequestInit = {}) => {
       return true;
     });
     console.log('uniqueEvents', uniqueEvents);
-
-    const apiEvents = uniqueEvents.map((event: any) => ({
-      address: event.address ? event.address : 'No address',
-      age_restriction: event.audience_min_age
-        ? event.audience_min_age + '-' + event.audience_max_age
-        : '',
-      //TODO: FIX!! maybe map and check if any keywords match our cateogry names and
-      category: event.keywords
-        ? event.keywords.map((keyword: any) => keyword.name)
-        : [],
-      created_at: event.created_at,
-      date: event.date,
-      description: event.description,
-      email: event.email,
-      event_name: event.event_name,
-      event_site: event.event_site ? event.event_site.fi : 'no site',
-      favoriteCount: 0,
-      id: event.id,
-      image: event.image ? event.image.url : 'No image',
-      location: event.location,
-      organizer: event.organizer,
-      price: event.price,
-      ticket_site: event.ticket_site,
-      creator: apiUser._id,
-    }));
+    const apiEvents = uniqueEvents.map((event: any) => {
+      try {
+        return {
+          address: event.address ? event.address : 'No address',
+          age_restriction: event.audience_min_age
+            ? event.audience_min_age + '-' + event.audience_max_age
+            : '',
+          category: event.keywords
+            ? event.keywords.map((keyword: any) => keyword.name)
+            : [],
+          created_at: event.created_at,
+          date: event.date,
+          description: event.description,
+          email: event.email,
+          event_name: event.event_name,
+          event_site: event.event_site ? event.event_site.fi : 'no site',
+          id: event.id,
+          image: event.image ? event.image.url : 'No image',
+          location: event.location,
+          organizer: event.organizer,
+          price: event.price,
+          ticket_site: event.ticket_site,
+          creator: apiUser._id,
+        };
+      } catch (error) {
+        console.error('Error mapping event:', event, error);
+      }
+    });
+    console.log('apiEvents', apiEvents);
     return apiEvents;
   }
   throw new Error('No data');
