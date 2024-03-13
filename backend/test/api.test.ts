@@ -12,11 +12,9 @@ import {
 import mongoose from 'mongoose';
 import {getNotFound} from './testFunctions';
 
-const uploadApp = process.env.UPLOAD_URL as string;
-
 import randomstring from 'randomstring';
 import jwt from 'jsonwebtoken';
-import {LoginResponse, UploadResponse} from '../src/types/MessageTypes';
+import {LoginResponse} from '../src/types/MessageTypes';
 import {UserTest} from '../src/types/DBTypes';
 
 describe('Testing graphql api', () => {

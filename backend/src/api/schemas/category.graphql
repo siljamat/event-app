@@ -1,6 +1,6 @@
 type Category {
-  id: ID!
-  category_name: String!
+  id: ID
+  category_name: String
 }
 
 type Query {
@@ -8,7 +8,7 @@ type Query {
 }
 
 input InputCategory {
-  category_name: String!
+  category_name: String
 }
 
 input updateCategory {

@@ -23,7 +23,6 @@ export default {
       const allEvents = [...databaseEvents, ...apiEvents];
       return allEvents;
     },
-
     event: async (_parent: undefined, args: {id: string}) => {
       console.log('EVENT ID', args.id);
       if (mongoose.Types.ObjectId.isValid(args.id)) {
@@ -40,7 +39,6 @@ export default {
 
       return apiEvent;
     },
-
     //TODO: Täytyy odottaa että categor toimii
     eventsByCategory: async (_parent: undefined, args: {category: string}) => {
       const databaseEvents = await EventModel.find({category: args.category});
@@ -54,7 +52,6 @@ export default {
       console.log('combinedEvents', combinedEvents);
       return combinedEvents;
     },
-
     eventsByDate: async (_parent: undefined, args: {date: Date}) => {
       const databaseEvents = await EventModel.find({date: args.date});
 
@@ -66,7 +63,6 @@ export default {
       console.log('combinedEvents', combinedEvents);
       return combinedEvents;
     },
-
     eventsByPrice: async (_parent: undefined, args: {price: string}) => {
       const databaseEvents = await EventModel.find({price: args.price});
 
@@ -78,7 +74,6 @@ export default {
       console.log('combinedEvents', combinedEvents);
       return combinedEvents;
     },
-
     eventsByOrganizer: async (
       _parent: undefined,
       args: {organizer: string},
@@ -92,7 +87,6 @@ export default {
       const combinedEvents = [...databaseEvents, ...apiEvents];
       return combinedEvents;
     },
-
     eventsByMinAge: async (_parent: undefined, args: {age: string}) => {
       const databaseEvents = await EventModel.find({age_restriction: args.age});
 
@@ -102,7 +96,6 @@ export default {
       const combinedEvents = [...databaseEvents, ...apiEvents];
       return combinedEvents;
     },
-
     eventsByArea: async (_parent: undefined, args: {address: string}) => {
       try {
         const coords = await getLocationCoordinates(args.address);
@@ -128,7 +121,6 @@ export default {
       }
     },
   },
-
   Mutation: {
     createEvent: async (
       _parent: undefined,
@@ -217,10 +209,13 @@ export default {
             }),
           },
         );
+        // TO-DO: Poistetaan tapahtuma käyttäjien tiedoista
+        console.log('event._id', event._id);
+        await updateUsersFields(event._id, context);
         // Poistetaan tapahtuma tietokannasta
-        await EventModel.findByIdAndDelete(args.id);
+        //await EventModel.findByIdAndDelete(args.id);
         console.log('Event deleted successfully!');
-        return true; // Indicate successful deletion
+        return true;
       } catch (error) {
         console.error('Error deleting event:', error);
         throw new Error('Failed to delete event.');

@@ -218,9 +218,40 @@ const getEventsByPrice = gql`
   }
 `;
 
+const getUserEvents = gql`
+  query createdEventsByUserId($id: String!) {
+    createdEventsByUserId(id: $id) {
+      address
+      age_restriction
+      category {
+        category_name
+      }
+      created_at
+      creator {
+        user_name
+      }
+      date
+      description
+      email
+      event_name
+      event_site
+      favoriteCount
+      id
+      image
+      location {
+        coordinates
+        type
+      }
+      organizer
+      price
+      ticket_site
+    }
+  }
+`;
+
 const addEvent = gql`
-  mutation CreateEvent($event: EventInput!) {
-    createEvent(event: $event) {
+  mutation CreateEvent($input: InputEvent!) {
+    createEvent(input: $input) {
       address
       age_restriction
       category {
@@ -299,4 +330,5 @@ export {
   addEvent,
   updateEvent,
   deleteEvent,
+  getUserEvents,
 };

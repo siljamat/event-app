@@ -27,7 +27,7 @@ type Event = Partial<Document> & {
   ticket_site: string;
   price: string;
   image: string;
-  category: Types.ObjectId;
+  category: Types.ObjectId[];
   creator: Types.ObjectId | User;
   favoriteCount: number;
   favoritedBy: Types.ObjectId[];

@@ -9,10 +9,12 @@ const eventSchema = new mongoose.Schema<Event>({
   event_name: {
     type: String,
   },
-  category: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Category',
-  },
+  category: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Category',
+    },
+  ],
   location: {
     type: {
       type: String,

@@ -1,5 +1,6 @@
+import mongoose from 'mongoose';
 import {isAdmin} from '../../functions/authorize';
-import {Event} from '../../types/DBTypes';
+import {Category, Event} from '../../types/DBTypes';
 import {MyContext} from '../../types/MyContext';
 import CategoryModel from '../models/categoryModel';
 import EventModel from '../models/eventModel';
@@ -18,22 +19,22 @@ export default {
   Mutation: {
     createCategory: async (
       _parent: undefined,
-      args: {category_name: string},
+      args: {input: Omit<Category, 'category_name'>},
       context: MyContext,
     ) => {
       isAdmin(context);
-      const newCategory = new CategoryModel(args);
+      const newCategory = new CategoryModel(args.input);
       return newCategory.save();
     },
     updateCategory: async (
       _parent: undefined,
-      args: {id: string; category_name: string},
+      args: {id: string; input: {category_name: string}},
       context: MyContext,
     ) => {
       isAdmin(context);
       return await CategoryModel.findByIdAndUpdate(
         args.id,
-        {category_name: args.category_name},
+        {category_name: args.input.category_name},
         {new: true},
       );
     },
@@ -43,14 +44,26 @@ export default {
       context: MyContext,
     ) => {
       isAdmin(context);
-      // delete events within category
-      const events = await EventModel.find({category: args.id});
-      for (const event of events) {
-        await EventModel.deleteMany({
-          event: event._id,
-        });
+      try {
+        const categoryId = new mongoose.Types.ObjectId(args.id);
+        const events = await EventModel.find({category: categoryId});
+        // Poistetaan kategoria jokaisesta tapahtumasta
+        await Promise.all(
+          events.map(async (event) => {
+            const index = event.category.indexOf(categoryId);
+            if (index !== -1) {
+              event.category.splice(index, 1);
+              await event.save();
+            }
+          }),
+        );
+        // Poistetaan kategoria
+        await CategoryModel.findByIdAndDelete(categoryId);
+        return true;
+      } catch (error) {
+        console.error('Error deleting category and updating events:', error);
+        throw new Error('Failed to delete category and update events.');
       }
-      return await CategoryModel.findByIdAndDelete(args.id);
     },
   },
 };
