@@ -1,10 +1,25 @@
-import {ChangeEvent, FormEvent, useState} from 'react';
+import {ChangeEvent, FormEvent, useState, useEffect} from 'react';
 import {useMutation} from '@apollo/client';
 import {addEvent} from '../src/graphql/eventQueries';
+import {doGraphQLFetch} from '../src/graphql/fetch';
+import {getCategories} from '../src/graphql/categoryQueries';
 
 function CreateEventForm() {
-  const token = localStorage.getItem('token');
-  const [event, setEvent] = useState({
+  const token = localStorage.getItem('token') || undefined;
+  const [event, setEvent] = useState<{
+    event_name: string;
+    description: string;
+    date: string;
+    email: string;
+    organizer: string;
+    address: string;
+    age_restriction: string;
+    event_site: string;
+    ticket_site: string;
+    price: string;
+    image: string;
+    category: string[];
+  }>({
     event_name: '',
     description: '',
     date: '',
@@ -16,7 +31,25 @@ function CreateEventForm() {
     ticket_site: '',
     price: '',
     image: '',
+    category: [],
   });
+
+  type Category = {
+    id: string;
+    category_name: string;
+  };
+
+  const [categories, setCategories] = useState<Category[]>([]);
+  const API_URL = import.meta.env.VITE_API_URL;
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const data = await doGraphQLFetch(API_URL, getCategories, {}, token);
+      setCategories(data.categories);
+    };
+
+    fetchCategories();
+  }, []);
 
   const [createEvent] = useMutation(addEvent, {
     context: {
@@ -33,6 +66,20 @@ function CreateEventForm() {
       ...event,
       [e.target.name]: e.target.value,
     });
+  };
+
+  const handleCategoryChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      setEvent({
+        ...event,
+        category: [...event.category, e.target.value],
+      });
+    } else {
+      setEvent({
+        ...event,
+        category: event.category.filter((id) => id !== e.target.value),
+      });
+    }
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -137,7 +184,20 @@ function CreateEventForm() {
           className="mt-1"
         />
       </label>
-
+      <fieldset>
+        <legend>Categories:</legend>
+        {categories.map((category) => (
+          <label key={category.id}>
+            <input
+              type="checkbox"
+              name="category"
+              value={category.id}
+              onChange={handleCategoryChange}
+            />
+            {category.category_name}
+          </label>
+        ))}
+      </fieldset>
       <button type="submit" className="mt-4">
         Create Event
       </button>
