@@ -63,7 +63,7 @@ const getEventById = gql`
   }
 `;
 
-const getEventsByCategory = gql`
+const getEventsByCategory = `
   query EventsByCategory($category: String!) {
     eventsByCategory(category: $category) {
       address

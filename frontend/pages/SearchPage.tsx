@@ -3,6 +3,7 @@ import {useEffect, useState} from 'react';
 import {doGraphQLFetch} from '../src/graphql/fetch';
 import {
   getEventsByAddress,
+  getEventsByCategory,
   getEventsByDate,
   getEventsByMinAge,
 } from '../src/graphql/eventQueries';
@@ -23,6 +24,7 @@ const SearchPage = () => {
 
   const [searchPerformed, setSearchPerformed] = useState(false);
   const [categories, setCategories] = useState<string[]>([]);
+  const [displayCategories, setDisplayCategories] = useState<string[]>([]);
   const API_URL = import.meta.env.VITE_API_URL;
 
   const fetchEvents = async () => {
@@ -51,9 +53,17 @@ const SearchPage = () => {
       });
       fetchedEvents = fetchedEvents.concat(data.eventsByAddress || []);
     }
+    if (searchParams.category) {
+      const data = await doGraphQLFetch(API_URL, getEventsByCategory, {
+        category: searchParams.category,
+      });
+      fetchedEvents = fetchedEvents.concat(data.eventsByCategory || []);
+    }
 
     setEvents(fetchedEvents);
   };
+
+  console.log('searchParams', searchParams.category);
 
   const handleInputChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -84,30 +94,40 @@ const SearchPage = () => {
       };
       setCategories(
         data.categories.map(
+          (category: {category_name: string}) => category.category_name,
+        ),
+      );
+      setDisplayCategories(
+        data.categories.map(
           (category: {category_name: string}) =>
             categoryReplacements[category.category_name] ||
             category.category_name,
         ),
       );
-      console.log('Täsä', data.categories);
-      console.log('Täsä', data);
     };
 
     fetchCategories();
   }, []);
 
+  const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const displayValue = event.target.value;
+    const actualValue = categories[displayCategories.indexOf(displayValue)];
+    setSearchParams({
+      ...searchParams,
+      [event.target.name]: actualValue,
+    });
+  };
+
   return (
     <div>
       <select
         name="category"
-        value={searchParams.category}
-        onChange={(
-          event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-        ) => handleInputChange(event)}
+        value={displayCategories[categories.indexOf(searchParams.category)]}
+        onChange={handleSelectChange}
       >
         <option value="">Select a category</option>
-        {categories.map((category) => (
-          <option key={category} value={category}>
+        {displayCategories.map((category, index) => (
+          <option key={categories[index]} value={category}>
             {category}
           </option>
         ))}
