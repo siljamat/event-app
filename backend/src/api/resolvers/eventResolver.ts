@@ -20,6 +20,8 @@ export default {
       const apiEvents = await eventApiFetch(
         'https://api.hel.fi/linkedevents/v1/event/?page_size=100',
       );
+      if (!apiEvents) return databaseEvents;
+      if (!databaseEvents) return apiEvents;
       const allEvents = [...databaseEvents, ...apiEvents];
       return allEvents;
     },
