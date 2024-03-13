@@ -228,16 +228,54 @@ export default {
       context: MyContext,
     ) => {
       isAdmin(context);
-      return await fetchData<UserResponse>(
-        `${process.env.AUTH_URL}/users/${args.id}`,
-        {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${context.userdata?.token}`,
+      try {
+        // Haetaan kaikki tapahtumat, jotka löytyvät käyttäjän favoritedBy- tai attendedBy-kentistä
+        const userId = new mongoose.Types.ObjectId(args.id);
+        const eventsToUpdate = await EventModel.find({
+          $or: [{favoritedBy: userId}, {attendedBy: userId}],
+        });
+        // Käydään läpi kaikki tapahtumat ja poistetaan käyttäjän id
+        await Promise.all(
+          eventsToUpdate.map(async (event) => {
+            const favorited = event.favoritedBy.includes(userId);
+            const attended = event.attendedBy.includes(userId);
+            event.favoritedBy = event.favoritedBy.filter(
+              (favoritedUserId) => favoritedUserId.toString() !== args.id,
+            );
+            event.attendedBy = event.attendedBy.filter(
+              (attendedUserId) => attendedUserId.toString() !== args.id,
+            );
+            if (favorited) {
+              event.favoriteCount -= 1;
+            }
+            if (attended) {
+              event.attendeeCount -= 1;
+            }
+            await event.save();
+          }),
+        );
+        // Poistetaan kaikki käyttäjän luomat tapahtumat
+        const events = await EventModel.find({creator: userId});
+        await Promise.all(
+          events.map(async (event) => {
+            await EventModel.deleteOne({_id: event._id});
+          }),
+        );
+        // Poistetaan käyttäjä
+        await fetchData<UserResponse>(
+          `${process.env.AUTH_URL}/users/${args.id}`,
+          {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${context.userdata?.token}`,
+            },
           },
-        },
-      );
+        );
+        return true;
+      } catch (error) {
+        throw new Error('Failed to delete user and update event fields.');
+      }
     },
     toggleFavoriteEvent: async (
       _parent: undefined,
