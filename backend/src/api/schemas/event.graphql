@@ -56,6 +56,7 @@ type Query {
   eventsByOrganizer(organizer: String!): [Event]
   eventsByMinAge(age: String!): [Event]
   eventsByArea(address: String!): [Event]
+  eventsByTitle(keyword: String!): [Event]
 }
 
 input InputEvent {
