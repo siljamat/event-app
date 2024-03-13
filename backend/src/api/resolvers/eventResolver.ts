@@ -17,11 +17,27 @@ export default {
   Query: {
     events: async () => {
       const databaseEvents = await EventModel.find();
-      const apiEvents = await eventApiFetch(
-        'https://api.hel.fi/linkedevents/v1/event/?page_size=100',
+      const apiEvents1 = await eventApiFetch(
+        'https://api.hel.fi/linkedevents/v1/event/?page1&page_size=100',
       );
-      if (!apiEvents) return databaseEvents;
-      if (!databaseEvents) return apiEvents;
+      const apiEvents2 = await eventApiFetch(
+        'https://api.hel.fi/linkedevents/v1/event/?page=2&page_size=100',
+      );
+      const apiEvents3 = await eventApiFetch(
+        'https://api.hel.fi/linkedevents/v1/event/?page=3&page_size=100',
+      );
+      const apiEvents4 = await eventApiFetch(
+        'https://api.hel.fi/linkedevents/v1/event/?page=4&page_size=100',
+      );
+      const apiEvents = apiEvents1.concat(apiEvents2, apiEvents3, apiEvents4);
+      if (!apiEvents || apiEvents.length === 0) {
+        console.log('No events found from the API');
+        return databaseEvents;
+      }
+      if (!databaseEvents || databaseEvents.length === 0) {
+        console.log('No events found from the database');
+        return apiEvents;
+      }
       const allEvents = [...databaseEvents, ...apiEvents];
       return allEvents;
     },
