@@ -12,7 +12,7 @@ import Layout from './components/Layout';
 import UserPage from '../pages/UserPage';
 import UserEvents from './components/userEvents';
 import SearchPage from '../pages/SearchPage';
-import HappeningToday from '../pages/HappeningToday';
+import HappeningToday from '../pages/happeningToday';
 
 const httpLink = createHttpLink({
   uri: import.meta.env.VITE_API_URL,
