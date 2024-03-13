@@ -2,7 +2,7 @@
 import {useLazyQuery} from '@apollo/client';
 import React from 'react';
 import {useState} from 'react';
-import {getEventsByMinAge} from '../src/graphql/eventQueries';
+import {getEventsByDate, getEventsByMinAge} from '../src/graphql/eventQueries';
 import EventCard from '../src/components/EventCard';
 
 function SearchPage() {
@@ -19,6 +19,11 @@ function SearchPage() {
     {loading: loadingByAge, error: errorByAge, data: dataByAge},
   ] = useLazyQuery(getEventsByMinAge);
 
+  const [
+    executeSearchByDate,
+    {loading: loadingByDate, error: errorByDate, data: dataByDate},
+  ] = useLazyQuery(getEventsByDate);
+
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerms({
       ...searchTerms,
@@ -28,11 +33,16 @@ function SearchPage() {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    executeSearchByAge({variables: {age: searchTerms.age}});
+    if (searchTerms.age) {
+      executeSearchByAge({variables: {age: searchTerms.age}});
+    }
+    if (searchTerms.date) {
+      executeSearchByDate({variables: {date: searchTerms.date}});
+    }
   };
 
-  if (loadingByAge) return <p>Loading...</p>;
-  if (errorByAge) return <p>Error</p>;
+  if (loadingByAge || loadingByDate) return <p>Loading...</p>; // check both loading states
+  if (errorByAge || errorByDate) return <p>Error</p>; // check both error states
 
   return (
     <div>
@@ -69,6 +79,13 @@ function SearchPage() {
       {dataByAge && (
         <div>
           {dataByAge.eventsByMinAge.map((event: any, index: number) => (
+            <EventCard key={index} event={event} />
+          ))}
+        </div>
+      )}
+      {dataByDate && (
+        <div>
+          {dataByDate.eventsByDate.map((event: any, index: number) => (
             <EventCard key={index} event={event} />
           ))}
         </div>
