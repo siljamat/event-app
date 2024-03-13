@@ -236,23 +236,21 @@ export default {
       );
       return createdEvent;
     },
-    //TODO: Figure out why creator is undefined here and fix it
     updateEvent: async (
       _parent: undefined,
       args: {id: string; input: Partial<Omit<Event, 'id'>>},
       context: MyContext,
     ) => {
       isLoggedIn(context);
-      const id = args.input.creator?.id;
-
-      // if (args.input.address) {
-      //   const {address} = args.input;
-      //   const coords = await getLocationCoordinates(address);
-      //   args.input.location = {
-      //     type: 'Point',
-      //     coordinates: [coords.lat, coords.lng],
-      //   };
-      // }
+      // Jos tapahtuman osoitetta on muutettu, päivitetään myös sijainti
+      if (args.input.address) {
+        const {address} = args.input;
+        const coords = await getLocationCoordinates(address);
+        args.input.location = {
+          type: 'Point',
+          coordinates: [coords.lat, coords.lng],
+        };
+      }
       const updatedEvent = await EventModel.findByIdAndUpdate(
         args.id,
         args.input,
