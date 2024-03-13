@@ -184,27 +184,25 @@ export default {
     ) => {
       isLoggedIn(context);
       const id = args.input.creator?.id;
-      console.log('UPDATE EVENT creator id', id);
-      console.log('UPDATE EVENT', args.input);
-      if (
-        id === context.userdata?.user.id ||
-        context.userdata?.user.role === 'admin'
-      ) {
-        // if (args.input.address) {
-        //   const {address} = args.input;
-        //   const coords = await getLocationCoordinates(address);
-        //   args.input.location = {
-        //     type: 'Point',
-        //     coordinates: [coords.lat, coords.lng],
-        //   };
-        // }
-        return await EventModel.findByIdAndUpdate(args.id, args.input, {
+
+      // if (args.input.address) {
+      //   const {address} = args.input;
+      //   const coords = await getLocationCoordinates(address);
+      //   args.input.location = {
+      //     type: 'Point',
+      //     coordinates: [coords.lat, coords.lng],
+      //   };
+      // }
+      const updatedEvent = await EventModel.findByIdAndUpdate(
+        args.id,
+        args.input,
+        {
           new: true,
-        });
-      }
-      throw new Error(
-        'Not authorized. You must be the creator of this event to edit it.',
+        },
       );
+      console.log('Event updated successfully!' + updatedEvent);
+
+      return updatedEvent;
     },
     deleteEvent: async (
       _parent: undefined,
@@ -239,7 +237,10 @@ export default {
         // Poistetaan tapahtuma tietokannasta
         //await EventModel.findByIdAndDelete(args.id);
         console.log('Event deleted successfully!');
-        return true;
+        return {
+          message: 'Event deleted successfully!',
+          success: true,
+        };
       } catch (error) {
         console.error('Error deleting event:', error);
         throw new Error('Failed to delete event.');

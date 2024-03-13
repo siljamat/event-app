@@ -10,6 +10,7 @@ import CreateEvent from '../pages/CreateEvent';
 import EventPage from '../pages/EventPage';
 import Layout from './components/Layout';
 import UserPage from '../pages/UserPage';
+import UserEvents from './components/userEvents';
 import SearchPage from '../pages/SearchPage';
 
 const httpLink = createHttpLink({
@@ -56,6 +57,7 @@ function App() {
                 <Route path="/createEvent" element={<CreateEvent />} />
                 <Route path="/userPage" element={<UserPage />} />
                 <Route path="/event/:id" element={<EventPage />} />
+                <Route path="/userEvents" element={<UserEvents />} />
                 <Route path="/searchPage" element={<SearchPage />} />
               </Routes>
             </div>

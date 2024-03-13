@@ -18,6 +18,11 @@ type UserResponse {
   user: User!
 }
 
+type ToggleResponse {
+  message: String!
+  isTrue: Boolean!
+}
+
 input Credentials {
   username: String!
   password: String!
@@ -27,10 +32,6 @@ input UserInput {
   user_name: String!
   email: String!
   password: String!
-}
-type ToggleResponse {
-  message: String!
-  isTrue: Boolean!
 }
 
 input UserModify {

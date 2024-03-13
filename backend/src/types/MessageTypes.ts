@@ -29,6 +29,10 @@ type ToggleResponse = MessageResponse & {
   isTrue: boolean;
 };
 
+type deleteEventResponse = MessageResponse & {
+  success: boolean;
+};
+
 export {
   MessageResponse,
   ErrorResponse,
@@ -36,4 +40,5 @@ export {
   LoginResponse,
   UploadResponse,
   ToggleResponse,
+  deleteEventResponse,
 };
