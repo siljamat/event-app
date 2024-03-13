@@ -32,12 +32,12 @@ const Home: React.FC = () => {
     variables: {userId},
     skip: !userId, // Skip the query if userId is not defined
   });
-
   useEffect(() => {
     setIsLoading(true);
     //get all event data
-    const fetchData = async () => {
+    const fetchEventData = async () => {
       const data = await doGraphQLFetch(API_URL, getAllEvents, {});
+      console.log('data', data);
       if (data && data.events) {
         const validEvents = data.events.filter(
           (event: any) => event && event.event_name,
@@ -45,20 +45,25 @@ const Home: React.FC = () => {
         console.log('validEvents', validEvents);
         setEvents(validEvents);
       }
-      // Set liked events data
-      console.log('likedData', likedData);
-      if (likedData && likedData.favoritedEventsByUserId) {
-        setLikedEventsData(likedData.favoritedEventsByUserId);
-      }
-      console.log('attendingData', attendingData);
-      if (attendingData && attendingData.attendedEventsByUserId) {
-        setAttendingEvents(attendingData.attendedEventsByUserId);
-      }
       setIsLoading(false);
     };
-    fetchData();
-  }, [API_URL, attendingData, isAuthenticated, likedData]);
+    fetchEventData();
+  }, [API_URL]);
 
+  useEffect(() => {
+    // Set liked events data
+    console.log('likedData', likedData);
+    if (likedData && likedData.favoritedEventsByUserId) {
+      setLikedEventsData(likedData.favoritedEventsByUserId);
+    }
+  }, [likedData]);
+
+  useEffect(() => {
+    console.log('attendingData', attendingData);
+    if (attendingData && attendingData.attendedEventsByUserId) {
+      setAttendingEvents(attendingData.attendedEventsByUserId);
+    }
+  }, [attendingData]);
   //TODO: Add loading state
   //TODO: add error state
   //TODO: add different sections for authenticated and non-authenticated users
