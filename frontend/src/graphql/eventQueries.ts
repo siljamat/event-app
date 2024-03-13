@@ -249,7 +249,7 @@ const getUserEvents = gql`
   }
 `;
 
-const getEventsByAddress = gql`
+const getEventsByAddress = `
   query EventsByAddress($address: String!) {
     eventsByArea(address: $address) {
       address
