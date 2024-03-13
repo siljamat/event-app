@@ -14,21 +14,19 @@ const SearchPage = () => {
     keyword: '',
     age: '',
   });
+  const [searchPerformed, setSearchPerformed] = useState(false);
 
   const API_URL = import.meta.env.VITE_API_URL;
 
-  useEffect(() => {
+  const fetchEvents = async () => {
+    setSearchPerformed(true);
     if (searchParams.date) {
-      const fetchEvents = async () => {
-        const data = await doGraphQLFetch(API_URL, getEventsByDate, {
-          date: searchParams.date,
-        });
-        setEvents(data.eventsByDate);
-      };
-
-      fetchEvents();
+      const data = await doGraphQLFetch(API_URL, getEventsByDate, {
+        date: searchParams.date,
+      });
+      setEvents(data.eventsByDate);
     }
-  }, [searchParams]);
+  };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchParams({
@@ -36,6 +34,10 @@ const SearchPage = () => {
       [event.target.name]: event.target.value,
     });
   };
+
+  const combinedEvents = events
+    .concat(apiEvents)
+    .filter((event) => event !== null && event !== undefined);
 
   return (
     <div>
@@ -66,17 +68,20 @@ const SearchPage = () => {
         onChange={handleInputChange}
         placeholder="Age"
       />
-      {events
-        .concat(apiEvents)
-        .slice(0, 10)
-        .map((event) => {
-          console.log(event.date);
-          return (
-            <div key={event.id}>
-              <EventCard event={event} />
-            </div>
-          );
-        })}
+      <button onClick={fetchEvents}>Search</button>
+      {searchPerformed &&
+        (combinedEvents.length > 0 ? (
+          combinedEvents.slice(0, 10).map((event) => {
+            console.log(event.date);
+            return (
+              <div key={event.id}>
+                <EventCard event={event} />
+              </div>
+            );
+          })
+        ) : (
+          <p>No events</p>
+        ))}
     </div>
   );
 };
