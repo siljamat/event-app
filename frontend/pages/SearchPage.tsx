@@ -1,97 +1,84 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import {useLazyQuery} from '@apollo/client';
-import React from 'react';
-import {useState} from 'react';
-import {getEventsByDate, getEventsByMinAge} from '../src/graphql/eventQueries';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import {useEffect, useState} from 'react';
+import {doGraphQLFetch} from '../src/graphql/fetch';
+import {getEventsByDate} from '../src/graphql/eventQueries';
 import EventCard from '../src/components/EventCard';
+import {EventType} from '../src/types/EventType';
 
-function SearchPage() {
-  const [searchTerms, setSearchTerms] = useState({
-    keyword: '',
+const SearchPage = () => {
+  const [events, setEvents] = useState<EventType[]>([]);
+  const [apiEvents, setApiEvents] = useState<EventType[]>([]);
+  const [searchParams, setSearchParams] = useState({
     date: '',
-    age: '',
     address: '',
-    category: '',
+    keyword: '',
+    age: '',
   });
 
-  const [
-    executeSearchByAge,
-    {loading: loadingByAge, error: errorByAge, data: dataByAge},
-  ] = useLazyQuery(getEventsByMinAge);
+  const API_URL = import.meta.env.VITE_API_URL;
 
-  const [
-    executeSearchByDate,
-    {loading: loadingByDate, error: errorByDate, data: dataByDate},
-  ] = useLazyQuery(getEventsByDate);
+  useEffect(() => {
+    if (searchParams.date) {
+      const fetchEvents = async () => {
+        const data = await doGraphQLFetch(API_URL, getEventsByDate, {
+          date: searchParams.date,
+        });
+        setEvents(data.eventsByDate);
+      };
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerms({
-      ...searchTerms,
+      fetchEvents();
+    }
+  }, [searchParams]);
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchParams({
+      ...searchParams,
       [event.target.name]: event.target.value,
     });
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (searchTerms.age) {
-      executeSearchByAge({variables: {age: searchTerms.age}});
-    }
-    if (searchTerms.date) {
-      executeSearchByDate({variables: {date: searchTerms.date}});
-    }
-  };
-
-  if (loadingByAge || loadingByDate) return <p>Loading...</p>; // check both loading states
-  if (errorByAge || errorByDate) return <p>Error</p>; // check both error states
-
   return (
     <div>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="keyword"
-          value={searchTerms.keyword}
-          onChange={handleChange}
-          placeholder="Keyword"
-        />
-        <input
-          type="date"
-          name="date"
-          value={searchTerms.date}
-          onChange={handleChange}
-        />
-        <input
-          type="number"
-          name="age"
-          value={searchTerms.age}
-          onChange={handleChange}
-          placeholder="Age"
-        />
-        <input
-          type="text"
-          name="address"
-          value={searchTerms.address}
-          onChange={handleChange}
-          placeholder="Address"
-        />
-        <button type="submit">Search</button>
-      </form>
-      {dataByAge && (
-        <div>
-          {dataByAge.eventsByMinAge.map((event: any, index: number) => (
-            <EventCard key={index} event={event} />
-          ))}
-        </div>
-      )}
-      {dataByDate && (
-        <div>
-          {dataByDate.eventsByDate.map((event: any, index: number) => (
-            <EventCard key={index} event={event} />
-          ))}
-        </div>
-      )}
+      <input
+        type="date"
+        name="date"
+        value={searchParams.date}
+        onChange={handleInputChange}
+      />
+      <input
+        type="text"
+        name="address"
+        value={searchParams.address}
+        onChange={handleInputChange}
+        placeholder="Address"
+      />
+      <input
+        type="text"
+        name="keyword"
+        value={searchParams.keyword}
+        onChange={handleInputChange}
+        placeholder="Keyword"
+      />
+      <input
+        type="number"
+        name="age"
+        value={searchParams.age}
+        onChange={handleInputChange}
+        placeholder="Age"
+      />
+      {events
+        .concat(apiEvents)
+        .slice(0, 10)
+        .map((event) => {
+          console.log(event.date);
+          return (
+            <div key={event.id}>
+              <EventCard event={event} />
+            </div>
+          );
+        })}
     </div>
   );
-}
+};
 
 export default SearchPage;

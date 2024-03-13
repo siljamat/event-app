@@ -26,11 +26,13 @@ const eventApiFetch = async (url: string, options: RequestInit = {}) => {
             description: event.description.fi,
             date: event.start_time,
             location: locationData.position,
-            email: '',
+            email: locationData.email,
             organizer: event.publisher,
-            address: '',
+            address: locationData.street_address
+              ? locationData.street_address.en || locationData.street_address.sv
+              : '',
             age_restrictions: '',
-            event_site: event.info_url,
+            event_site: locationData.info_url,
             ticket_site: '',
             price: '',
             image: event.images[0],
