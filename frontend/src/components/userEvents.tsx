@@ -15,10 +15,7 @@ const UserEvents = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [deleteEventHandle] = useMutation(deleteEvent);
 
-  console.log('token', token);
-  console.log('user', userId);
-
-  const {loading, error, data} = useQuery(getUserEvents, {
+  const {loading, data} = useQuery(getUserEvents, {
     variables: {userId},
     skip: !userId,
   });
@@ -54,10 +51,6 @@ const UserEvents = () => {
     }
   };
 
-  const handleCreateEvent = () => {
-    window.location.href = '/createEvent';
-  };
-
   return (
     <div>
       <EditEventModal
@@ -89,9 +82,9 @@ const UserEvents = () => {
           {events.length === 0 ? (
             <div className="bg-base-100 p-10 rounded-box ">
               <p className="text-l mb-3">No events created</p>
-              <button className="btn btn-primary" onClick={handleCreateEvent}>
+              <a className="btn btn-primary mt-5" href={`/createEvent`}>
                 Create event
-              </button>
+              </a>
             </div>
           ) : (
             <div
