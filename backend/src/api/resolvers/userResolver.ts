@@ -319,7 +319,10 @@ export default {
             }),
           },
         );
-        return isAttending;
+        return {
+          message: 'Successfully toggled attending status',
+          isTrue: isAttending,
+        };
       } catch (error) {
         throw new Error('Failed to toggle attending event.');
       }
