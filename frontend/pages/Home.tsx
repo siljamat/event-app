@@ -37,7 +37,7 @@ const Home: React.FC = () => {
     //get all event data
     const fetchEventData = async () => {
       const data = await doGraphQLFetch(API_URL, getAllEvents, {});
-      console.log('data', data);
+      console;
       if (data && data.events) {
         const validEvents = data.events.filter(
           (event: any) => event && event.event_name,
@@ -69,8 +69,8 @@ const Home: React.FC = () => {
   //TODO: add different sections for authenticated and non-authenticated users
   //TODO: add styiling/grid for the events
   return (
-    <div className="">
-      {isLoading && (
+    <>
+      {isLoading ? (
         <div
           style={{
             display: 'flex',
@@ -81,47 +81,84 @@ const Home: React.FC = () => {
         >
           <span className="loading loading-spinner loading-xs"></span>
         </div>
-      )}
-      {isAuthenticated ? (
-        <>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: '1rem',
-              maxWidth: '100%',
-              overflowX: 'auto',
-            }}
-          >
-            <div>
+      ) : (
+        <div>
+          {isAuthenticated ? (
+            <>
               <div
-                className="bg-accent"
                 style={{
-                  padding: '2rem',
-                  borderRadius: '1rem',
-                  marginBottom: '1rem',
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(3, 1fr)',
+                  gap: '1rem',
+                  maxWidth: '100%',
+                  overflowX: 'auto',
                 }}
               >
-                <h1 className="title">Liked Events</h1>
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(2, 1fr)',
-                    gap: '1rem',
-                  }}
-                >
-                  {likedEventsData && (
-                    <>
-                      {likedEventsData.map((event: EventType) => (
-                        <div key={event.id}>
-                          <EventCard event={event} />
-                        </div>
-                      ))}
-                    </>
-                  )}
+                <div>
+                  <div
+                    className="bg-accent"
+                    style={{
+                      padding: '2rem',
+                      borderRadius: '1rem',
+                      marginBottom: '1rem',
+                    }}
+                  >
+                    <h1 className="">Liked Events</h1>
+                    <div
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(2, 1fr)',
+                        gap: '1rem',
+                      }}
+                    >
+                      {likedEventsData && (
+                        <>
+                          {likedEventsData.map((event: EventType) => (
+                            <div key={event.id}>
+                              <EventCard event={event} />
+                            </div>
+                          ))}
+                          {likedEventsData.length === 0 && (
+                            <p>You have not liked any events yet</p>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <div
+                      className="bg-accent"
+                      style={{
+                        padding: '2rem',
+                        borderRadius: '1rem',
+                        marginBottom: '1rem',
+                      }}
+                    >
+                      <h1>attending Events</h1>
+                      <div
+                        style={{
+                          display: 'grid',
+                          gridTemplateColumns: 'repeat(2, 1fr)',
+                          gap: '1rem',
+                        }}
+                      >
+                        {attendingEvents && (
+                          <>
+                            {attendingEventsData.map((event: EventType) => (
+                              <div key={event.id}>
+                                <EventCard event={event} />
+                              </div>
+                            ))}
+                            {attendingEventsData.length === 0 && (
+                              <p>You have not liked any events yet</p>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div>
+
                 <div
                   className="bg-accent"
                   style={{
@@ -130,7 +167,7 @@ const Home: React.FC = () => {
                     marginBottom: '1rem',
                   }}
                 >
-                  <h1>attending Events</h1>
+                  <h1>Featured Events</h1>
                   <div
                     style={{
                       display: 'grid',
@@ -138,73 +175,45 @@ const Home: React.FC = () => {
                       gap: '1rem',
                     }}
                   >
-                    {attendingEvents && (
-                      <>
-                        {attendingEventsData.map((event: EventType) => (
-                          <div key={event.id}>
-                            <EventCard event={event} />
-                          </div>
-                        ))}
-                      </>
-                    )}
+                    {eventData.slice(0, 10).map((event: EventType) => (
+                      <div key={event.id}>
+                        <EventCard event={event} />
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
-            </div>
-
-            <div
-              className="bg-accent"
-              style={{
-                padding: '2rem',
-                borderRadius: '1rem',
-                marginBottom: '1rem',
-              }}
-            >
-              <h1>Featured Events</h1>
+            </>
+          ) : (
+            <>
               <div
+                className="bg-accent"
                 style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(2, 1fr)',
-                  gap: '1rem',
+                  padding: '2rem',
+                  borderRadius: '1rem',
+                  marginBottom: '1rem',
                 }}
               >
-                {eventData.slice(0, 10).map((event: EventType) => (
-                  <div key={event.id}>
-                    <EventCard event={event} />
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </>
-      ) : (
-        <>
-          <div
-            className="bg-accent"
-            style={{
-              padding: '2rem',
-              borderRadius: '1rem',
-              marginBottom: '1rem',
-            }}
-          >
-            <h1>Featured Events</h1>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(2, 1fr)',
-                gap: '1rem',
-              }}
-            >
-              {eventData.slice(0, 10).map((event: EventType) => (
-                <div key={event.id}>
-                  <EventCard event={event} />
+                <h1>Featured Events</h1>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(2, 1fr)',
+                    gap: '1rem',
+                  }}
+                >
+                  {eventData.slice(0, 10).map((event: EventType) => (
+                    <div key={event.id}>
+                      <EventCard event={event} />
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </div>
-        </>
+              </div>
+            </>
+          )}
+        </div>
       )}
-    </div>
+    </>
   );
 };
 export default Home;
