@@ -41,7 +41,9 @@ const RegisterSuccessModal: React.FC<RegisterSuccessModalProps> = ({
                   />
                 </svg>
               </button>
-              <h2 className="text-2xl font-bold mb-4">Login</h2>
+              <h2 className="text-2xl font-bold mb-4">
+                Registration Successful
+              </h2>
 
               <div className="flex flex-col">
                 <button

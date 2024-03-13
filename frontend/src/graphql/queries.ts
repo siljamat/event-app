@@ -171,6 +171,14 @@ const toggleFavoriteEvent = gql`
     }
   }
 `;
+const toggleAttendingEvent = gql`
+  mutation ToggleAttendingEvent($eventId: ID!) {
+    toggleAttendingEvent(eventId: $eventId) {
+      message
+      isTrue
+    }
+  }
+`;
 
 export {
   loginMutation,
@@ -184,4 +192,5 @@ export {
   attendingEvents,
   getUserEvents,
   toggleFavoriteEvent,
+  toggleAttendingEvent,
 };

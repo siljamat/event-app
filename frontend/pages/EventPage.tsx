@@ -2,19 +2,20 @@ import React, {useEffect, useMemo, useState} from 'react';
 import {useParams} from 'react-router-dom';
 import {getEventById} from '../src/graphql/eventQueries';
 import {useMutation, useQuery} from '@apollo/client';
-import {toggleFavoriteEvent} from '../src/graphql/queries';
-
-interface EventPageParams {
-  id: string;
-  [key: string]: string | undefined;
-}
+import {
+  toggleAttendingEvent,
+  toggleFavoriteEvent,
+} from '../src/graphql/queries';
 
 const EventPage: React.FC = () => {
-  const {eventId} = useParams<EventPageParams>();
+  const {id} = useParams<{id: string}>();
   const token = localStorage.getItem('token');
   const [isFavorite, setIsFavorite] = useState(false);
   const [favorite, setFavorite] = useState(false);
+  const [isAttending, setIsAttending] = useState(false);
+  const [attending, setAttending] = useState(false);
 
+  console.log('eventId', id);
   console.log('token', token);
   //get event data
   const {
@@ -22,25 +23,28 @@ const EventPage: React.FC = () => {
     error,
     data: eventData,
   } = useQuery(getEventById, {
-    variables: {id: eventId},
+    variables: {id: id},
   });
 
   //toggle favorite
-  const [toggleFavorite, {data: favoriteData}] =
-    useMutation(toggleFavoriteEvent);
-
+  const [toggleFavorite] = useMutation(toggleFavoriteEvent);
+  const [toggleAttending] = useMutation(toggleAttendingEvent);
   const handleToggleFavoriteEvent = async () => {
     // Call the mutate function to execute the mutation
     if (!token) {
       alert('You must be logged in to favorite an event');
       return;
     }
-    if (!eventId) {
+    if (!id) {
       console.log('no eventId');
       return;
     }
+    if (event && event.creator.user_name === 'apiUser') {
+      alert('Can not favorite api events :(((');
+      return;
+    }
     const favorite = await toggleFavorite({
-      variables: {eventId: eventId},
+      variables: {eventId: id},
     });
     if (favorite) {
       console.log('favorite', favorite.data.toggleFavoriteEvent.isTrue);
@@ -49,11 +53,30 @@ const EventPage: React.FC = () => {
     }
   };
 
+  const handleToggleAttendingEvent = async () => {
+    if (!token) {
+      alert('You must be logged in to attend an event');
+      return;
+    }
+    if (event && event.creator.user_name === 'apiUser') {
+      alert('Can not attend api events (yet) :(((');
+      return;
+    }
+    const attend = await toggleAttending({
+      variables: {eventId: id},
+    });
+    if (attend) {
+      console.log('attend', attend.data.toggleAttendingEvent.isTrue);
+      setIsAttending(attend.data.toggleAttendingEvent.isTrue);
+      setAttending(attend.data.toggleAttendingEvent.isTrue);
+    }
+
+    console.error(error);
+  };
+
   const event = useMemo(() => {
-    console.log('data', eventData);
-    console.log('eventId', eventId);
     if (eventData && eventData.event) {
-      console.log('data.event', eventData.event);
+      console.log('eventData', eventData.event.creator.user_name);
       return eventData.event;
     }
     return undefined;
@@ -65,6 +88,13 @@ const EventPage: React.FC = () => {
       setIsFavorite(favorite);
     }
   }, [favorite]);
+
+  useEffect(() => {
+    console.log('isAttending', isAttending);
+    if (event) {
+      setIsAttending(attending);
+    }
+  }, [attending]);
 
   if (loading) {
     return (
@@ -135,22 +165,44 @@ const EventPage: React.FC = () => {
                   </svg>
                 )}
               </button>
-              <button className="btn">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="w-6 h-6"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                  />
-                </svg>
-                Attend
+              <button className="btn" onClick={handleToggleAttendingEvent}>
+                {isAttending ? (
+                  <>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                      className="w-6 h-6"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M5 13l4 4L19 7" // This is a checkmark icon, replace with your own if needed
+                      />
+                    </svg>
+                    Attending
+                  </>
+                ) : (
+                  <>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                      className="w-6 h-6"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                      />
+                    </svg>
+                    Attend
+                  </>
+                )}
               </button>
             </div>
           </div>

@@ -282,8 +282,6 @@ export default {
       args: {eventId: String},
       context: MyContext,
     ): Promise<ToggleResponse> => {
-      console.log('toggleFavoriteEvent');
-      console.log('token', context);
       isLoggedIn(context);
       try {
         // Päivitetään tapahtuman favoritedBy-kenttä tietokantaan
@@ -294,20 +292,20 @@ export default {
         console.log('event', event);
         const userId = context.userdata?.user.id.toString();
         const isFavorited = event.favoritedBy.includes(userId);
-        console.log('isFavorited', isFavorited);
+        let isFavorite = isFavorited;
         // Jos käyttäjä on jo tykännyt tapahtumasta, se poistetaan event-objektista
         if (isFavorited) {
-          console.log('päästiin if favoriteen');
           event.favoritedBy = event.favoritedBy.filter(
             (favoritedUserId) =>
               favoritedUserId && favoritedUserId.toString() !== userId,
           );
+          isFavorite = false;
           console.log('Event unfavorited by', userId);
         } else {
           event.favoritedBy.push(userId);
+          isFavorite = true;
           console.log('Event favorited by', userId);
         }
-        console.log('päästiin tänne');
         // Päivitetään tapahtuman favoriteCount-kenttä tietokantaan
         event.favoriteCount = event.favoritedBy.length;
         // Tallennetaan muutokset
@@ -337,7 +335,7 @@ export default {
         );
         return {
           message: 'Successfully toggled favorite status',
-          isTrue: isFavorited,
+          isTrue: isFavorite,
         };
       } catch (error) {
         throw new Error('Failed to toggle favorite event.');
@@ -357,6 +355,7 @@ export default {
         }
         const userId = context.userdata?.user.id;
         const isAttending = event.attendedBy.includes(userId);
+        let isAttendingEvent = isAttending;
 
         // Jos käyttäjä on jo ilmoittautunut tapahtumaan, se poistetaan event-objektista
         if (isAttending) {
@@ -364,9 +363,11 @@ export default {
             (attendedUserId) =>
               attendedUserId && attendedUserId.toString() !== userId,
           );
+          isAttendingEvent = false;
           console.log('Event unattended by', userId);
         } else {
           event.attendedBy.push(userId);
+          isAttendingEvent = true;
           console.log('Event attended by', userId);
         }
 
@@ -400,7 +401,7 @@ export default {
         );
         return {
           message: 'Successfully toggled attending status',
-          isTrue: isAttending,
+          isTrue: isAttendingEvent,
         };
       } catch (error) {
         throw new Error('Failed to toggle attending event.');
