@@ -120,7 +120,7 @@ const NavBar = () => {
   };
   const closeRegisterSuccessModal = () => {
     resetStates();
-    setRegistermodalOpen(false);
+    setRegisterSuccessModalOpen(false);
   };
 
   //Login and register handling
@@ -172,8 +172,9 @@ const NavBar = () => {
       if (registerData) {
         OpenRegisterSuccessModal();
       }
-      setRegisterError('Registering failed');
     } catch (error) {
+      setRegisterError('Registering failed');
+
       console.log(error);
     }
   };

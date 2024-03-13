@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {UserInput, User, Event} from '../../types/DBTypes';
 import fetchData from '../../functions/fetchData';
-import {UserResponse} from '../../types/MessageTypes';
+import {ToggleResponse, UserResponse} from '../../types/MessageTypes';
 import {MyContext} from '../../types/MyContext';
 import {isAdmin, isLoggedIn} from '../../functions/authorize';
 import {__InputValue} from 'graphql';
@@ -281,7 +281,7 @@ export default {
       _parent: undefined,
       args: {eventId: String},
       context: MyContext,
-    ) => {
+    ): Promise<ToggleResponse> => {
       console.log('toggleFavoriteEvent');
       console.log('token', context);
       isLoggedIn(context);
@@ -291,19 +291,23 @@ export default {
         if (!event) {
           throw new Error('Event not found');
         }
-        const userId = context.userdata?.user.id;
+        console.log('event', event);
+        const userId = context.userdata?.user.id.toString();
         const isFavorited = event.favoritedBy.includes(userId);
+        console.log('isFavorited', isFavorited);
         // Jos käyttäjä on jo tykännyt tapahtumasta, se poistetaan event-objektista
         if (isFavorited) {
+          console.log('päästiin if favoriteen');
           event.favoritedBy = event.favoritedBy.filter(
-            (favoritedUserId) => favoritedUserId.toString() !== userId,
+            (favoritedUserId) =>
+              favoritedUserId && favoritedUserId.toString() !== userId,
           );
           console.log('Event unfavorited by', userId);
         } else {
           event.favoritedBy.push(userId);
           console.log('Event favorited by', userId);
         }
-
+        console.log('päästiin tänne');
         // Päivitetään tapahtuman favoriteCount-kenttä tietokantaan
         event.favoriteCount = event.favoritedBy.length;
         // Tallennetaan muutokset
@@ -331,7 +335,10 @@ export default {
             }),
           },
         );
-        return event;
+        return {
+          message: 'Successfully toggled favorite status',
+          isTrue: isFavorited,
+        };
       } catch (error) {
         throw new Error('Failed to toggle favorite event.');
       }
@@ -354,7 +361,8 @@ export default {
         // Jos käyttäjä on jo ilmoittautunut tapahtumaan, se poistetaan event-objektista
         if (isAttending) {
           event.attendedBy = event.attendedBy.filter(
-            (attendedUserId) => attendedUserId.toString() !== userId,
+            (attendedUserId) =>
+              attendedUserId && attendedUserId.toString() !== userId,
           );
           console.log('Event unattended by', userId);
         } else {
@@ -390,7 +398,10 @@ export default {
             }),
           },
         );
-        return event;
+        return {
+          message: 'Successfully toggled attending status',
+          isTrue: isAttending,
+        };
       } catch (error) {
         throw new Error('Failed to toggle attending event.');
       }
