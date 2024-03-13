@@ -58,15 +58,13 @@ const Home: React.FC = () => {
   }, [likedData]);
 
   useEffect(() => {
+    // Set attending events data
     console.log('attendingData', attendingData);
     if (attendingData && attendingData.attendedEventsByUserId) {
       setAttendingEvents(attendingData.attendedEventsByUserId);
     }
   }, [attendingData]);
-  //TODO: Add loading state
-  //TODO: add error state
-  //TODO: add different sections for authenticated and non-authenticated users
-  //TODO: add styiling/grid for the events
+
   return (
     <>
       {isLoading ? (
@@ -102,7 +100,7 @@ const Home: React.FC = () => {
                       marginBottom: '1rem',
                     }}
                   >
-                    <h1 className="">Liked Events</h1>
+                    <h1 className="text-xl">Liked Events</h1>
                     <div
                       style={{
                         display: 'grid',
@@ -133,7 +131,7 @@ const Home: React.FC = () => {
                         marginBottom: '1rem',
                       }}
                     >
-                      <h1>attending Events</h1>
+                      <h1 className="text-l">attending Events</h1>
                       <div
                         style={{
                           display: 'grid',
@@ -149,7 +147,9 @@ const Home: React.FC = () => {
                               </div>
                             ))}
                             {attendingEventsData.length === 0 && (
-                              <p>You have not liked any events yet</p>
+                              <p className="text-l">
+                                You have nott attending any events yet
+                              </p>
                             )}
                           </>
                         )}

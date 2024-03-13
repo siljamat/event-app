@@ -63,7 +63,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
       closeModal();
     } catch (error) {
       // Handle the error...
-      console.error('Failed to update event:', error, error.message);
+      console.error('Failed to update event:', error);
     }
   };
 
