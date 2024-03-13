@@ -156,7 +156,7 @@ const getEventsByMinAge = gql`
   }
 `;
 
-const getEventsByDate = gql`
+const getEventsByDate = `
   query EventsByDate($date: Date!) {
     eventsByDate(date: $date) {
       address

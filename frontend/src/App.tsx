@@ -12,6 +12,7 @@ import Layout from './components/Layout';
 import UserPage from '../pages/UserPage';
 import UserEvents from './components/userEvents';
 import SearchPage from '../pages/SearchPage';
+import HappeningToday from '../pages/HappeningToday';
 
 const httpLink = createHttpLink({
   uri: import.meta.env.VITE_API_URL,
@@ -59,6 +60,7 @@ function App() {
                 <Route path="/event/:id" element={<EventPage />} />
                 <Route path="/userEvents" element={<UserEvents />} />
                 <Route path="/searchPage" element={<SearchPage />} />
+                <Route path="/happeningToday" element={<HappeningToday />} />
               </Routes>
             </div>
           </Router>
