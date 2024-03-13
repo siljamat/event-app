@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {useEffect, useState} from 'react';
 import {doGraphQLFetch} from '../src/graphql/fetch';
-import {getEventsByDate} from '../src/graphql/eventQueries';
+import {getEventsByDate, getEventsByMinAge} from '../src/graphql/eventQueries';
 import EventCard from '../src/components/EventCard';
 import {EventType} from '../src/types/EventType';
 
@@ -25,6 +25,13 @@ const SearchPage = () => {
         date: searchParams.date,
       });
       setEvents(data.eventsByDate);
+    }
+
+    if (searchParams.age) {
+      const data = await doGraphQLFetch(API_URL, getEventsByMinAge, {
+        age: searchParams.age,
+      });
+      setEvents(data.eventsByMinAge);
     }
   };
 

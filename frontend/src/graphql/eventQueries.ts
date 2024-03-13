@@ -125,7 +125,7 @@ const getEventsByOrganizer = gql`
   }
 `;
 
-const getEventsByMinAge = gql`
+const getEventsByMinAge = `
   query EventsByMinAge($age: String!) {
     eventsByMinAge(age: $age) {
       address
