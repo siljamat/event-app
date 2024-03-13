@@ -70,23 +70,42 @@ export default {
       console.log('combinedEvents', combinedEvents);
       return combinedEvents;
     },
+
     eventsByDate: async (_parent: undefined, args: {date: Date | string}) => {
       let {date} = args;
       if (typeof date === 'string') {
         date = new Date(date);
       }
 
-      const databaseEvents = await EventModel.find({date: date});
+      const nextDay = new Date(date);
+      nextDay.setDate(date.getDate() + 1);
 
-      const apiEvents = await eventApiFetch(
-        `https://api.hel.fi/linkedevents/v1/event/?start=${date.toISOString()}`,
+      const databaseEvents = await EventModel.find({
+        date: {
+          $gte: date,
+          $lt: nextDay,
+        },
+      });
+
+      let apiEvents = await eventApiFetch(
+        `https://api.hel.fi/linkedevents/v1/event/?start=${date.toISOString()}&end=${nextDay.toISOString()}`,
       );
+
+      // Filter the events from the API to only include events that both start and end on the specified date
+      apiEvents = apiEvents.filter((event) => {
+        if (event) {
+          const eventDate = new Date(event.date);
+          return eventDate >= date && eventDate < nextDay;
+        }
+        return false;
+      });
 
       console.log('apiEvents', apiEvents);
       const combinedEvents = [...databaseEvents, ...apiEvents];
       console.log('combinedEvents', combinedEvents);
       return combinedEvents;
     },
+
     eventsByPrice: async (_parent: undefined, args: {price: string}) => {
       const databaseEvents = await EventModel.find({price: args.price});
 
