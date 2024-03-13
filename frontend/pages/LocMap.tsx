@@ -1,3 +1,4 @@
+/* eslint-disable no-inner-declarations */
 import React, {useEffect, useContext} from 'react';
 import {doGraphQLFetch} from '../src/graphql/fetch';
 import {getAllEvents} from '../src/graphql/eventQueries';

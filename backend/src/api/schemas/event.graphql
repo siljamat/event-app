@@ -56,6 +56,7 @@ type Query {
   eventsByOrganizer(organizer: String!): [Event]
   eventsByMinAge(age: String!): [Event]
   eventsByArea(address: String!): [Event]
+  eventsByTitle(keyword: String!): [Event]
 }
 
 input InputEvent {
@@ -73,19 +74,19 @@ input InputEvent {
   image: String
   category: [ID]
 }
-#TODO: varmista pitääks täs olla noita pakollisia vai voiko olla valinnaisia ja miten se vaikuttaa resolveriin
+
 input updateEvent {
-  event_name: String!
-  description: String!
-  date: Date!
+  event_name: String
+  description: String
+  date: Date
   location: InputGeoPoint
-  email: String!
-  organizer: String!
-  address: String!
-  age_restriction: String!
+  email: String
+  organizer: String
+  address: String
+  age_restriction: String
   event_site: String
   ticket_site: String
-  price: String!
+  price: String
   image: String
   category: [ID]
 }
@@ -94,4 +95,6 @@ type Mutation {
   createEvent(input: InputEvent): Event
   updateEvent(id: ID!, input: updateEvent!): Event
   deleteEvent(id: ID!): deleteEventResponse
+  updateEventAsAdmin(id: ID!, input: updateEvent!): Event
+  deleteEventAsAdmin(id: ID!): deleteEventResponse
 }

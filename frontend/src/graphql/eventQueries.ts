@@ -63,7 +63,7 @@ const getEventById = gql`
   }
 `;
 
-const getEventsByCategory = gql`
+const getEventsByCategory = `
   query EventsByCategory($category: String!) {
     eventsByCategory(category: $category) {
       address
@@ -249,7 +249,7 @@ const getUserEvents = gql`
   }
 `;
 
-const getEventsByAddress = gql`
+const getEventsByAddress = `
   query EventsByAddress($address: String!) {
     eventsByArea(address: $address) {
       address
