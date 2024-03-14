@@ -18,5 +18,5 @@ input updateCategory {
 type Mutation {
   createCategory(input: InputCategory): Category
   updateCategory(id: ID!, input: updateCategory): Category
-  deleteCategory(id: ID!): Category
+  deleteCategory(categoryName: String!): Category
 }

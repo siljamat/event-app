@@ -1,3 +1,4 @@
+/* eslint-disable no-inner-declarations */
 import React, {useEffect, useContext} from 'react';
 import {doGraphQLFetch} from '../src/graphql/fetch';
 import {getAllEvents} from '../src/graphql/eventQueries';
@@ -172,61 +173,57 @@ const Map: React.FC = () => {
         infoWindow.open(map);
       };
 
-      const input = document.getElementById('pac-input');
-      if (input) {
-        const searchBox = new window.google.maps.places.SearchBox(input);
-        map.controls[window.google.maps.ControlPosition.BOTTOM_LEFT].push(
-          input,
-        );
+      const input = document.createElement('input');
+      const searchBox = new window.google.maps.places.SearchBox(input);
+      map.controls[window.google.maps.ControlPosition.TOP_CENTER].push(input);
 
-        let markers: google.maps.Marker[] = [];
+      let markers: google.maps.Marker[] = [];
 
-        searchBox.addListener('places_changed', () => {
-          const places = searchBox.getPlaces();
+      searchBox.addListener('places_changed', () => {
+        const places = searchBox.getPlaces();
 
-          if (places.length == 0) {
+        if (places.length == 0) {
+          return;
+        }
+
+        markers.forEach((marker) => {
+          marker.setMap(null);
+        });
+        markers = [];
+
+        const bounds = new window.google.maps.LatLngBounds();
+
+        places.forEach((place: google.maps.places.PlaceResult) => {
+          if (!place.geometry || !place.geometry.location) {
+            console.log('Returned place contains no geometry');
             return;
           }
 
-          markers.forEach((marker) => {
-            marker.setMap(null);
-          });
-          markers = [];
+          const icon = {
+            url: place.icon,
+            size: new window.google.maps.Size(71, 71),
+            origin: new window.google.maps.Point(0, 0),
+            anchor: new window.google.maps.Point(17, 34),
+            scaledSize: new window.google.maps.Size(25, 25),
+          };
 
-          const bounds = new window.google.maps.LatLngBounds();
+          markers.push(
+            new window.google.maps.Marker({
+              map,
+              icon,
+              title: place.name,
+              position: place.geometry.location,
+            }),
+          );
 
-          places.forEach((place: google.maps.places.PlaceResult) => {
-            if (!place.geometry || !place.geometry.location) {
-              console.log('Returned place contains no geometry');
-              return;
-            }
-
-            const icon = {
-              url: place.icon,
-              size: new window.google.maps.Size(71, 71),
-              origin: new window.google.maps.Point(0, 0),
-              anchor: new window.google.maps.Point(17, 34),
-              scaledSize: new window.google.maps.Size(25, 25),
-            };
-
-            markers.push(
-              new window.google.maps.Marker({
-                map,
-                icon,
-                title: place.name,
-                position: place.geometry.location,
-              }),
-            );
-
-            if (place.geometry.viewport) {
-              bounds.union(place.geometry.viewport);
-            } else {
-              bounds.extend(place.geometry.location);
-            }
-          });
-          map.fitBounds(bounds);
+          if (place.geometry.viewport) {
+            bounds.union(place.geometry.viewport);
+          } else {
+            bounds.extend(place.geometry.location);
+          }
         });
-      }
+        map.fitBounds(bounds);
+      });
     }
   }, [eventData, window.google]);
 
@@ -268,16 +265,26 @@ const Map: React.FC = () => {
   }, []);
 
   return (
-    <div>
-      <div className="search-box-container">
-        <input id="pac-input" type="text" placeholder="Search for places" />
-      </div>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
       <div id="map" style={{width: '80%', height: '80vh'}} />
       <div>
         <>
-          <div className="">
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              gap: '1rem',
+            }}
+          >
             {displayedEvents.map((event: EventType) => (
-              <div className="" key={event.id}>
+              <div key={event.id}>
                 <EventCard event={event} />
               </div>
             ))}

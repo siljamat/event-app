@@ -1,11 +1,10 @@
-import {Point} from 'geojson';
 import {User} from './User';
 import {Category} from './Category';
 
 type EventType = {
   address: string;
   age_restriction: string;
-  category: Category;
+  category: string[];
   created_at: string;
   creator: User;
   date: string;

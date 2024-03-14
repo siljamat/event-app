@@ -2,16 +2,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import e from 'express';
 import EventModel from '../models/eventModel';
-import {isLoggedIn} from '../../functions/authorize';
+import {isAdmin, isLoggedIn} from '../../functions/authorize';
 import {MyContext} from '../../types/MyContext';
 import {LocationInput, Event, User} from '../../types/DBTypes';
 import fetchData from '../../functions/fetchData';
 import {getLocationCoordinates} from '../../functions/geocode';
 import {Console} from 'console';
 import eventApiFetch from '../../functions/eventApiFetch';
-import mongoose from 'mongoose';
+import mongoose, {ObjectId} from 'mongoose';
 import {updateUsersFields} from '../../utils/user';
 import userResolver from './userResolver';
+import CategoryModel from '../models/categoryModel';
 
 export default {
   Query: {
@@ -45,7 +46,6 @@ export default {
       console.log('EVENT ID', args.id);
       if (mongoose.Types.ObjectId.isValid(args.id)) {
         const eventFromDb = await EventModel.findById(args.id);
-
         if (eventFromDb) {
           return eventFromDb;
         }
@@ -57,20 +57,43 @@ export default {
 
       return apiEvent;
     },
-    //TODO: Täytyy odottaa että categor toimii
-    eventsByCategory: async (_parent: undefined, args: {category: string}) => {
-      const databaseEvents = await EventModel.find({category: args.category});
-
-      //TODO: switch to keywrds and map through cateogry names and cee if matches
+    eventsByCategory: async (
+      _parent: undefined,
+      args: {category_name: string},
+    ) => {
+      // Haetaan kategoria nimen perusteella
+      const categoryObj = await CategoryModel.findOne({
+        category_name: args.category_name,
+      });
+      if (!categoryObj) {
+        console.log(`Category ${args.category_name} not found from database`);
+        return [];
+      }
+      // Haetaan tapahtumat kategorian id:n perusteella
+      const databaseEvents = await EventModel.aggregate([
+        {
+          $lookup: {
+            from: 'categories',
+            localField: 'category',
+            foreignField: '_id',
+            as: 'categoryObj',
+          },
+        },
+        {
+          $match: {
+            'categoryObj._id': new mongoose.Types.ObjectId(categoryObj._id),
+          },
+        },
+      ]);
+      // Haetaan APIsta kaikki tapahtumat kategorian perusteella
       const apiEvents = await eventApiFetch(
-        `https://api.hel.fi/linkedevents/v1/event/?suitable_for=${args.category}`,
+        `https://api.hel.fi/linkedevents/v1/event/?text=${args.category_name}`,
       );
-      console.log('apiEvents', apiEvents);
+      console.log('apiEvents lenght:', apiEvents.length);
+      // Yhdistetään tietokannasta ja APIsta haetut tapahtumat ja palautetaan ne
       const combinedEvents = [...databaseEvents, ...apiEvents];
-      console.log('combinedEvents', combinedEvents);
       return combinedEvents;
     },
-
     eventsByDate: async (_parent: undefined, args: {date: Date | string}) => {
       let {date} = args;
       if (typeof date === 'string') {
@@ -105,10 +128,8 @@ export default {
       console.log('combinedEvents', combinedEvents);
       return combinedEvents;
     },
-
     eventsByPrice: async (_parent: undefined, args: {price: string}) => {
       const databaseEvents = await EventModel.find({price: args.price});
-
       const apiEvents = await eventApiFetch(
         `https://api.hel.fi/linkedevents/v1/event/?price=${args.price}`,
       );
@@ -122,7 +143,6 @@ export default {
       args: {organizer: string},
     ) => {
       const databaseEvents = await EventModel.find({organizer: args.organizer});
-
       const apiEvents = await eventApiFetch(
         `https://api.hel.fi/linkedevents/v1/event/?publisher=${args.organizer}`,
       );
@@ -132,7 +152,6 @@ export default {
     },
     eventsByMinAge: async (_parent: undefined, args: {age: string}) => {
       const databaseEvents = await EventModel.find({age_restriction: args.age});
-
       const apiEvents = await eventApiFetch(
         `https://api.hel.fi/linkedevents/v1/event/?audience_min_age=${args.age}`,
       );
@@ -150,7 +169,6 @@ export default {
             },
           },
         });
-
         const apiEvents = await eventApiFetch(
           `https://api.hel.fi/linkedevents/v1/event/?location=${encodeURIComponent(args.address)}&radius=10000`,
         );
@@ -162,6 +180,29 @@ export default {
         console.error('Error fetching events by area:', error);
         throw new Error('Error fetching events by area');
       }
+    },
+    eventsByTitle: async (_parent: undefined, args: {keyword: string}) => {
+      // Haetaan tietokannasta tapahtumat, joiden event_name sisältää hakusanan
+      const {keyword} = args;
+      const databaseEvents = await EventModel.find({
+        event_name: {$regex: new RegExp(keyword, 'i')},
+      });
+      let apiEvents = await eventApiFetch(
+        `https://api.hel.fi/linkedevents/v1/event/?text=${keyword}`,
+      );
+      // Filteröidään APIsta haetut tapahtumat, joiden event_name sisältää hakusanan
+      apiEvents = apiEvents.filter(
+        (event) =>
+          event &&
+          event.event_name &&
+          event.event_name.toLowerCase().includes(keyword.toLowerCase()),
+      );
+      const combinedEvents = [...databaseEvents, ...apiEvents];
+      // Filteröidään pois tapahtumat, joissa event_name on undefined/null
+      const filteredEvents = combinedEvents.filter(
+        (event) => event && event.event_name,
+      );
+      return filteredEvents;
     },
   },
   Mutation: {
@@ -195,32 +236,35 @@ export default {
       );
       return createdEvent;
     },
-    //TODO: Figure out why creator is undefined here and fix it
     updateEvent: async (
       _parent: undefined,
       args: {id: string; input: Partial<Omit<Event, 'id'>>},
       context: MyContext,
     ) => {
       isLoggedIn(context);
-      const id = args.input.creator?.id;
-
-      // if (args.input.address) {
-      //   const {address} = args.input;
-      //   const coords = await getLocationCoordinates(address);
-      //   args.input.location = {
-      //     type: 'Point',
-      //     coordinates: [coords.lat, coords.lng],
-      //   };
-      // }
+      const eventToUpdate = await EventModel.findById(args.id);
+      if (!eventToUpdate) {
+        throw new Error('Event not found!');
+      }
+      // Tarkistetaan, että käyttäjä on tapahtuman luoja
+      if (eventToUpdate.creator.toString() !== context.userdata?.user.id) {
+        throw new Error('You are not authorized to update this event.');
+      }
+      // Jos tapahtuman osoitetta on muutettu, päivitetään myös sijainti
+      if (args.input.address) {
+        const {address} = args.input;
+        const coords = await getLocationCoordinates(address);
+        args.input.location = {
+          type: 'Point',
+          coordinates: [coords.lat, coords.lng],
+        };
+      }
       const updatedEvent = await EventModel.findByIdAndUpdate(
         args.id,
         args.input,
-        {
-          new: true,
-        },
+        {new: true},
       );
-      console.log('Event updated successfully!' + updatedEvent);
-
+      console.log('Event updated successfully!', updatedEvent);
       return updatedEvent;
     },
     deleteEvent: async (
@@ -229,6 +273,76 @@ export default {
       context: MyContext,
     ) => {
       isLoggedIn(context);
+      try {
+        const event = await EventModel.findById(args.id);
+        if (!event) {
+          throw new Error('Event not found from the database!');
+        }
+        // Tarkisteetaan, että käyttäjä on tapahtuman luoja
+        if (event.creator.toString() !== context.userdata?.user.id) {
+          throw new Error('You are not authorized to delete this event.');
+        }
+        // Poistetaan tapahtuman id käyttäjän createdEvents kentästä
+        await fetchData<Response>(
+          `${process.env.AUTH_URL}/users/${event.creator}`,
+          {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${context.userdata?.token}`,
+            },
+            body: JSON.stringify({
+              createdEvents: (
+                context.userdata?.user.createdEvents || []
+              ).filter((eventId) => eventId.toString() !== args.id),
+            }),
+          },
+        );
+        // Poistetaan tapahtuma tietokannasta
+        await EventModel.findByIdAndDelete(args.id);
+        console.log('Event deleted successfully!');
+        return {
+          message: 'Event deleted successfully!',
+          success: true,
+        };
+      } catch (error) {
+        console.error('Error deleting event:', error);
+        throw new Error('Failed to delete event.');
+      }
+    },
+    updateEventAsAdmin: async (
+      _parent: undefined,
+      args: {id: string; input: Partial<Omit<Event, 'id'>>},
+      context: MyContext,
+    ) => {
+      isAdmin(context);
+      const eventToUpdate = await EventModel.findById(args.id);
+      if (!eventToUpdate) {
+        throw new Error('Event not found!');
+      }
+      // Jos tapahtuman osoitetta on muutettu, päivitetään myös sijainti
+      if (args.input.address) {
+        const {address} = args.input;
+        const coords = await getLocationCoordinates(address);
+        args.input.location = {
+          type: 'Point',
+          coordinates: [coords.lat, coords.lng],
+        };
+      }
+      const updatedEvent = await EventModel.findByIdAndUpdate(
+        args.id,
+        args.input,
+        {new: true},
+      );
+      console.log('Event updated successfully!', updatedEvent);
+      return updatedEvent;
+    },
+    deleteEventAsAdmin: async (
+      _parent: undefined,
+      args: {id: string},
+      context: MyContext,
+    ) => {
+      isAdmin(context);
       try {
         const event = await EventModel.findById(args.id);
         if (!event) {
@@ -250,11 +364,8 @@ export default {
             }),
           },
         );
-        // TO-DO: Poistetaan tapahtuma käyttäjien tiedoista
-        console.log('event._id', event._id);
-        await updateUsersFields(event._id, context);
         // Poistetaan tapahtuma tietokannasta
-        //await EventModel.findByIdAndDelete(args.id);
+        await EventModel.findByIdAndDelete(args.id);
         console.log('Event deleted successfully!');
         return {
           message: 'Event deleted successfully!',

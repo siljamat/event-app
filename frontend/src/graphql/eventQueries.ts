@@ -63,7 +63,7 @@ const getEventById = gql`
   }
 `;
 
-const getEventsByCategory = gql`
+const getEventsByCategory = `
   query EventsByCategory($category: String!) {
     eventsByCategory(category: $category) {
       address
@@ -125,7 +125,7 @@ const getEventsByOrganizer = gql`
   }
 `;
 
-const getEventsByMinAge = gql`
+const getEventsByMinAge = `
   query EventsByMinAge($age: String!) {
     eventsByMinAge(age: $age) {
       address
@@ -249,7 +249,7 @@ const getUserEvents = gql`
   }
 `;
 
-const getEventsByAddress = gql`
+const getEventsByAddress = `
   query EventsByAddress($address: String!) {
     eventsByArea(address: $address) {
       address

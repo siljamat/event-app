@@ -40,12 +40,20 @@ export default {
     },
     deleteCategory: async (
       _parent: undefined,
-      args: {id: string},
+      args: {categoryName: string},
       context: MyContext,
     ) => {
       isAdmin(context);
       try {
-        const categoryId = new mongoose.Types.ObjectId(args.id);
+        // Haetaan kategoria nimen perusteella
+        const category = await CategoryModel.findOne({
+          category_name: args.categoryName,
+        });
+        if (!category) {
+          throw new Error(`Category '${args.categoryName}' not found`);
+        }
+        // Haetaan kaikki tapahtumat, jotka kuuluvat kategoriaan id:n perusteella
+        const categoryId = category._id;
         const events = await EventModel.find({category: categoryId});
         // Poistetaan kategoria jokaisesta tapahtumasta
         await Promise.all(
