@@ -16,7 +16,6 @@ function UpdateUserForm() {
   const userFromLocal = localStorage.getItem('user');
   const userFromLocalObj = JSON.parse(userFromLocal || '{}');
 
-  // Inside your component
   const {isAuthenticated} = useContext(AuthContext);
   //console.log('Token from localStorage:', token);
   const [user, setUser] = useState({
@@ -252,15 +251,11 @@ function UpdateUserForm() {
                         >
                           <EventCard event={event} />
                         </div>
-
-                        <a
-                          className="link flex justify-end"
-                          href={`/userEvents`}
-                        >
-                          see all your events and edit them here
-                        </a>
                       </>
                     ))}
+                    <a className="link flex justify-end" href={`/userEvents`}>
+                      see all your events and edit them here
+                    </a>
                     {createdEvents.length === 0 && (
                       <div>
                         <p>You have not created any events yet</p>
