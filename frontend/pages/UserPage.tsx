@@ -81,7 +81,24 @@ function UpdateUserForm() {
           },
         },
       });
-      console.log('data:', data);
+      if (data) {
+        console.log('data:', data);
+        if (data.updateUser.user) {
+          console.log('data.updateUser:', data.updateUser.user);
+          const updatedUser = {
+            id: userId,
+            user_name: data.updateUser.user.user_name,
+            email: data.updateUser.user.email,
+            password: hashedPassword,
+          };
+          console.log('updatedUser APSFJADEOGHJ:', updatedUser);
+          if (updatedUser) {
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+          }
+        }
+      } else {
+        alert('error updating user info ');
+      }
     } else {
       console.error('User ID not found in local storage.');
     }
@@ -128,7 +145,7 @@ function UpdateUserForm() {
         }}
       >
         <h1 className="text-5xl font-bold text-center">
-          Hello, {user.user_name}
+          Hello, {userFromLocalObj.user_name}
         </h1>
         <div className="bg-accent p-10 mt-5 rounded-lg">
           <div>
@@ -152,7 +169,7 @@ function UpdateUserForm() {
                     width: '100%',
                   }}
                 >
-                  <form>
+                  <form onSubmit={handleSubmit}>
                     <div
                       style={{
                         display: 'flex',
