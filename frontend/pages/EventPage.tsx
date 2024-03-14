@@ -18,6 +18,7 @@ const EventPage: React.FC = () => {
   const userId = user?.id;
   const [isFavorite, setIsFavorite] = useState(false);
   const [isAttending, setIsAttending] = useState(false);
+  const [categories, setCategories] = useState([]);
 
   const {data: likedData} = useQuery(likedEvents, {
     variables: {userId},
@@ -48,8 +49,6 @@ const EventPage: React.FC = () => {
     }
   }, [data]);
 
-  console.log('eventId', id);
-  console.log('token', token);
   //get event data
   const {
     loading,
@@ -58,6 +57,21 @@ const EventPage: React.FC = () => {
   } = useQuery(getEventById, {
     variables: {id: id},
   });
+
+  const event = useMemo(() => {
+    if (eventData && eventData.event) {
+      console.log('eventData', eventData);
+      return eventData.event;
+    }
+    return undefined;
+  }, [eventData]);
+
+  useEffect(() => {
+    if (eventData && eventData.event && eventData.event.category) {
+      setCategories(eventData.event.category);
+      console.log('categories', categories);
+    }
+  }, [eventData]);
 
   //toggle favorite
   const [toggleFavorite] = useMutation(toggleFavoriteEvent);
@@ -82,6 +96,7 @@ const EventPage: React.FC = () => {
     if (favorite) {
       console.log('favorite', favorite.data.toggleFavoriteEvent.isTrue);
       setIsFavorite(favorite.data.toggleFavoriteEvent.isTrue);
+      window.location.reload();
     }
   };
 
@@ -104,13 +119,6 @@ const EventPage: React.FC = () => {
 
     console.error(error);
   };
-
-  const event = useMemo(() => {
-    if (eventData && eventData.event) {
-      return eventData.event;
-    }
-    return undefined;
-  }, [eventData]);
 
   if (loading) {
     return (
@@ -241,8 +249,20 @@ const EventPage: React.FC = () => {
             }}
           >
             <div>
-              <p>Likes: {event.favoriteCount}</p>
-              <p>Attending: {event.attendeeCount}</p>
+              <div className="flex flex-row">
+                {categories.map((category, index: number) => (
+                  <div
+                    key={index}
+                    className="border rounded-lg "
+                    style={{
+                      marginRight: '5px',
+                      padding: '5px',
+                    }}
+                  >
+                    {category.category_name}
+                  </div>
+                ))}
+              </div>
             </div>
             <div className="flex flex-row">
               <div id="x-btn">
