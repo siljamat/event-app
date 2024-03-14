@@ -340,9 +340,9 @@ export default {
     },
     toggleAttendingEvent: async (
       _parent: undefined,
-      args: {eventId: ObjectId},
+      args: {eventId: String},
       context: MyContext,
-    ) => {
+    ): Promise<ToggleResponse> => {
       isLoggedIn(context);
       try {
         // Päivitetään tapahtuman attendedBy-kenttä tietokantaan
