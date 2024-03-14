@@ -16,9 +16,7 @@ const SearchPage = () => {
   const [apiEvents, setApiEvents] = useState<EventType[]>([]);
   const [searchParams, setSearchParams] = useState({
     date: '',
-    address: '',
     keyword: '',
-    age: '',
     category: '',
   });
 
@@ -35,29 +33,23 @@ const SearchPage = () => {
       const data = await doGraphQLFetch(API_URL, getEventsByDate, {
         date: searchParams.date,
       });
+      //console.log('Data from getEventsByDate:', data); //Tämä palauttaa oikein eli vika ei doGraphqlFetchissä
       fetchedEvents = fetchedEvents.concat(data.eventsByDate || []);
     }
 
-    if (searchParams.age) {
-      const data = await doGraphQLFetch(API_URL, getEventsByMinAge, {
-        age: searchParams.age,
-      });
-      fetchedEvents = fetchedEvents.concat(data.eventsByMinAge || []);
-    }
-
-    console.log('searchParamAdress: ', searchParams.address);
-
-    if (searchParams.address) {
-      const data = await doGraphQLFetch(API_URL, getEventsByAddress, {
-        address: searchParams.address,
-      });
-      fetchedEvents = fetchedEvents.concat(data.eventsByAddress || []);
-    }
     if (searchParams.category) {
       const data = await doGraphQLFetch(API_URL, getEventsByCategory, {
-        category: searchParams.category,
+        categoryName: searchParams.category,
       });
-      fetchedEvents = fetchedEvents.concat(data.eventsByCategory || []);
+      console.log('Data:', data);
+      if (data && data.eventsByCategory) {
+        fetchedEvents = fetchedEvents.concat(
+          data.eventsByCategory.filter((event: EventType) => event !== null),
+        ); // Lisätään vain ei-null tapahtumat fetchedEvents-muuttujaan
+        console.log('fetchedEvents after concatenation:', fetchedEvents); // Varmista, että tapahtumat on lisätty fetchedEvents-muuttujaan
+      } else {
+        console.error('eventsByCategory is undefined');
+      }
     }
 
     setEvents(fetchedEvents);
@@ -79,6 +71,10 @@ const SearchPage = () => {
     .filter((event) => event !== null && event !== undefined);
 
   useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  useEffect(() => {
     const fetchCategories = async () => {
       const data = await doGraphQLFetch(API_URL, getCategories, {});
       const categoryReplacements: {[key: string]: string} = {
@@ -92,6 +88,9 @@ const SearchPage = () => {
         charity: 'Charity',
         children: 'Kids',
       };
+
+      console.log('Combined events pituus', combinedEvents.length);
+
       setCategories(
         data.categories.map(
           (category: {category_name: string}) => category.category_name,
@@ -140,24 +139,10 @@ const SearchPage = () => {
       />
       <input
         type="text"
-        name="address"
-        value={searchParams.address}
-        onChange={handleInputChange}
-        placeholder="Address"
-      />
-      <input
-        type="text"
         name="free search"
         value={searchParams.keyword}
         onChange={handleInputChange}
         placeholder="Free search"
-      />
-      <input
-        type="number"
-        name="age"
-        value={searchParams.age}
-        onChange={handleInputChange}
-        placeholder="Age"
       />
       <button onClick={fetchEvents}>Search</button>
       {searchPerformed &&
@@ -181,4 +166,4 @@ export default SearchPage;
 
 //TODO: ikähaku ja address pois
 //free haku
-//category alasvetovalikko
+//category alasvetovalikko ja kategorialla haku
