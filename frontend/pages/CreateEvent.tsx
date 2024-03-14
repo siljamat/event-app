@@ -8,8 +8,11 @@ import {Category} from '../src/types/Category';
 import {useNavigate} from 'react-router-dom';
 
 function CreateEventForm() {
-  const token = localStorage.getItem('token') || undefined;
   const navigate = useNavigate();
+  const API_URL = import.meta.env.VITE_API_URL;
+  const token = localStorage.getItem('token') || undefined;
+  const [categories, setCategories] = useState<Category[]>([]);
+  //initial state for event
   const [event, setEvent] = useState<Partial<EventType>>({
     event_name: '',
     description: '',
@@ -24,10 +27,20 @@ function CreateEventForm() {
     image: '',
     category: [],
   });
+  //category replacements to make the category names more user friendly
+  const categoryReplacements: {[key: string]: string} = {
+    concert: 'Concerts',
+    theatre: 'Theatre',
+    liikuntalaji: 'Sports',
+    'food & drink': 'Food & Drink',
+    outdoors: 'Outdoors',
+    community: 'Community',
+    workshops: 'Workshops',
+    charity: 'Charity',
+    children: 'Kids',
+  };
 
-  const [categories, setCategories] = useState<Category[]>([]);
-  const API_URL = import.meta.env.VITE_API_URL;
-
+  //fetch categories
   useEffect(() => {
     const fetchCategories = async () => {
       const data = await doGraphQLFetch(API_URL, getCategories, {}, token);
@@ -37,6 +50,7 @@ function CreateEventForm() {
     fetchCategories();
   }, []);
 
+  //create event mutation
   const [createEvent] = useMutation(addEvent, {
     context: {
       headers: {
@@ -58,7 +72,6 @@ function CreateEventForm() {
         image: '',
         category: [],
       });
-      // Navigate to the event page
       navigate(`/event/${data.createEvent.id}`);
     },
     onError: (error) => {
@@ -67,6 +80,7 @@ function CreateEventForm() {
     },
   });
 
+  //handle change for input fields
   const handleChange = (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
@@ -92,6 +106,7 @@ function CreateEventForm() {
     }
   };
 
+  //create event
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const {data} = await createEvent({variables: {input: event}});
@@ -288,40 +303,38 @@ function CreateEventForm() {
                       onChange={handleChange}
                     />
                   </div>
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      marginBottom: '1rem',
-                    }}
-                  >
-                    <label>Image</label>
-                    <input
-                      className="input input-bordered w-1/3 mt-3"
-                      type="text"
-                      name="image"
-                      value={event.image}
-                      onChange={handleChange}
-                    />
-                  </div>
                   <fieldset>
                     <legend>Categories</legend>
-                    {categories.map((category) => (
-                      <label
-                        key={category.id}
-                        style={{
-                          margin: '1rem',
-                        }}
-                      >
-                        <input
-                          type="checkbox"
-                          name="category"
-                          value={category.id}
-                          onChange={handleCategoryChange}
-                        />
-                        {category.category_name}
-                      </label>
-                    ))}
+                    <div
+                      style={{
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      {categories.map((category) => {
+                        const categoryName =
+                          categoryReplacements[
+                            category.category_name.toLowerCase()
+                          ] || category.category_name;
+                        return (
+                          <label
+                            key={category.id}
+                            style={{
+                              margin: '1rem',
+                            }}
+                          >
+                            <input
+                              type="checkbox"
+                              name="category"
+                              value={category.id}
+                              onChange={handleCategoryChange}
+                            />
+                            {categoryName}
+                          </label>
+                        );
+                      })}
+                    </div>
                   </fieldset>
                   <button type="submit" className="btn btn-primary mt-5">
                     Create Event

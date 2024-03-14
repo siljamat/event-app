@@ -41,7 +41,15 @@ export default {
         return apiEvents;
       }
       const allEvents = [...databaseEvents, ...apiEvents];
-      return allEvents;
+      const eventNames = new Set();
+      const uniqueEvents = allEvents.filter((event: any) => {
+        if (eventNames.has(event.event_name)) {
+          return false;
+        }
+        eventNames.add(event.event_name);
+        return true;
+      });
+      return uniqueEvents;
     },
     event: async (_parent: undefined, args: {id: string}) => {
       console.log('EVENT ID', args.id);
@@ -220,7 +228,11 @@ export default {
         coordinates: [coords.lat, coords.lng],
       };
       args.input.creator = context.userdata?.user.id;
-      // Lisätään luodun tapahtuman id käyttäjän tietoihin
+      console.log('Creating event with input:', args.input);
+      if (args.input.image.length === 0 || args.input.image.length < 2) {
+        console.log('No image provided, using placeholder image');
+        args.input.image = 'https://picsum.photos/200/300';
+      } // Lisätään luodun tapahtuman id käyttäjän tietoihin
       const createdEvent = await EventModel.create(args.input);
       await fetchData<Response>(
         `${process.env.AUTH_URL}/users/${context.userdata?.user.id}`,

@@ -9,6 +9,7 @@ import {
 import {getCategories} from '../src/graphql/categoryQueries';
 import EventCard from '../src/components/EventCard';
 import {EventType} from '../src/types/EventType';
+import {useMediaQuery} from 'react-responsive';
 
 const SearchPage = () => {
   const [events, setEvents] = useState<EventType[]>([]);
@@ -23,9 +24,11 @@ const SearchPage = () => {
   const [categories, setCategories] = useState<string[]>([]);
   const [displayCategories, setDisplayCategories] = useState<string[]>([]);
   const API_URL = import.meta.env.VITE_API_URL;
+  const isMobile = useMediaQuery({query: '(max-width: 650px)'});
 
   const fetchEvents = async () => {
     setSearchPerformed(true);
+
     let fetchedEvents: EventType[] = [];
 
     if (searchParams.date) {
@@ -123,46 +126,128 @@ const SearchPage = () => {
   };
 
   return (
-    <div>
-      <select
-        name="category"
-        value={displayCategories[categories.indexOf(searchParams.category)]}
-        onChange={handleSelectChange}
-      >
-        <option value="">Select a category</option>
-        {displayCategories.map((category, index) => (
-          <option key={categories[index]} value={category}>
-            {category}
-          </option>
-        ))}
-      </select>
-      <input
-        type="date"
-        name="date"
-        value={searchParams.date}
-        onChange={handleInputChange}
-      />
-      <input
-        type="text"
-        name="keyword"
-        value={searchParams.keyword}
-        onChange={handleInputChange}
-        placeholder="Free search"
-      />
-      <button onClick={fetchEvents}>Search</button>
-      {searchPerformed &&
-        (combinedEvents.length > 0 ? (
-          combinedEvents.slice(0, 10).map((event) => {
+    <div
+      style={{
+        paddingBottom: '3rem',
+        paddingRight: '3rem',
+        paddingLeft: '3rem',
+      }}
+    >
+      <h1 className="text-2xl  text-center">Search events</h1>
+      <div className="bg-accent p-10 mt-2 rounded-lg">
+        <div>
+          <div
+            className="bg-base-100 rounded-lg text-center"
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'center',
+              alignItems: 'center',
+              textAlign: 'center',
+              padding: '15px',
+            }}
+          >
+            <div>
+              <div
+                style={{
+                  alignContent: 'center',
+                  justifyContent: 'center',
+                  width: '100%',
+                }}
+              >
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    marginBottom: '',
+                  }}
+                >
+                  <label>Category</label>
+                  <select
+                    className="select border rounded-lg w-1/3 mt-2"
+                    style={{padding: '0.5rem'}}
+                    name="category"
+                    value={
+                      displayCategories[
+                        categories.indexOf(searchParams.category)
+                      ]
+                    }
+                    onChange={handleSelectChange}
+                  >
+                    <option value="">Select a category</option>
+                    {displayCategories.map((category, index) => (
+                      <option key={categories[index]} value={category}>
+                        {category}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    marginBottom: '2px',
+                  }}
+                >
+                  <label>Date</label>
+                  <input
+                    className="input input-bordered w-1/3 mt-2"
+                    type="date"
+                    name="date"
+                    value={searchParams.date}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    marginBottom: '2px',
+                  }}
+                >
+                  <label>Keyword</label>
+                  <input
+                    className="input input-bordered w-1/3 mt-2"
+                    type="text"
+                    name="keyword"
+                    value={searchParams.keyword}
+                    onChange={handleInputChange}
+                    placeholder="Free search"
+                  />
+                </div>
+                <button className="btn btn-primary mt-3" onClick={fetchEvents}>
+                  Search
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {searchPerformed && combinedEvents.length > 0 ? (
+        <div
+          style={{
+            display: isMobile ? 'flex' : 'grid',
+            flexDirection: isMobile ? 'column' : 'unset',
+            gridTemplateColumns: isMobile ? 'unset' : 'repeat(3, 1fr)',
+            gap: '1rem',
+            maxWidth: '100%',
+            overflowX: 'auto',
+          }}
+        >
+          {combinedEvents.slice(0, 10).map((event) => {
             console.log(event.date);
             return (
               <div key={event.id}>
                 <EventCard event={event} />
               </div>
             );
-          })
-        ) : (
-          <p>No events</p>
-        ))}
+          })}
+        </div>
+      ) : (
+        <div className=" p-10">
+          <p className="text text-center text-xl">No events</p>
+        </div>
+      )}
     </div>
   );
 };

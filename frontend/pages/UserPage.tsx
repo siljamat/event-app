@@ -144,13 +144,13 @@ function UpdateUserForm() {
           paddingLeft: '3rem',
         }}
       >
-        <h1 className="text-5xl font-bold text-center">
+        <h1 className="text-2xl font-bold text-center">
           Hello, {userFromLocalObj.user_name}
         </h1>
-        <div className="bg-accent p-10 mt-5 rounded-lg">
+        <div className=" p-10 rounded-lg">
           <div>
             <div
-              className="bg-base-100 rounded-lg text-center"
+              className="bg-accent rounded-lg text-center"
               style={{
                 display: 'flex',
                 justifyContent: 'center',
@@ -160,8 +160,13 @@ function UpdateUserForm() {
               }}
             >
               {/* UPDATE USER */}
-              <div>
-                <h2 className="text-xl font-bold">Update your user info</h2>
+              <div
+                className="bg-base-100 rounded-lg"
+                style={{
+                  padding: '2rem',
+                }}
+              >
+                <h2 className="text-2xl mb-3">Update your user info</h2>
                 <div
                   style={{
                     alignContent: 'center',
@@ -226,16 +231,22 @@ function UpdateUserForm() {
               </div>
             </div>
             {/* CREATED EVENTS */}
+            <div className="flex flex-col mt-5">
+              <h2 className="text-2xl text-center">Your events</h2>
+              <a className="link text-center" href={`/userEvents`}>
+                see all your events and edit them here
+              </a>
+            </div>
             <div
-              className="bg-base-100 p-10 rounded-lg mt-5"
+              className="bg-accent p-10 rounded-lg mt-5"
               style={{
-                maxHeight: '1000px',
+                maxHeight: '800px',
                 justifyContent: 'center',
                 alignItems: 'center',
                 textAlign: 'center',
+                overflow: 'auto',
               }}
             >
-              <h2 className="text-xl font-bold">Your events</h2>
               <div>
                 {createdEventsData && (
                   <>
@@ -244,20 +255,17 @@ function UpdateUserForm() {
                         <div
                           key={event.id}
                           style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(2, 1fr)',
-                            gap: '1rem',
+                            display: 'flex',
+                            flexDirection: 'column',
                           }}
                         >
                           <EventCard event={event} />
                         </div>
                       </>
                     ))}
-                    <a className="link flex justify-end" href={`/userEvents`}>
-                      see all your events and edit them here
-                    </a>
+
                     {createdEvents.length === 0 && (
-                      <div>
+                      <div className="bg-base-100 p-10 rounded-lg">
                         <p>You have not created any events yet</p>
                         <a
                           className="btn btn-primary mt-5"
@@ -272,16 +280,18 @@ function UpdateUserForm() {
               </div>
             </div>
             {/* LIKED EVENTS */}
+            <h2 className="text-2xl text-center mt-5">Liked Events</h2>
+
             <div
-              className="bg-base-100 p-10 rounded-lg mt-5"
+              className="bg-accent p-10 rounded-lg mt-5"
               style={{
-                maxHeight: '1000px',
+                maxHeight: '800px',
                 justifyContent: 'center',
                 alignItems: 'center',
                 textAlign: 'center',
+                overflow: 'auto',
               }}
             >
-              <h2 className="text-xl font-bold">Liked Events</h2>
               <div>
                 {likedEventsData && (
                   <>
@@ -290,9 +300,8 @@ function UpdateUserForm() {
                         <div
                           key={event.id}
                           style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(2, 1fr)',
-                            gap: '1rem',
+                            display: 'flex',
+                            flexDirection: 'column',
                           }}
                         >
                           <EventCard event={event} />
@@ -306,23 +315,27 @@ function UpdateUserForm() {
                       </>
                     ))}
                     {likedEventsData.length === 0 && (
-                      <p>You have not liked any events yet</p>
+                      <p className="bg-base-100 p-10 rounded-lg">
+                        You have not liked any events yet
+                      </p>
                     )}
                   </>
                 )}
               </div>
             </div>
             {/* ATTENDING */}
+            <h2 className="text-2xl text-center mt-5">Attending</h2>
+
             <div
-              className="bg-base-100 p-10 rounded-lg mt-5"
+              className="bg-accent p-10 rounded-lg mt-5"
               style={{
-                maxHeight: '1000px',
+                maxHeight: '800px',
                 justifyContent: 'center',
                 alignItems: 'center',
                 textAlign: 'center',
+                overflow: 'auto',
               }}
             >
-              <h2 className="text-xl font-bold">Attending</h2>
               <div>
                 {attendingEvents && (
                   <>
@@ -331,9 +344,8 @@ function UpdateUserForm() {
                         <div
                           key={event.id}
                           style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(2, 1fr)',
-                            gap: '1rem',
+                            display: 'flex',
+                            flexDirection: 'column',
                           }}
                         >
                           <EventCard event={event} />
@@ -347,7 +359,9 @@ function UpdateUserForm() {
                       </>
                     ))}
                     {attendingEventsData.length === 0 && (
-                      <p>You are not attending any events yet</p>
+                      <p className="bg-base-100 p-10 rounded-lg">
+                        You are not attending any events yet
+                      </p>
                     )}
                   </>
                 )}

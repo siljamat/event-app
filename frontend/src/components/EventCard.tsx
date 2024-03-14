@@ -1,19 +1,43 @@
+import {useState} from 'react';
 import {EventType} from '../types/EventType';
 
 function EventCard({event}: {event: EventType}) {
+  const [isExpanded, setIsExpanded] = useState(false);
   const shortDescription = event.description.substring(0, 200);
+  const categoryReplacements: {[key: string]: string} = {
+    concert: 'Concerts',
+    theatre: 'Theatre',
+    liikuntalaji: 'Sports',
+    'food & drink': 'Food & Drink',
+    outdoors: 'Outdoors',
+    community: 'Community',
+    workshops: 'Workshops',
+    charity: 'Charity',
+    children: 'Kids',
+  };
 
   return (
     <>
       <div className="card w-70 bg-base-100 shadow-xl mt-5 ">
         <figure>
-          {event.image && event.image.length > 5 && <img src={event.image} />}
+          {event.image && event.image.length > 5 ? (
+            <img src={event.image} />
+          ) : (
+            <img src="https://picsum.photos/200/300" />
+          )}
         </figure>{' '}
         <div className="card-body">
           <h2 className="card-title">{event.event_name}</h2>
           <p>{event.date}</p>
           <p>{event.address}</p>
-          <p dangerouslySetInnerHTML={{__html: shortDescription}} />
+          <p
+            dangerouslySetInnerHTML={{
+              __html: isExpanded ? event.description : shortDescription,
+            }}
+          />
+          {!isExpanded && (
+            <button onClick={() => setIsExpanded(true)}>More...</button>
+          )}
           <div>
             <p className="flex flex-row">
               <svg
@@ -42,23 +66,28 @@ function EventCard({event}: {event: EventType}) {
           </div>
           <div>
             <div className="flex flex-row">
-              {event.category.map((category, index: number) => (
-                <div
-                  key={index}
-                  className="border rounded-lg "
-                  style={{
-                    marginRight: '5px',
-                    padding: '5px',
-                  }}
-                >
-                  {category.category_name}
-                </div>
-              ))}
+              {event.category.map((category, index: number) => {
+                const categoryName =
+                  categoryReplacements[category.category_name.toLowerCase()] ||
+                  category.category_name;
+                return (
+                  <div
+                    key={index}
+                    className="border rounded-lg "
+                    style={{
+                      marginRight: '5px',
+                      padding: '5px',
+                    }}
+                  >
+                    {categoryName}
+                  </div>
+                );
+              })}
             </div>
           </div>
           <div className="card-actions justify-end">
-            <a className="link" href={`/event/${event.id}`}>
-              More...
+            <a className="btn btn-sm btn-primary" href={`/event/${event.id}`}>
+              View Event
             </a>
           </div>
         </div>

@@ -9,8 +9,6 @@ import LoginModal from './LoginModal';
 import RegisterModal from './RegisterModal';
 import {useMutation} from '@apollo/client';
 
-//TODO:  context/keep user logged even when refreshing the page
-//TODO: better errors messages?
 const NavBar = () => {
   const {isAuthenticated, setIsAuthenticated} = useContext(AuthContext);
   const [isLoginModalOpen, setLoginModalOpen] = useState(false);
@@ -24,6 +22,10 @@ const NavBar = () => {
   const [username, setUsername] = useState('');
   const {setUser} = useContext(UserContext);
 
+  // Global variables
+  const API_URL = import.meta.env.VITE_API_URL;
+
+  //register mutation and error handling
   const [registerErrorMessage, setRegisterError] = useState<string | null>(
     null,
   );
@@ -33,6 +35,7 @@ const NavBar = () => {
     },
   });
 
+  //login mutation and error handling
   const [loginErrorMessage, setLoginError] = useState<string | null>(null);
   const [login, {data: loginData}] = useMutation(loginMutation, {
     onError: (error) => {
@@ -43,9 +46,6 @@ const NavBar = () => {
       console.log('user', data.login.user);
     },
   });
-
-  // Global variables
-  const API_URL = import.meta.env.VITE_API_URL;
 
   // Function to reset all states
   const resetStates = () => {
@@ -88,7 +88,7 @@ const NavBar = () => {
     return true;
   };
 
-  //Modal handling TODO: make more functional?
+  //Modal handling
   const openLoginModal = () => {
     resetStates();
     closeRegisterSuccessModal();
@@ -123,7 +123,7 @@ const NavBar = () => {
     setRegisterSuccessModalOpen(false);
   };
 
-  //Login and register handling
+  //Login handling
   const handleLogin = async () => {
     setIsLoading(true);
     console.log('Login, email:', email, 'password:', password);
@@ -134,7 +134,6 @@ const NavBar = () => {
     try {
       await login({variables: {credentials}});
       if (loginData && loginData.login) {
-        //Store user data
         localStorage.setItem('token', loginData.login.token!);
         const userData = {
           email: loginData.login.user.email,
@@ -144,9 +143,11 @@ const NavBar = () => {
           favoriteEvents: loginData.login.user.favoriteEvents,
           createdEvents: loginData.login.user.createdEvents,
         };
+        console.log('toka lohko');
         setUser(userData);
         localStorage.setItem('user', JSON.stringify(userData));
         setIsAuthenticated(true);
+        console.log('Login success');
         closeLoginModal();
       }
     } catch (error) {
@@ -155,11 +156,12 @@ const NavBar = () => {
       setIsLoading(false);
     }
   };
+
+  //register handling
   const handleRegister = async () => {
     if (!validateInput()) {
       return;
     }
-    console.log('Register', username, password, email);
     const userDta = {
       user_name: username,
       password: password,
@@ -179,6 +181,7 @@ const NavBar = () => {
     }
   };
 
+  //logout handling
   const handleLogout = () => {
     console.log('Logout');
     localStorage.removeItem('token');
@@ -189,7 +192,7 @@ const NavBar = () => {
 
   return (
     <>
-      <div className="navbar bg-accent mb-20 w-full">
+      <div className="navbar bg-neutral mb-5 w-full">
         <div className="navbar-start">
           <div className="dropdown">
             <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
@@ -213,7 +216,9 @@ const NavBar = () => {
               className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
             >
               <li>
-                <a href="/">Home</a>
+                <a className="btn btn-ghost" href="/">
+                  Home
+                </a>
               </li>
               <li>
                 <a href="/LocMap">Close to you</a>
@@ -326,6 +331,7 @@ const NavBar = () => {
         openLoginModal={openLoginModal}
         error={registerErrorMessage || null}
       />
+      {/* Register Success Modal */}
       <RegisterSuccessModal
         isRegisterSuccessModalOpen={isRegisterSuccessModalOpen}
         closeRegisterSuccessModal={closeRegisterSuccessModal}

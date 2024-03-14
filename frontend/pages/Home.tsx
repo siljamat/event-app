@@ -96,6 +96,7 @@ const Home: React.FC = () => {
                 }}
               >
                 <div>
+                  <h1 className="text-2xl text-center mb-5">Liked events </h1>
                   <div
                     className="bg-accent"
                     style={{
@@ -106,34 +107,40 @@ const Home: React.FC = () => {
                       marginLeft: '1rem',
                     }}
                   >
-                    <h1 className="text-2xl text-center">Liked Events</h1>
-                    <div
-                      style={{
-                        display: isMobile ? 'flex' : 'grid',
-                        flexDirection: isMobile ? 'column' : 'unset',
-                        gridTemplateColumns: isMobile
-                          ? 'unset'
-                          : 'repeat(2, 1fr)',
-                        gap: '1rem',
-                        maxWidth: '100%',
-                        overflowX: 'auto',
-                      }}
-                    >
-                      {likedEventsData && (
-                        <>
+                    {likedEventsData && (
+                      <>
+                        <div
+                          style={{
+                            display: isMobile ? 'flex' : 'grid',
+                            flexDirection: isMobile ? 'column' : 'unset',
+                            gridTemplateColumns: isMobile
+                              ? 'unset'
+                              : 'repeat(2, 1fr)',
+                            gap: '1rem',
+                            maxWidth: '100%',
+                            overflowX: 'auto',
+                          }}
+                        >
                           {likedEventsData.map((event: EventType) => (
                             <div key={event.id}>
                               <EventCard event={event} />
                             </div>
                           ))}
-                          {likedEventsData.length === 0 && (
-                            <p>You have not liked any events yet</p>
-                          )}
-                        </>
-                      )}
-                    </div>
+                        </div>
+                        {likedEventsData.length === 0 && (
+                          <div className="flex justify-center">
+                            <p className=" text text-l text-center bg-base-100 p-10 rounded-lg">
+                              You have not liked any events yet{' '}
+                            </p>
+                          </div>
+                        )}
+                      </>
+                    )}
                   </div>
                   <div>
+                    <h1 className="text-2xl text-center mb-5">
+                      Events you plan to attend
+                    </h1>
                     <div
                       className="bg-accent"
                       style={{
@@ -144,82 +151,41 @@ const Home: React.FC = () => {
                         marginLeft: '1rem',
                       }}
                     >
-                      <h1 className="text-2xl text-center">
-                        Events you plan to attend
-                      </h1>
-                      <div
-                        style={{
-                          display: isMobile ? 'flex' : 'grid',
-                          flexDirection: isMobile ? 'column' : 'unset',
-                          gridTemplateColumns: isMobile
-                            ? 'unset'
-                            : 'repeat(2, 1fr)',
-                          gap: '1rem',
-                          maxWidth: '100%',
-                          overflowX: 'auto',
-                        }}
-                      >
-                        {attendingEvents && (
-                          <>
+                      {attendingEvents && (
+                        <>
+                          <div
+                            style={{
+                              display: isMobile ? 'flex' : 'grid',
+                              flexDirection: isMobile ? 'column' : 'unset',
+                              gridTemplateColumns: isMobile
+                                ? 'unset'
+                                : 'repeat(2, 1fr)',
+                              gap: '1rem',
+                              maxWidth: '100%',
+                              overflowX: 'auto',
+                            }}
+                          >
                             {attendingEventsData.map((event: EventType) => (
                               <div key={event.id}>
                                 <EventCard event={event} />
                               </div>
                             ))}
-                            {attendingEventsData.length === 0 && (
-                              <p className=" text text-l">
+                          </div>
+
+                          {attendingEventsData.length === 0 && (
+                            <div className="flex justify-center">
+                              <p className=" text text-l text-center bg-base-100 p-10 rounded-lg">
                                 You have not planned to attend any events yet
                               </p>
-                            )}
-                          </>
-                        )}
-                      </div>
+                            </div>
+                          )}
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
-
-                <div
-                  className="bg-accent"
-                  style={{
-                    padding: '2rem',
-                    borderRadius: '1rem',
-                    marginBottom: '1rem',
-                    marginRight: '1rem',
-                    marginLeft: '1rem',
-                  }}
-                >
-                  <h1 className="text-2xl text-center">Featured Events</h1>
-                  <div
-                    style={{
-                      display: isMobile ? 'flex' : 'grid',
-                      flexDirection: isMobile ? 'column' : 'unset',
-                      gridTemplateColumns: isMobile
-                        ? 'unset'
-                        : 'repeat(2, 1fr)',
-                      gap: '1rem',
-                      maxWidth: '100%',
-                      overflowX: 'auto',
-                    }}
-                  >
-                    {eventData
-                      .slice(0, displayCount)
-                      .map((event: EventType) => (
-                        <div key={event.id}>
-                          <EventCard event={event} />
-                        </div>
-                      ))}
-                  </div>
-                  <button
-                    className=" justify-end btn btn-ghost btn-sm mt-5"
-                    onClick={() => setDisplayCount(displayCount + 20)}
-                  >
-                    See More
-                  </button>
-                </div>
               </div>
-            </>
-          ) : (
-            <>
+              <h1 className="text-2xl text-center mb-5">Featured Events</h1>
               <div
                 className="bg-accent"
                 style={{
@@ -230,9 +196,46 @@ const Home: React.FC = () => {
                   marginLeft: '1rem',
                 }}
               >
-                <h1 className="text text-xl font-bold flex justify-center">
-                  Featured Events
-                </h1>
+                <div
+                  style={{
+                    display: isMobile ? 'flex' : 'grid',
+                    flexDirection: isMobile ? 'column' : 'unset',
+                    gridTemplateColumns: isMobile ? 'unset' : 'repeat(2, 1fr)',
+                    gap: '1rem',
+                    maxWidth: '100%',
+                    overflowX: 'auto',
+                  }}
+                >
+                  {eventData.slice(0, displayCount).map((event: EventType) => (
+                    <div key={event.id}>
+                      <EventCard event={event} />
+                    </div>
+                  ))}
+                </div>
+                {displayCount < eventData.length && (
+                  <button
+                    className=" justify-end btn btn-ghost btn-sm mt-5"
+                    onClick={() => setDisplayCount(displayCount + 20)}
+                  >
+                    See More
+                  </button>
+                )}
+              </div>
+            </>
+          ) : (
+            <>
+              <h1 className="text-2xl text-center mb-5">Featured Events</h1>
+
+              <div
+                className="bg-accent"
+                style={{
+                  padding: '2rem',
+                  borderRadius: '1rem',
+                  marginBottom: '1rem',
+                  marginRight: '1rem',
+                  marginLeft: '1rem',
+                }}
+              >
                 <div
                   style={{
                     display: isMobile ? 'flex' : 'grid',
@@ -249,12 +252,14 @@ const Home: React.FC = () => {
                     </div>
                   ))}
                 </div>
-                <button
-                  className=" justify-end btn btn-ghost btn-sm mt-5"
-                  onClick={() => setDisplayCount(displayCount + 20)}
-                >
-                  See More
-                </button>
+                {displayCount < eventData.length && (
+                  <button
+                    className=" justify-end btn btn-ghost btn-sm mt-5"
+                    onClick={() => setDisplayCount(displayCount + 20)}
+                  >
+                    See More
+                  </button>
+                )}
               </div>
             </>
           )}
