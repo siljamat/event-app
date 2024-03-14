@@ -31,6 +31,37 @@ const getAllEvents = `
   }
 `;
 
+const getEventsByTitle = `
+  query EventsByTitle($keyword: String!) {
+    eventsByTitle(keyword: $keyword) { 
+      address
+      age_restriction
+      category {
+        category_name
+      }
+      created_at
+      creator {
+        user_name
+      }
+      date
+      description
+      email
+      event_name
+      event_site
+      favoriteCount
+      id
+      image
+      location {
+        coordinates
+        type
+      }
+      organizer
+      price
+      ticket_site
+    }
+  }
+`;
+
 const getEventById = gql`
   query GetEvent($id: ID!) {
     event(id: $id) {
@@ -364,4 +395,5 @@ export {
   deleteEvent,
   getUserEvents,
   getEventsByAddress,
+  getEventsByTitle,
 };
