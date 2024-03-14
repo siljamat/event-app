@@ -6,6 +6,7 @@ import {
   getEventsByCategory,
   getEventsByDate,
   getEventsByMinAge,
+  getEventsByTitle,
 } from '../src/graphql/eventQueries';
 import {getCategories} from '../src/graphql/categoryQueries';
 import EventCard from '../src/components/EventCard';
@@ -52,10 +53,24 @@ const SearchPage = () => {
       }
     }
 
+    if (searchParams.keyword) {
+      const data = await doGraphQLFetch(API_URL, getEventsByTitle, {
+        keyword: searchParams.keyword,
+      });
+      console.log('Data:', data); //Tämä on undefined
+      if (data && data.eventsByTitle) {
+        fetchedEvents = fetchedEvents.concat(
+          data.eventsByTitle.filter((event: EventType) => event !== null),
+        );
+      } else {
+        console.error('eventsByTitle is undefined');
+      }
+    }
+
     setEvents(fetchedEvents);
   };
 
-  console.log('searchParams', searchParams.category);
+  console.log('searchParams', searchParams.keyword);
 
   const handleInputChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -88,8 +103,6 @@ const SearchPage = () => {
         charity: 'Charity',
         children: 'Kids',
       };
-
-      console.log('Combined events pituus', combinedEvents.length);
 
       setCategories(
         data.categories.map(
@@ -139,7 +152,7 @@ const SearchPage = () => {
       />
       <input
         type="text"
-        name="free search"
+        name="keyword"
         value={searchParams.keyword}
         onChange={handleInputChange}
         placeholder="Free search"
@@ -164,6 +177,5 @@ const SearchPage = () => {
 
 export default SearchPage;
 
-//TODO: ikähaku ja address pois
+//TODO:
 //free haku
-//category alasvetovalikko ja kategorialla haku
