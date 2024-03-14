@@ -2,6 +2,17 @@ import {EventType} from '../types/EventType';
 
 function EventCard({event}: {event: EventType}) {
   const shortDescription = event.description.substring(0, 200);
+  const categoryReplacements: {[key: string]: string} = {
+    concert: 'Concerts',
+    theatre: 'Theatre',
+    liikuntalaji: 'Sports',
+    'food & drink': 'Food & Drink',
+    outdoors: 'Outdoors',
+    community: 'Community',
+    workshops: 'Workshops',
+    charity: 'Charity',
+    children: 'Kids',
+  };
 
   return (
     <>
@@ -42,18 +53,23 @@ function EventCard({event}: {event: EventType}) {
           </div>
           <div>
             <div className="flex flex-row">
-              {event.category.map((category, index: number) => (
-                <div
-                  key={index}
-                  className="border rounded-lg "
-                  style={{
-                    marginRight: '5px',
-                    padding: '5px',
-                  }}
-                >
-                  {category.category_name}
-                </div>
-              ))}
+              {event.category.map((category, index: number) => {
+                const categoryName =
+                  categoryReplacements[category.category_name.toLowerCase()] ||
+                  category.category_name;
+                return (
+                  <div
+                    key={index}
+                    className="border rounded-lg "
+                    style={{
+                      marginRight: '5px',
+                      padding: '5px',
+                    }}
+                  >
+                    {categoryName}
+                  </div>
+                );
+              })}
             </div>
           </div>
           <div className="card-actions justify-end">

@@ -27,6 +27,17 @@ function CreateEventForm() {
 
   const [categories, setCategories] = useState<Category[]>([]);
   const API_URL = import.meta.env.VITE_API_URL;
+  const categoryReplacements: {[key: string]: string} = {
+    concert: 'Concerts',
+    theatre: 'Theatre',
+    liikuntalaji: 'Sports',
+    'food & drink': 'Food & Drink',
+    outdoors: 'Outdoors',
+    community: 'Community',
+    workshops: 'Workshops',
+    charity: 'Charity',
+    children: 'Kids',
+  };
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -58,7 +69,6 @@ function CreateEventForm() {
         image: '',
         category: [],
       });
-      // Navigate to the event page
       navigate(`/event/${data.createEvent.id}`);
     },
     onError: (error) => {
@@ -288,40 +298,38 @@ function CreateEventForm() {
                       onChange={handleChange}
                     />
                   </div>
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      marginBottom: '1rem',
-                    }}
-                  >
-                    <label>Image</label>
-                    <input
-                      className="input input-bordered w-1/3 mt-3"
-                      type="text"
-                      name="image"
-                      value={event.image}
-                      onChange={handleChange}
-                    />
-                  </div>
                   <fieldset>
                     <legend>Categories</legend>
-                    {categories.map((category) => (
-                      <label
-                        key={category.id}
-                        style={{
-                          margin: '1rem',
-                        }}
-                      >
-                        <input
-                          type="checkbox"
-                          name="category"
-                          value={category.id}
-                          onChange={handleCategoryChange}
-                        />
-                        {category.category_name}
-                      </label>
-                    ))}
+                    <div
+                      style={{
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      {categories.map((category) => {
+                        const categoryName =
+                          categoryReplacements[
+                            category.category_name.toLowerCase()
+                          ] || category.category_name;
+                        return (
+                          <label
+                            key={category.id}
+                            style={{
+                              margin: '1rem',
+                            }}
+                          >
+                            <input
+                              type="checkbox"
+                              name="category"
+                              value={category.id}
+                              onChange={handleCategoryChange}
+                            />
+                            {categoryName}
+                          </label>
+                        );
+                      })}
+                    </div>
                   </fieldset>
                   <button type="submit" className="btn btn-primary mt-5">
                     Create Event

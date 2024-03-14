@@ -19,6 +19,17 @@ const EventPage: React.FC = () => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [isAttending, setIsAttending] = useState(false);
   const [categories, setCategories] = useState([]);
+  const categoryReplacements: {[key: string]: string} = {
+    concert: 'Concerts',
+    theatre: 'Theatre',
+    liikuntalaji: 'Sports',
+    'food & drink': 'Food & Drink',
+    outdoors: 'Outdoors',
+    community: 'Community',
+    workshops: 'Workshops',
+    charity: 'Charity',
+    children: 'Kids',
+  };
 
   const {data: likedData} = useQuery(likedEvents, {
     variables: {userId},
@@ -250,18 +261,24 @@ const EventPage: React.FC = () => {
           >
             <div>
               <div className="flex flex-row">
-                {categories.map((category, index: number) => (
-                  <div
-                    key={index}
-                    className="border rounded-lg "
-                    style={{
-                      marginRight: '5px',
-                      padding: '5px',
-                    }}
-                  >
-                    {category.category_name}
-                  </div>
-                ))}
+                {categories.map((category, index: number) => {
+                  const categoryName =
+                    categoryReplacements[
+                      category.category_name.toLowerCase()
+                    ] || category.category_name;
+                  return (
+                    <div
+                      key={index}
+                      className="border rounded-lg "
+                      style={{
+                        marginRight: '5px',
+                        padding: '5px',
+                      }}
+                    >
+                      {categoryName}
+                    </div>
+                  );
+                })}
               </div>
             </div>
             <div className="flex flex-row">
