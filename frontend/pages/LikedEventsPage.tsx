@@ -10,12 +10,14 @@ const LikedEventsPage = () => {
   const userId = user?.id;
   const [likedEventsData, setLikedEventsData] = React.useState<EventType[]>([]);
 
+  //get liked events
   const {data: likedData, loading} = useQuery(likedEvents, {
     variables: {userId},
     skip: !userId,
   });
+
+  // Set liked events data
   useEffect(() => {
-    // Set liked events data
     console.log('likedData', likedData);
     if (likedData && likedData.favoritedEventsByUserId) {
       setLikedEventsData(likedData.favoritedEventsByUserId);

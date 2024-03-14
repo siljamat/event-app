@@ -17,13 +17,13 @@ function UpdateUserForm() {
   const userFromLocalObj = JSON.parse(userFromLocal || '{}');
 
   const {isAuthenticated} = useContext(AuthContext);
-  //console.log('Token from localStorage:', token);
   const [user, setUser] = useState({
     user_name: userFromLocalObj.user_name || '',
     email: userFromLocalObj.email || '',
     password: '',
   });
   const userId = userFromLocalObj.id;
+
   const [likedEventsData, setLikedEventsData] = useState<EventType[]>([]);
   const [attendingEventsData, setAttendingEvents] = useState<EventType[]>([]);
   const [createdEvents, setCreatedEvents] = useState<EventType[]>([]);
@@ -36,6 +36,7 @@ function UpdateUserForm() {
     },
   });
 
+  //get data for events
   const {data: likedData} = useQuery(likedEvents, {
     variables: {userId},
     skip: !userId,
@@ -50,6 +51,37 @@ function UpdateUserForm() {
     variables: {userId},
     skip: !userId,
   });
+
+  // Set liked events data
+  useEffect(() => {
+    console.log('likedData', likedData);
+    if (likedData && likedData.favoritedEventsByUserId) {
+      const likedEventsDisplay = likedData.favoritedEventsByUserId.slice(0, 4);
+      setLikedEventsData(likedEventsDisplay);
+    }
+  }, [likedData]);
+
+  // Set attending events data
+  useEffect(() => {
+    console.log('attendingData', attendingData);
+    if (attendingData && attendingData.attendedEventsByUserId) {
+      const attendingEventsDisplay = attendingData.attendedEventsByUserId.slice(
+        0,
+        4,
+      );
+      setAttendingEvents(attendingEventsDisplay);
+    }
+  }, [attendingData]);
+
+  // Set created events data
+  useEffect(() => {
+    console.log('createdEventsData', createdEventsData);
+    if (createdEventsData) {
+      const createdEventsDisplay =
+        createdEventsData.createdEventsByUserId.slice(0, 4);
+      setCreatedEvents(createdEventsDisplay);
+    }
+  }, [createdEventsData]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setUser({
@@ -103,37 +135,6 @@ function UpdateUserForm() {
       console.error('User ID not found in local storage.');
     }
   };
-
-  useEffect(() => {
-    // Set liked events data
-    console.log('likedData', likedData);
-    if (likedData && likedData.favoritedEventsByUserId) {
-      const likedEventsDisplay = likedData.favoritedEventsByUserId.slice(0, 4);
-      setLikedEventsData(likedEventsDisplay);
-    }
-  }, [likedData]);
-
-  useEffect(() => {
-    // Set attending events data
-    console.log('attendingData', attendingData);
-    if (attendingData && attendingData.attendedEventsByUserId) {
-      const attendingEventsDisplay = attendingData.attendedEventsByUserId.slice(
-        0,
-        4,
-      );
-      setAttendingEvents(attendingEventsDisplay);
-    }
-  }, [attendingData]);
-
-  useEffect(() => {
-    // Set created events data
-    console.log('createdEventsData', createdEventsData);
-    if (createdEventsData) {
-      const createdEventsDisplay =
-        createdEventsData.createdEventsByUserId.slice(0, 4);
-      setCreatedEvents(createdEventsDisplay);
-    }
-  }, [createdEventsData]);
 
   if (isAuthenticated) {
     return (

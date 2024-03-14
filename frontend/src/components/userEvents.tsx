@@ -4,9 +4,9 @@ import {useEffect, useState} from 'react';
 import EditEventModal from './editEventModal';
 import {EventType} from '../types/EventType';
 import {deleteEvent} from '../graphql/eventQueries';
+import {Category} from '../types/Category';
 
 const UserEvents = () => {
-  const token = localStorage.getItem('token');
   const storedUserData = localStorage.getItem('user');
   const user = storedUserData ? JSON.parse(storedUserData) : null;
   const userId = user?.id;
@@ -15,6 +15,19 @@ const UserEvents = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [deleteEventHandle] = useMutation(deleteEvent);
 
+  // Replace category names with more user friendly ones
+  const categoryReplacements: {[key: string]: string} = {
+    concert: 'Concerts',
+    theatre: 'Theatre',
+    liikuntalaji: 'Sports',
+    'food & drink': 'Food & Drink',
+    outdoors: 'Outdoors',
+    community: 'Community',
+    workshops: 'Workshops',
+    charity: 'Charity',
+    children: 'Kids',
+  };
+
   const {loading, data} = useQuery(getUserEvents, {
     variables: {userId},
     skip: !userId,
@@ -22,7 +35,6 @@ const UserEvents = () => {
 
   useEffect(() => {
     if (data) {
-      console.log('data', data.createdEventsByUserId);
       setEvents(data.createdEventsByUserId);
     }
   }, [data]);
@@ -119,24 +131,57 @@ const UserEvents = () => {
                         {event.price && <p>Price: {event.price}</p>}
                         {event.email && <p>Email: {event.email}</p>}
                         {event.event_site && <p>Site: {event.event_site}</p>}
-                        <div className="card-actions justify-between">
-                          <div>
-                            <p>Likes: {event.favoriteCount}</p>
-                            <p>Attending: {event.attendeeCount}</p>
-                          </div>
-                          <div>
-                            <button
-                              onClick={() => handleEditEvent(event)}
-                              className="btn mr-2"
-                            >
-                              Edit
-                            </button>
-                            <button
-                              onClick={() => handleDeleteEvent(event)}
-                              className="btn"
-                            >
-                              Delete
-                            </button>
+                        <div>
+                          <div className="">
+                            <div className="flex flex-row mb-5">
+                              {event.category.map((category, index: number) => {
+                                const categoryName =
+                                  categoryReplacements[
+                                    category.category_name.toLowerCase()
+                                  ] || category.category_name;
+                                return (
+                                  <div
+                                    key={index}
+                                    className="border rounded-lg "
+                                    style={{
+                                      marginRight: '5px',
+                                      padding: '5px',
+                                    }}
+                                  >
+                                    {categoryName}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                            <div className="card-actions justify-between">
+                              <div>
+                                <p className="flex flex-row">
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 20 20"
+                                    fill="currentColor"
+                                    className="w-5 h-5 pr-1 mt-1"
+                                  >
+                                    <path d="m9.653 16.915-.005-.003-.019-.01a20.759 20.759 0 0 1-1.162-.682 22.045 22.045 0 0 1-2.582-1.9C4.045 12.733 2 10.352 2 7.5a4.5 4.5 0 0 1 8-2.828A4.5 4.5 0 0 1 18 7.5c0 2.852-2.044 5.233-3.885 6.82a22.049 22.049 0 0 1-3.744 2.582l-.019.01-.005.003h-.002a.739.739 0 0 1-.69.001l-.002-.001Z" />
+                                  </svg>
+                                  : {event.favoriteCount}
+                                </p>
+                              </div>
+                              <div>
+                                <button
+                                  onClick={() => handleEditEvent(event)}
+                                  className="btn mr-2"
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteEvent(event)}
+                                  className="btn"
+                                >
+                                  Delete
+                                </button>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>

@@ -26,64 +26,7 @@ const SearchPage = () => {
   const API_URL = import.meta.env.VITE_API_URL;
   const isMobile = useMediaQuery({query: '(max-width: 650px)'});
 
-  const fetchEvents = async () => {
-    setSearchPerformed(true);
-
-    let fetchedEvents: EventType[] = [];
-
-    if (searchParams.date) {
-      const data = await doGraphQLFetch(API_URL, getEventsByDate, {
-        date: searchParams.date,
-      });
-      fetchedEvents = fetchedEvents.concat(data.eventsByDate || []);
-    }
-
-    if (searchParams.category) {
-      const data = await doGraphQLFetch(API_URL, getEventsByCategory, {
-        categoryName: searchParams.category,
-      });
-      if (data && data.eventsByCategory) {
-        fetchedEvents = fetchedEvents.concat(
-          data.eventsByCategory.filter((event: EventType) => event !== null),
-        ); // Lisätään vain ei-null tapahtumat fetchedEvents-muuttujaan
-      } else {
-        console.error('eventsByCategory is undefined');
-      }
-    }
-
-    if (searchParams.keyword) {
-      const data = await doGraphQLFetch(API_URL, getEventsByTitle, {
-        keyword: searchParams.keyword,
-      });
-      if (data && data.eventsByTitle) {
-        fetchedEvents = fetchedEvents.concat(
-          data.eventsByTitle.filter((event: EventType) => event !== null),
-        );
-      } else {
-        console.error('eventsByTitle is undefined');
-      }
-    }
-
-    setEvents(fetchedEvents);
-  };
-
-  const handleInputChange = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
-    setSearchParams({
-      ...searchParams,
-      [event.target.name]: event.target.value,
-    });
-  };
-
-  const combinedEvents = events
-    .concat(apiEvents)
-    .filter((event) => event !== null && event !== undefined);
-
-  useEffect(() => {
-    fetchEvents();
-  }, []);
-
+  // Fetch categories from the API and set category names
   useEffect(() => {
     const fetchCategories = async () => {
       const data = await doGraphQLFetch(API_URL, getCategories, {});
@@ -116,6 +59,59 @@ const SearchPage = () => {
     fetchCategories();
   }, []);
 
+  // Fetch events from the API
+  const fetchEvents = async () => {
+    setSearchPerformed(true);
+
+    let fetchedEvents: EventType[] = [];
+
+    if (searchParams.date) {
+      const data = await doGraphQLFetch(API_URL, getEventsByDate, {
+        date: searchParams.date,
+      });
+      fetchedEvents = fetchedEvents.concat(data.eventsByDate || []);
+    }
+
+    if (searchParams.category) {
+      const data = await doGraphQLFetch(API_URL, getEventsByCategory, {
+        categoryName: searchParams.category,
+      });
+      if (data && data.eventsByCategory) {
+        fetchedEvents = fetchedEvents.concat(
+          data.eventsByCategory.filter((event: EventType) => event !== null),
+        );
+      } else {
+        console.error('eventsByCategory is undefined');
+      }
+    }
+
+    if (searchParams.keyword) {
+      const data = await doGraphQLFetch(API_URL, getEventsByTitle, {
+        keyword: searchParams.keyword,
+      });
+      if (data && data.eventsByTitle) {
+        fetchedEvents = fetchedEvents.concat(
+          data.eventsByTitle.filter((event: EventType) => event !== null),
+        );
+      } else {
+        console.error('eventsByTitle is undefined');
+      }
+    }
+
+    setEvents(fetchedEvents);
+  };
+
+  // Handle input change
+  const handleInputChange = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
+    setSearchParams({
+      ...searchParams,
+      [event.target.name]: event.target.value,
+    });
+  };
+
+  // Handle select change
   const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const displayValue = event.target.value;
     const actualValue = categories[displayCategories.indexOf(displayValue)];
@@ -125,6 +121,15 @@ const SearchPage = () => {
     });
   };
 
+  // Combine database events and API events
+  const combinedEvents = events
+    .concat(apiEvents)
+    .filter((event) => event !== null && event !== undefined);
+
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
   return (
     <div
       style={{
@@ -133,7 +138,7 @@ const SearchPage = () => {
         paddingLeft: '3rem',
       }}
     >
-      <h1 className="text-2xl  text-center">Search events</h1>
+      <h1 className="text-2xl  text-center mb-5">Search events</h1>
       <div className="bg-accent p-10 mt-2 rounded-lg">
         <div>
           <div
@@ -162,6 +167,19 @@ const SearchPage = () => {
                     marginBottom: '',
                   }}
                 >
+                  <div
+                    style={{
+                      backgroundColor: '#4792AB',
+                      padding: '8px',
+                      borderRadius: '1rem',
+                      marginBottom: '1rem',
+                    }}
+                  >
+                    <p className="">
+                      You can only use one way of searching, if you try to
+                      search by date and category there will not any results
+                    </p>
+                  </div>
                   <label>Category</label>
                   <select
                     className="select border rounded-lg w-1/3 mt-2"

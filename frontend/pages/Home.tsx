@@ -13,6 +13,11 @@ const Home: React.FC = () => {
   const isSmallScreen = useMediaQuery({query: '(max-width: 1200px)'});
   const isMobile = useMediaQuery({query: '(max-width: 650px)'});
 
+  const storedUserData = localStorage.getItem('user');
+  const user = storedUserData ? JSON.parse(storedUserData) : null;
+  const userId = user?.id;
+  const API_URL = import.meta.env.VITE_API_URL;
+
   const [eventData, setEvents] = useState<EventType[]>([]);
   const {isAuthenticated} = useContext(AuthContext);
   const [isLoading, setIsLoading] = useState(false);
@@ -20,11 +25,7 @@ const Home: React.FC = () => {
   const [attendingEventsData, setAttendingEvents] = useState<EventType[]>([]);
   const [displayCount, setDisplayCount] = useState(10);
 
-  const storedUserData = localStorage.getItem('user');
-  const user = storedUserData ? JSON.parse(storedUserData) : null;
-  const userId = user?.id;
-  const API_URL = import.meta.env.VITE_API_URL;
-
+  //fetch liked events and attending events
   const {data: likedData} = useQuery(likedEvents, {
     variables: {userId},
     skip: !userId,
@@ -35,9 +36,9 @@ const Home: React.FC = () => {
     skip: !userId,
   });
 
+  //set event data
   useEffect(() => {
     setIsLoading(true);
-    //get all event data
     const fetchEventData = async () => {
       const data = await doGraphQLFetch(API_URL, getAllEvents, {});
       if (data && data.events) {
@@ -51,15 +52,15 @@ const Home: React.FC = () => {
     fetchEventData();
   }, [API_URL]);
 
+  // Set liked events data
   useEffect(() => {
-    // Set liked events data
     if (likedData && likedData.favoritedEventsByUserId) {
       setLikedEventsData(likedData.favoritedEventsByUserId);
     }
   }, [likedData]);
 
+  // Set attending events data
   useEffect(() => {
-    // Set attending events data
     if (attendingData && attendingData.attendedEventsByUserId) {
       setAttendingEvents(attendingData.attendedEventsByUserId);
     }

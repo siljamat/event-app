@@ -1,8 +1,11 @@
 import {Transition} from '@headlessui/react';
-import React from 'react';
+import React, {useEffect} from 'react';
 import {EventType} from '../types/EventType';
 import {useMutation} from '@apollo/client';
 import {updateEvent} from '../graphql/eventQueries';
+import {doGraphQLFetch} from '../graphql/fetch';
+import {getCategories} from '../graphql/queries';
+import {Category} from '../types/Category';
 
 interface EditEventModalProps {
   isOpen: boolean;
@@ -29,10 +32,50 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
   const [site, setSite] = React.useState(event?.event_site || '');
   const [image, setImage] = React.useState(event?.image || '');
   const [category, setCategory] = React.useState(event?.category || '');
+  const [categories, setCategories] = React.useState([]);
+  const [selectedCategories, setSelectedCategories] = React.useState<string[]>(
+    [],
+  );
+
   const [organizer, setOrganizer] = React.useState(event?.organizer || '');
   const [ticketSite, setTicketSite] = React.useState(event?.ticket_site || '');
+  const API_URL = import.meta.env.VITE_API_URL;
+  const token = localStorage.getItem('token') || undefined;
+
+  //category replacements to make the category names more user friendly
+  const categoryReplacements: {[key: string]: string} = {
+    concert: 'Concerts',
+    theatre: 'Theatre',
+    liikuntalaji: 'Sports',
+    'food & drink': 'Food & Drink',
+    outdoors: 'Outdoors',
+    community: 'Community',
+    workshops: 'Workshops',
+    charity: 'Charity',
+    children: 'Kids',
+  };
 
   const [updateEventHandle, {error}] = useMutation(updateEvent);
+
+  //fetch categories
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const data = await doGraphQLFetch(API_URL, getCategories, {}, token);
+      setCategories(data.categories);
+    };
+
+    fetchCategories();
+  }, []);
+
+  // Handle checkbox change
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const {value} = event.target;
+    setSelectedCategories((prevCategories) =>
+      prevCategories.includes(value)
+        ? prevCategories.filter((category) => category !== value)
+        : [...prevCategories, value],
+    );
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,7 +94,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
             email: email || event.email,
             event_site: site || event.event_site,
             image: image || event.image,
-            category: category || event.category || [],
+            category: selectedCategories || event.category || [],
             organizer: organizer || event.organizer,
             ticket_site: ticketSite || event.ticket_site,
           },
@@ -59,17 +102,14 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
       });
 
       console.log('Event updated:');
-      // Close the modal and refresh the events list...
       closeModal();
     } catch (error) {
-      // Handle the error...
       console.error('Failed to update event:', error);
     }
   };
 
   return (
     <>
-      {/* TODO: CENTER THE MODAL :DDDD */}
       <div
         style={{
           width: '100%',
@@ -237,18 +277,40 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                   style={{marginTop: '5px'}}
                 />
               </label>
-              {/* TODO: MAKE A MULTIPLE SELECT THINGY */}
-              {/* <label style={{marginBottom: '20px'}}>
-              <div>Category:</div>
-              <input
-                className="input input-bordered w-full max-w-xs"
-                type="text"
-                placeholder={event?.category || ''}
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                style={{marginTop: '5px'}}
-              />
-            </label> */}
+              <fieldset>
+                <legend>Categories</legend>
+                <div
+                  style={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    justifyContent: 'center',
+                  }}
+                >
+                  {categories.map((category: Category) => {
+                    const categoryName =
+                      categoryReplacements[
+                        category.category_name.toLowerCase()
+                      ] || category.category_name;
+                    return (
+                      <label
+                        key={category.id}
+                        style={{
+                          margin: '1rem',
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          name="category"
+                          value={category.id}
+                          checked={selectedCategories.includes(category.id)}
+                          onChange={handleCheckboxChange}
+                        />
+                        {categoryName}
+                      </label>
+                    );
+                  })}
+                </div>
+              </fieldset>
               <label style={{marginBottom: '20px'}}>
                 <div>Organizer:</div>
                 <input
