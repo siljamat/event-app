@@ -8,8 +8,11 @@ import {Category} from '../src/types/Category';
 import {useNavigate} from 'react-router-dom';
 
 function CreateEventForm() {
-  const token = localStorage.getItem('token') || undefined;
   const navigate = useNavigate();
+  const API_URL = import.meta.env.VITE_API_URL;
+  const token = localStorage.getItem('token') || undefined;
+  const [categories, setCategories] = useState<Category[]>([]);
+  //initial state for event
   const [event, setEvent] = useState<Partial<EventType>>({
     event_name: '',
     description: '',
@@ -24,9 +27,7 @@ function CreateEventForm() {
     image: '',
     category: [],
   });
-
-  const [categories, setCategories] = useState<Category[]>([]);
-  const API_URL = import.meta.env.VITE_API_URL;
+  //category replacements to make the category names more user friendly
   const categoryReplacements: {[key: string]: string} = {
     concert: 'Concerts',
     theatre: 'Theatre',
@@ -39,6 +40,7 @@ function CreateEventForm() {
     children: 'Kids',
   };
 
+  //fetch categories
   useEffect(() => {
     const fetchCategories = async () => {
       const data = await doGraphQLFetch(API_URL, getCategories, {}, token);
@@ -48,6 +50,7 @@ function CreateEventForm() {
     fetchCategories();
   }, []);
 
+  //create event mutation
   const [createEvent] = useMutation(addEvent, {
     context: {
       headers: {
@@ -77,6 +80,7 @@ function CreateEventForm() {
     },
   });
 
+  //handle change for input fields
   const handleChange = (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
@@ -102,6 +106,7 @@ function CreateEventForm() {
     }
   };
 
+  //create event
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const {data} = await createEvent({variables: {input: event}});

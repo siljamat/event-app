@@ -9,6 +9,7 @@ import {
   toggleFavoriteEvent,
 } from '../src/graphql/queries';
 import {EventType} from '../src/types/EventType';
+import {Category} from '../src/types/Category';
 
 const EventPage: React.FC = () => {
   const {id} = useParams<{id: string}>();
@@ -19,6 +20,8 @@ const EventPage: React.FC = () => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [isAttending, setIsAttending] = useState(false);
   const [categories, setCategories] = useState([]);
+
+  // Replace category names with more user friendly ones
   const categoryReplacements: {[key: string]: string} = {
     concert: 'Concerts',
     theatre: 'Theatre',
@@ -31,12 +34,13 @@ const EventPage: React.FC = () => {
     children: 'Kids',
   };
 
+  //query liked events and set isFavorite if user found on the event's liked list
   const {data: likedData} = useQuery(likedEvents, {
     variables: {userId},
     skip: !userId,
   });
+
   useEffect(() => {
-    // Set liked events data
     console.log('likedData', likedData);
     if (likedData && likedData.favoritedEventsByUserId) {
       const likedEventsData = likedData.favoritedEventsByUserId;
@@ -45,6 +49,7 @@ const EventPage: React.FC = () => {
     }
   }, [likedData]);
 
+  //query attending events and set isAttending if user found on the event's attending list
   const {data} = useQuery(attendingEvents, {
     variables: {userId},
     skip: !userId,
@@ -69,6 +74,7 @@ const EventPage: React.FC = () => {
     variables: {id: id},
   });
 
+  //memoize event data
   const event = useMemo(() => {
     if (eventData && eventData.event) {
       console.log('eventData', eventData);
@@ -77,6 +83,7 @@ const EventPage: React.FC = () => {
     return undefined;
   }, [eventData]);
 
+  //set categories
   useEffect(() => {
     if (eventData && eventData.event && eventData.event.category) {
       setCategories(eventData.event.category);
@@ -84,11 +91,10 @@ const EventPage: React.FC = () => {
     }
   }, [eventData]);
 
-  //toggle favorite
+  //toggle favorite and attending
   const [toggleFavorite] = useMutation(toggleFavoriteEvent);
   const [toggleAttending] = useMutation(toggleAttendingEvent);
   const handleToggleFavoriteEvent = async () => {
-    // Call the mutate function to execute the mutation
     if (!token) {
       alert('You must be logged in to favorite an event');
       return;
@@ -131,6 +137,7 @@ const EventPage: React.FC = () => {
     console.error(error);
   };
 
+  //render spinner while loading and error message if error
   if (loading) {
     return (
       <div
@@ -150,7 +157,7 @@ const EventPage: React.FC = () => {
   }
 
   return (
-    <div>
+    <div className="p-10">
       <div
         className="card lg:card-side bg-base-100 shadow-xl"
         style={{width: '60%', margin: 'auto'}}
@@ -263,7 +270,7 @@ const EventPage: React.FC = () => {
           >
             <div>
               <div className="flex flex-row">
-                {categories.map((category, index: number) => {
+                {categories.map((category: Category, index: number) => {
                   const categoryName =
                     categoryReplacements[
                       category.category_name.toLowerCase()

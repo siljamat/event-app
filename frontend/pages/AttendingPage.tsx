@@ -10,12 +10,14 @@ const AttendingPage = () => {
   const userId = user?.id;
   const [events, setEvents] = React.useState<EventType[]>([]);
 
+  // Get liked events
   const {data, loading} = useQuery(attendingEvents, {
     variables: {userId},
     skip: !userId,
   });
+
+  // Set liked events data
   useEffect(() => {
-    // Set liked events data
     if (data && data.attendedEventsByUserId) {
       console.log('data', data.attendedEventsByUserId);
 

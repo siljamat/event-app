@@ -1,8 +1,6 @@
 import React from 'react';
 import {Transition} from '@headlessui/react';
 
-//TODO: center the loading animation
-
 interface LoginModalProps {
   isLoginModalOpen: boolean;
   closeLoginModal: () => void;
@@ -96,7 +94,8 @@ const LoginModal: React.FC<LoginModalProps> = ({
               <div className="flex flex-col">
                 <button
                   onClick={handleLogin}
-                  className="btn btn-primary px-4 py-2 rounded"
+                  className={`btn btn-primary px-4 py-2 rounded ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  disabled={isLoading}
                 >
                   Login
                 </button>
