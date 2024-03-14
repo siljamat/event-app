@@ -71,7 +71,7 @@ const UserEvents = () => {
       <EditEventModal
         isOpen={isModalOpen}
         closeModal={handleCloseModal}
-        event={selectedEvent}
+        event={selectedEvent as unknown as EventType}
       />
       {loading ? (
         <div
@@ -140,8 +140,12 @@ const UserEvents = () => {
                               {event.category.map((category, index: number) => {
                                 const categoryName =
                                   categoryReplacements[
-                                    category.category_name.toLowerCase()
-                                  ] || category.category_name;
+                                    (
+                                      category as unknown as {
+                                        category_name: string;
+                                      }
+                                    ).category_name.toLowerCase()
+                                  ] || (category as string);
                                 return (
                                   <div
                                     key={index}

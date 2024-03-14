@@ -69,8 +69,11 @@ function EventCard({event}: {event: EventType}) {
             <div className="flex flex-row">
               {event.category.map((category, index: number) => {
                 const categoryName =
-                  categoryReplacements[category.category_name.toLowerCase()] ||
-                  category.category_name;
+                  categoryReplacements[
+                    (
+                      category as unknown as {category_name: string}
+                    ).category_name.toLowerCase()
+                  ] || (category as string);
                 return (
                   <div
                     key={index}
