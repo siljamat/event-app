@@ -31,6 +31,7 @@ const Home: React.FC = () => {
     variables: {userId},
     skip: !userId,
   });
+
   useEffect(() => {
     setIsLoading(true);
     //get all event data
@@ -98,6 +99,8 @@ const Home: React.FC = () => {
                       padding: '2rem',
                       borderRadius: '1rem',
                       marginBottom: '1rem',
+                      marginRight: '1rem',
+                      marginLeft: '1rem',
                     }}
                   >
                     <h1 className="text-xl">Liked Events</h1>
@@ -164,6 +167,8 @@ const Home: React.FC = () => {
                     padding: '2rem',
                     borderRadius: '1rem',
                     marginBottom: '1rem',
+                    marginRight: '1rem',
+                    marginLeft: '1rem',
                   }}
                 >
                   <h1>Featured Events</h1>
@@ -172,8 +177,10 @@ const Home: React.FC = () => {
                       display: 'grid',
                       gridTemplateColumns: 'repeat(2, 1fr)',
                       gap: '1rem',
+                      overflowX: 'auto',
                     }}
                   >
+                    {/* TODO: LISÄÄ MORE EVENTS NAPPI TMS JOLLA SAA LADATTUA LISÄÄ EVENTTEJÄ NÄKYVIIN */}
                     {eventData.slice(0, 10).map((event: EventType) => (
                       <div key={event.id}>
                         <EventCard event={event} />
@@ -191,17 +198,23 @@ const Home: React.FC = () => {
                   padding: '2rem',
                   borderRadius: '1rem',
                   marginBottom: '1rem',
+                  marginRight: '1rem',
+                  marginLeft: '1rem',
                 }}
               >
-                <h1>Featured Events</h1>
+                <h1 className="text text-xl font-bold flex justify-center">
+                  Featured Events
+                </h1>
                 <div
                   style={{
                     display: 'grid',
                     gridTemplateColumns: 'repeat(3, 1fr)',
-                    gap: '1rem',
+                    gap: '7px',
                   }}
                 >
-                  {eventData.slice(0, 10).map((event: EventType) => (
+                  {/* TODO: LISÄÄ MORE EVENTS NAPPI TMS JOLLA SAA LADATTUA LISÄÄ EVENTTEJÄ NÄKYVIIN */}
+
+                  {eventData.slice(0, 20).map((event: EventType) => (
                     <div key={event.id}>
                       <EventCard event={event} />
                     </div>
