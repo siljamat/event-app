@@ -16,9 +16,7 @@ const SearchPage = () => {
   const [apiEvents, setApiEvents] = useState<EventType[]>([]);
   const [searchParams, setSearchParams] = useState({
     date: '',
-    address: '',
     keyword: '',
-    age: '',
     category: '',
   });
 
@@ -28,7 +26,6 @@ const SearchPage = () => {
   const API_URL = import.meta.env.VITE_API_URL;
 
   const fetchEvents = async () => {
-    console.log('näkyyks täääääää');
     setSearchPerformed(true);
     let fetchedEvents: EventType[] = [];
 
@@ -38,20 +35,6 @@ const SearchPage = () => {
       });
       //console.log('Data from getEventsByDate:', data); //Tämä palauttaa oikein eli vika ei doGraphqlFetchissä
       fetchedEvents = fetchedEvents.concat(data.eventsByDate || []);
-    }
-
-    if (searchParams.age) {
-      const data = await doGraphQLFetch(API_URL, getEventsByMinAge, {
-        age: searchParams.age,
-      });
-      fetchedEvents = fetchedEvents.concat(data.eventsByMinAge || []);
-    }
-
-    if (searchParams.address) {
-      const data = await doGraphQLFetch(API_URL, getEventsByAddress, {
-        address: searchParams.address,
-      });
-      fetchedEvents = fetchedEvents.concat(data.eventsByAddress || []);
     }
 
     if (searchParams.category) {
@@ -156,24 +139,10 @@ const SearchPage = () => {
       />
       <input
         type="text"
-        name="address"
-        value={searchParams.address}
-        onChange={handleInputChange}
-        placeholder="Address"
-      />
-      <input
-        type="text"
         name="free search"
         value={searchParams.keyword}
         onChange={handleInputChange}
         placeholder="Free search"
-      />
-      <input
-        type="number"
-        name="age"
-        value={searchParams.age}
-        onChange={handleInputChange}
-        placeholder="Age"
       />
       <button onClick={fetchEvents}>Search</button>
       {searchPerformed &&
