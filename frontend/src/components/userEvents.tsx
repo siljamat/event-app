@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {useMutation, useQuery} from '@apollo/client';
 import {getUserEvents} from '../graphql/queries';
 import {useEffect, useState} from 'react';

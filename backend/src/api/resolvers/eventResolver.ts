@@ -1,22 +1,29 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import e from 'express';
+/**
+ * @typedef {import('express').Request} Request
+ * @typedef {import('express').Response} Response
+ * @typedef {import('../../types/MyContext').MyContext} MyContext
+ * @typedef {import('../../types/DBTypes').LocationInput} LocationInput
+ * @typedef {import('../../types/DBTypes').Event} Event
+ * @typedef {import('../../types/DBTypes').User} User
+ */
 import EventModel from '../models/eventModel';
 import {isAdmin, isLoggedIn} from '../../functions/authorize';
 import {MyContext} from '../../types/MyContext';
-import {LocationInput, Event, User} from '../../types/DBTypes';
+import {Event} from '../../types/DBTypes';
 import fetchData from '../../functions/fetchData';
 import {getLocationCoordinates} from '../../functions/geocode';
-import {Console} from 'console';
 import eventApiFetch from '../../functions/eventApiFetch';
-import mongoose, {ObjectId} from 'mongoose';
-import {updateUsersFields} from '../../utils/user';
-import userResolver from './userResolver';
+import mongoose from 'mongoose';
 import CategoryModel from '../models/categoryModel';
-import {deleteEventResponse} from '../../types/MessageTypes';
 
 export default {
   Query: {
+    /**
+     * Retrieve all events from database and API
+     * @returns {Promise<Event[]>} List of events
+     */
     events: async () => {
       const databaseEvents = await EventModel.find();
       const apiEvents1 = await eventApiFetch(
@@ -41,16 +48,14 @@ export default {
         return apiEvents;
       }
       const allEvents = [...databaseEvents, ...apiEvents];
-      const eventNames = new Set();
-      const uniqueEvents = allEvents.filter((event: any) => {
-        if (eventNames.has(event.event_name)) {
-          return false;
-        }
-        eventNames.add(event.event_name);
-        return true;
-      });
-      return uniqueEvents;
+      return allEvents;
     },
+    /**
+     * Retrieve event by ID from database or API
+     * @param {undefined} _parent Unused parent parameter
+     * @param {{id: string}} args Arguments including event ID
+     * @returns {Promise<Event | undefined>} Event object if found, undefined otherwise
+     */
     event: async (_parent: undefined, args: {id: string}) => {
       console.log('EVENT ID', args.id);
       if (mongoose.Types.ObjectId.isValid(args.id)) {
@@ -66,11 +71,17 @@ export default {
 
       return apiEvent;
     },
+    /**
+     * Retrieve events by category from database and API
+     * @param {undefined} _parent Unused parent parameter
+     * @param {{category_name: string}} args Arguments including category name
+     * @returns {Promise<Event[]>} List of events by category
+     */
     eventsByCategory: async (
       _parent: undefined,
       args: {category_name: string},
     ) => {
-      // Haetaan kategoria nimen perusteella
+      // Get category object from database
       const categoryObj = await CategoryModel.findOne({
         category_name: args.category_name,
       });
@@ -78,7 +89,7 @@ export default {
         console.log(`Category ${args.category_name} not found from database`);
         return [];
       }
-      // Haetaan tapahtumat kategorian id:n perusteella
+      // Get all events from database that have the category
       const databaseEvents = await EventModel.aggregate([
         {
           $lookup: {
@@ -94,15 +105,21 @@ export default {
           },
         },
       ]);
-      // Haetaan APIsta kaikki tapahtumat kategorian perusteella
+      // Get all events from the API that have the category
       const apiEvents = await eventApiFetch(
         `https://api.hel.fi/linkedevents/v1/event/?text=${args.category_name}`,
       );
       console.log('apiEvents lenght:', apiEvents.length);
-      // Yhdistetään tietokannasta ja APIsta haetut tapahtumat ja palautetaan ne
+      // Combine the events from the database and the API
       const combinedEvents = [...databaseEvents, ...apiEvents];
       return combinedEvents;
     },
+    /**
+     * Retrieve events by date from database and API
+     * @param {undefined} _parent Unused parent parameter
+     * @param {{date: Date | string}} args Arguments including date
+     * @returns {Promise<Event[]>} List of events by date
+     */
     eventsByDate: async (_parent: undefined, args: {date: Date | string}) => {
       let {date} = args;
       if (typeof date === 'string') {
@@ -191,7 +208,7 @@ export default {
       }
     },
     eventsByTitle: async (_parent: undefined, args: {keyword: string}) => {
-      // Haetaan tietokannasta tapahtumat, joiden event_name sisältää hakusanan
+      // Get events from the database that have the keyword in the event_name
       const {keyword} = args;
       const databaseEvents = await EventModel.find({
         event_name: {$regex: new RegExp(keyword, 'i')},
@@ -199,7 +216,7 @@ export default {
       let apiEvents = await eventApiFetch(
         `https://api.hel.fi/linkedevents/v1/event/?text=${keyword}`,
       );
-      // Filteröidään APIsta haetut tapahtumat, joiden event_name sisältää hakusanan
+      // Filter the events from the API to only include events that have the keyword in the event_name
       apiEvents = apiEvents.filter(
         (event) =>
           event &&
@@ -207,7 +224,7 @@ export default {
           event.event_name.toLowerCase().includes(keyword.toLowerCase()),
       );
       const combinedEvents = [...databaseEvents, ...apiEvents];
-      // Filteröidään pois tapahtumat, joissa event_name on undefined/null
+      // Filter out events that don't have an event_name
       const filteredEvents = combinedEvents.filter(
         (event) => event && event.event_name,
       );
@@ -219,7 +236,7 @@ export default {
       _parent: undefined,
       args: {input: Omit<Event, 'id'>},
       context: MyContext,
-    ): Promise<Event> => {
+    ) => {
       isLoggedIn(context);
       const {address} = args.input;
       const coords = await getLocationCoordinates(address);
@@ -228,11 +245,7 @@ export default {
         coordinates: [coords.lat, coords.lng],
       };
       args.input.creator = context.userdata?.user.id;
-      console.log('Creating event with input:', args.input);
-      if (args.input.image.length === 0 || args.input.image.length < 2) {
-        console.log('No image provided, using placeholder image');
-        args.input.image = 'https://picsum.photos/200/300';
-      } // Lisätään luodun tapahtuman id käyttäjän tietoihin
+      // Add the event to the database
       const createdEvent = await EventModel.create(args.input);
       await fetchData<Response>(
         `${process.env.AUTH_URL}/users/${context.userdata?.user.id}`,
@@ -253,17 +266,17 @@ export default {
       _parent: undefined,
       args: {id: string; input: Partial<Omit<Event, 'id'>>},
       context: MyContext,
-    ): Promise<boolean> => {
+    ) => {
       isLoggedIn(context);
       const eventToUpdate = await EventModel.findById(args.id);
       if (!eventToUpdate) {
         throw new Error('Event not found!');
       }
-      // Tarkistetaan, että käyttäjä on tapahtuman luoja
+      // Check that the user is the creator of the event
       if (eventToUpdate.creator.toString() !== context.userdata?.user.id) {
         throw new Error('You are not authorized to update this event.');
       }
-      // Jos tapahtuman osoitetta on muutettu, päivitetään myös sijainti
+      // If the address of the event has been changed, update the location as well
       if (args.input.address) {
         const {address} = args.input;
         const coords = await getLocationCoordinates(address);
@@ -278,7 +291,7 @@ export default {
         {new: true},
       );
       console.log('Event updated successfully!', updatedEvent);
-      return true;
+      return updatedEvent;
     },
     deleteEvent: async (
       _parent: undefined,
@@ -291,11 +304,11 @@ export default {
         if (!event) {
           throw new Error('Event not found from the database!');
         }
-        // Tarkisteetaan, että käyttäjä on tapahtuman luoja
+        // Check that the user is the creator of the event
         if (event.creator.toString() !== context.userdata?.user.id) {
           throw new Error('You are not authorized to delete this event.');
         }
-        // Poistetaan tapahtuman id käyttäjän createdEvents kentästä
+        // Remove the event id from the user's createdEvents array
         await fetchData<Response>(
           `${process.env.AUTH_URL}/users/${event.creator}`,
           {
@@ -311,7 +324,7 @@ export default {
             }),
           },
         );
-        // Poistetaan tapahtuma tietokannasta
+        // Remove the event from the database
         await EventModel.findByIdAndDelete(args.id);
         console.log('Event deleted successfully!');
         return {
@@ -333,7 +346,7 @@ export default {
       if (!eventToUpdate) {
         throw new Error('Event not found!');
       }
-      // Jos tapahtuman osoitetta on muutettu, päivitetään myös sijainti
+      // If the address of the event has been changed, update the location as well
       if (args.input.address) {
         const {address} = args.input;
         const coords = await getLocationCoordinates(address);
@@ -361,7 +374,7 @@ export default {
         if (!event) {
           throw new Error('Event not found from the database!');
         }
-        // Poistetaan tapahtuman id käyttäjän createdEvents kentästä
+        // Remove the event id from the user's createdEvents array
         await fetchData<Response>(
           `${process.env.AUTH_URL}/users/${event.creator}`,
           {
@@ -377,7 +390,7 @@ export default {
             }),
           },
         );
-        // Poistetaan tapahtuma tietokannasta
+        // Remove the event from the database
         await EventModel.findByIdAndDelete(args.id);
         console.log('Event deleted successfully!');
         return {

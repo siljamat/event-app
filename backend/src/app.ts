@@ -13,11 +13,14 @@ import {
 } from '@apollo/server/plugin/landingPage/default';
 import {notFound, errorHandler} from './middlewares';
 import authenticate from './functions/authenticate';
-// import {createRateLimitRule} from 'graphql-rate-limit';
-// import {shield} from 'graphql-shield';
 import {makeExecutableSchema} from '@graphql-tools/schema';
 import {applyMiddleware} from 'graphql-middleware';
 import {MyContext} from './types/MyContext';
+
+/**
+ * Express app
+ * @type {express.Application}
+ */
 
 const app = express();
 

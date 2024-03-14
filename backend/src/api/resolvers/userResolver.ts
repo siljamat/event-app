@@ -5,10 +5,19 @@ import {ToggleResponse, UserResponse} from '../../types/MessageTypes';
 import {MyContext} from '../../types/MyContext';
 import {isAdmin, isLoggedIn} from '../../functions/authorize';
 import {__InputValue} from 'graphql';
-import mongoose, {Types, ObjectId} from 'mongoose';
+import mongoose, {Types} from 'mongoose';
 import EventModel from '../models/eventModel';
 
+/**
+ * GraphQL resolvers.
+ * @type {import('graphql').IResolvers}
+ */
 export default {
+  /**
+   * Resolves the creator field for Event type.
+   * @param {Event} parent - Parent resolver object
+   * @returns {Promise<User>} - Resolved user object
+   */
   Event: {
     creator: async (parent: Event) => {
       return await fetchData<User>(
@@ -17,9 +26,19 @@ export default {
     },
   },
   Query: {
+    /**
+     * Resolves the users query.
+     * @returns {Promise<User[]>} - Resolved user array
+     */
     users: async () => {
       return await fetchData<User[]>(`${process.env.AUTH_URL}/users`);
     },
+    /**
+     * Resolves the userById query.
+     * @param {undefined} _parent - Parent resolver object
+     * @param {{id: string}} args - Resolver arguments
+     * @returns {Promise<User>} - Resolved user object
+     */
     userById: async (_parent: undefined, args: {id: string}) => {
       return await fetchData<User>(`${process.env.AUTH_URL}/users/${args.id}`);
     },
@@ -38,7 +57,7 @@ export default {
       if (!eventIds) {
         throw new Error(`No created events found for user with id ${args.id}`);
       }
-      // Haetaan kaikki luodut tapahtumat, joiden id:t löytyivät käyttäjän createdEvents-kentästä
+      // Get all events created by the user
       const createdEvents = await Promise.all(
         eventIds.map(async (id: Types.ObjectId) => {
           const event = await EventModel.findById(id);
@@ -64,7 +83,7 @@ export default {
           `No favorited events found for user with id ${args.id}`,
         );
       }
-      // Haetaan kaikki tykätyt tapahtumat, joiden id:t löytyivät käyttäjän favoritedEvents-kentästä
+      // Get all favorited events by the user
       const favoritedEvents = await Promise.all(
         eventIds.map(async (id: Types.ObjectId) => {
           const event = await EventModel.findById(id);
@@ -90,7 +109,7 @@ export default {
           `No favorited events found for user with id ${args.id}`,
         );
       }
-      // Haetaan kaikki osallistutut tapahtumat, joiden id:t löytyivät käyttäjän attendedEvents-kentästä
+      // Get all attended events by the user
       const attendedEvents = await Promise.all(
         eventIds.map(async (id: Types.ObjectId) => {
           const event = await EventModel.findById(id);
@@ -103,7 +122,19 @@ export default {
       return attendedEvents;
     },
   },
+  /**
+   * Resolves the login mutation.
+   * @param {undefined} _parent - Parent resolver object
+   * @param {{credentials: {email: string; password: string}}} args - Resolver arguments
+   * @returns {Promise<UserResponse>} - Resolved user response
+   */
   Mutation: {
+    /**
+     * Login mutation
+     * @param _parent
+     * @param args
+     * @returns {Promise<UserResponse>}
+     */
     login: async (
       _parent: undefined,
       args: {credentials: {email: string; password: string}},
@@ -119,6 +150,12 @@ export default {
         },
       );
     },
+    /**
+     * Register mutation
+     * @param _parent
+     * @param args
+     * @returns {Promise<UserResponse>}
+     */
     register: async (_parent: undefined, args: {user: UserInput}) => {
       return await fetchData<UserResponse>(`${process.env.AUTH_URL}/users`, {
         method: 'POST',
@@ -155,12 +192,12 @@ export default {
     ) => {
       isLoggedIn(context);
       try {
-        // Haetaan kaikki tapahtumat, jotka löytyvät käyttäjän favoritedBy- tai attendedBy-kentistä
+        // Get all events that the user has favorited or attended
         const userId = new mongoose.Types.ObjectId(args.id);
         const eventsToUpdate = await EventModel.find({
           $or: [{favoritedBy: userId}, {attendedBy: userId}],
         });
-        // Käydään läpi kaikki tapahtumat ja poistetaan käyttäjän id
+        // Go through all events and remove the user id
         await Promise.all(
           eventsToUpdate.map(async (event) => {
             const favorited = event.favoritedBy.includes(userId);
@@ -180,14 +217,14 @@ export default {
             await event.save();
           }),
         );
-        // Poistetaan kaikki käyttäjän luomat tapahtumat
+        // Remove all events created by the user
         const events = await EventModel.find({creator: userId});
         await Promise.all(
           events.map(async (event) => {
             await EventModel.deleteOne({_id: event._id});
           }),
         );
-        // Poistetaan käyttäjä
+        // Remove the user
         return await fetchData<UserResponse>(
           `${process.env.AUTH_URL}/users/${args.id}`,
           {
@@ -227,12 +264,11 @@ export default {
     ) => {
       isAdmin(context);
       try {
-        // Haetaan kaikki tapahtumat, jotka löytyvät käyttäjän favoritedBy- tai attendedBy-kentistä
+        // Get all events that the user has favorited or attended
         const userId = new mongoose.Types.ObjectId(args.id);
         const eventsToUpdate = await EventModel.find({
           $or: [{favoritedBy: userId}, {attendedBy: userId}],
         });
-        // Käydään läpi kaikki tapahtumat ja poistetaan käyttäjän id
         await Promise.all(
           eventsToUpdate.map(async (event) => {
             const favorited = event.favoritedBy.includes(userId);
@@ -252,14 +288,14 @@ export default {
             await event.save();
           }),
         );
-        // Poistetaan kaikki käyttäjän luomat tapahtumat
+        // Remove all events created by the user
         const events = await EventModel.find({creator: userId});
         await Promise.all(
           events.map(async (event) => {
             await EventModel.deleteOne({_id: event._id});
           }),
         );
-        // Poistetaan käyttäjä
+        // Remove the user
         return await fetchData<UserResponse>(
           `${process.env.AUTH_URL}/users/${args.id}`,
           {
@@ -281,7 +317,7 @@ export default {
     ): Promise<ToggleResponse> => {
       isLoggedIn(context);
       try {
-        // Päivitetään tapahtuman favoritedBy-kenttä tietokantaan
+        // Update the event's favoritedBy field in the database
         const event = await EventModel.findById(args.eventId);
         if (!event) {
           throw new Error('Event not found');
@@ -290,7 +326,7 @@ export default {
         const userId = context.userdata?.user.id.toString();
         const isFavorited = event.favoritedBy.includes(userId);
         let isFavorite = isFavorited;
-        // Jos käyttäjä on jo tykännyt tapahtumasta, se poistetaan event-objektista
+        // If the user has already favorited the event, remove the user id from the event object
         if (isFavorited) {
           event.favoritedBy = event.favoritedBy.filter(
             (favoritedUserId) =>
@@ -303,11 +339,10 @@ export default {
           isFavorite = true;
           console.log('Event favorited by', userId);
         }
-        // Päivitetään tapahtuman favoriteCount-kenttä tietokantaan
+        // Update the event's favoriteCount field in the database
         event.favoriteCount = event.favoritedBy.length;
-        // Tallennetaan muutokset
         await event.save();
-        // Päivitetään käyttäjän favoritedEvents-kenttä tietokantaan
+        // Update the user's favoritedEvents field in the database
         await fetchData<UserResponse>(
           `${process.env.AUTH_URL}/users/${userId}`,
           {
@@ -318,11 +353,11 @@ export default {
             },
             body: JSON.stringify({
               favoritedEvents: isFavorited
-                ? // Jos käyttäjä on jo tykännyt tapahtumasta, se poistetaan käyttäjä-objektista
+                ? // If the user has already favorited the event, remove the event id from the user object
                   (context.userdata?.user.favoritedEvents || []).filter(
                     (eventId) => eventId.toString() !== args.eventId.toString(),
                   )
-                : // Jos käyttäjä ei ole vielä tykännyt tapahtumasta, se lisätään käyttäjä-objektiin
+                : // If the user has not yet favorited the event, add the event id to the user object
                   [
                     ...(context.userdata?.user.favoritedEvents || []),
                     args.eventId,
@@ -345,7 +380,7 @@ export default {
     ): Promise<ToggleResponse> => {
       isLoggedIn(context);
       try {
-        // Päivitetään tapahtuman attendedBy-kenttä tietokantaan
+        // Update the event's attendedBy field in the database
         const event = await EventModel.findById(args.eventId);
         if (!event) {
           throw new Error('Event not found');
@@ -354,7 +389,7 @@ export default {
         const isAttending = event.attendedBy.includes(userId);
         let isAttendingEvent = isAttending;
 
-        // Jos käyttäjä on jo ilmoittautunut tapahtumaan, se poistetaan event-objektista
+        // If the user has already attended the event, remove the user id from the event object
         if (isAttending) {
           event.attendedBy = event.attendedBy.filter(
             (attendedUserId) =>
@@ -368,12 +403,11 @@ export default {
           console.log('Event attended by', userId);
         }
 
-        // Päivitetään tapahtuman attendeeCount-kenttä tietokantaan
+        // Update the event's attendeeCount field in the database
         event.attendeeCount = event.attendedBy.length;
-        // Tallennetaan muutokset
         await event.save();
 
-        // Päivitetään käyttäjän attendedEvents-kenttä tietokantaan
+        // Update the user's attendedEvents field in the database
         await fetchData<UserResponse>(
           `${process.env.AUTH_URL}/users/${userId}`,
           {
@@ -384,11 +418,11 @@ export default {
             },
             body: JSON.stringify({
               attendedEvents: isAttending
-                ? // Jos käyttäjä on jo ilmoittautunut tapahtumaan, se poistetaan käyttäjä-objektista
+                ? // If the user has already attended the event, remove the event id from the user object
                   (context.userdata?.user.attendedEvents || []).filter(
                     (eventId) => eventId.toString() !== args.eventId.toString(),
                   )
-                : // Jos käyttäjä ei ole vielä ilmoittautunut tapahtumaan, se lisätään käyttäjä-objektiin
+                : // If the user has not yet attended the event, add the event id to the user object
                   [
                     ...(context.userdata?.user.attendedEvents || []),
                     args.eventId,

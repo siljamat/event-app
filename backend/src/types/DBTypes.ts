@@ -1,6 +1,17 @@
 import {Document, Types} from 'mongoose';
 import {Point} from 'geojson';
 
+/**
+ * User type definition.
+ * @property {Types.ObjectId | string} id - The ID of the user.
+ * @property {string} user_name - The username of the user.
+ * @property {string} email - The email of the user.
+ * @property {'user' | 'admin'} role - The role of the user.
+ * @property {string} password - The password of the user.
+ * @property {Types.ObjectId[]} createdEvents - The events created by the user.
+ * @property {Types.ObjectId[]} favoritedEvents - The events favorited by the user.
+ * @property {Types.ObjectId[]} attendedEvents - The events attended by the user.
+ */
 type User = Partial<Document> & {
   id: Types.ObjectId | string;
   user_name: string;

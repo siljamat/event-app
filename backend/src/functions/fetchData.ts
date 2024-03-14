@@ -1,11 +1,15 @@
 import {GraphQLError} from 'graphql';
 import {ErrorResponse} from '../types/MessageTypes';
-
+/**
+ * Function for fetching data from the API.
+ * @param url
+ * @param options
+ * @returns
+ */
 const fetchData = async <T>(
   url: string,
   options: RequestInit = {},
 ): Promise<T> => {
-  // console.log('fetching data from url: ', url);
   const response = await fetch(url, options);
   const json = await response.json();
   if (!response.ok) {

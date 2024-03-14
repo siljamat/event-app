@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-inner-declarations */
-import React, {useEffect, useContext} from 'react';
+import React, {useEffect} from 'react';
 import {doGraphQLFetch} from '../src/graphql/fetch';
 import {getAllEvents} from '../src/graphql/eventQueries';
 import {EventType} from '../src/types/EventType';

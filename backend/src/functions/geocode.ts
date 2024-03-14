@@ -1,5 +1,10 @@
 import fetchData from './fetchData';
 
+/**
+ * Function for fetching location coordinates from the API.
+ * @param address
+ * @returns
+ */
 const getLocationCoordinates = async (address: string) => {
   const url = `https://us1.locationiq.com/v1/search.php?key=${process.env.GEO_KEY}&q=${encodeURIComponent(address)}&format=json`;
 

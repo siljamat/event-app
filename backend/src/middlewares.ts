@@ -4,6 +4,16 @@ import CustomError from './classes/CustomError';
 import {ErrorResponse} from './types/MessageTypes';
 import {getLocationCoordinates} from './functions/geocode';
 
+/**
+ * Middleware for handling 404 errors.
+ * @param req
+ * @param res
+ * @param next
+ * @constructor
+ * @returns {void}
+ * @throws {CustomError}
+ * @throws {Error}
+ */
 const notFound = (req: Request, res: Response, next: NextFunction) => {
   const error = new CustomError(`🔍 - Not Found - ${req.originalUrl}`, 404);
   next(error);
@@ -23,6 +33,12 @@ const errorHandler = (
   });
 };
 
+/**
+ * Middleware for getting the coordinates of a location.
+ * @param req
+ * @param res
+ * @param next
+ */
 const getCoordinates = async (
   req: Request,
   res: Response,

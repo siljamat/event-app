@@ -2,7 +2,12 @@
 import {Event, User} from '../types/DBTypes';
 import fetchData from './fetchData';
 
-//TODO: OPTIMIZE THIS FUNCTION
+/**
+ * Fetches event data from the API and processes it into a format that can be used by the application.
+ * @param {string} url - The URL of the API endpoint.
+ * @param {RequestInit} options - The options for the fetch request.
+ * @returns {Promise<EventType[]>} An array of event data.
+ */
 const eventApiFetch = async (url: string, options: RequestInit = {}) => {
   const data: any[] = await fetchData(url, options);
   const apiUser = await fetchData<User>(
