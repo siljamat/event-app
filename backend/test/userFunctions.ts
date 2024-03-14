@@ -185,51 +185,6 @@ const loginUser = (
   });
 };
 
-const loginBrute = (
-  url: string | Application,
-  user: UserTest,
-): Promise<boolean> => {
-  return new Promise((resolve, reject) => {
-    request(url)
-      .post('/graphql')
-      .set('Content-type', 'application/json')
-      .send({
-        query: `mutation Login($credentials: Credentials!) {
-          login(credentials: $credentials) {
-            message
-            token
-            user {
-              email
-              id
-              user_name
-            }
-          }
-        }`,
-        variables: {
-          credentials: {
-            username: user.email,
-            password: user.password,
-          },
-        },
-      })
-      .expect(200, (err, response) => {
-        if (err) {
-          reject(err);
-        } else {
-          if (
-            response.body.errors?.[0]?.message ===
-            "You are trying to access 'login' too often"
-          ) {
-            console.log('brute blocked', response.body.errors[0].message);
-            resolve(true);
-          } else {
-            resolve(false);
-          }
-        }
-      });
-  });
-};
-
 /* test for graphql query
 mutation UpdateUser($user: UserModify!) {
   updateUser(user: $user) {
