@@ -3,7 +3,11 @@ import request from 'supertest';
 import randomstring from 'randomstring';
 import {UserTest} from '../src/types/DBTypes';
 import {Application} from 'express';
-import {LoginResponse, UserResponse} from '../src/types/MessageTypes';
+import {
+  LoginResponse,
+  ToggleResponse,
+  UserResponse,
+} from '../src/types/MessageTypes';
 
 // get user from graphql query users
 const getUser = (url: string | Application): Promise<UserTest[]> => {
@@ -181,51 +185,6 @@ const loginUser = (
   });
 };
 
-const loginBrute = (
-  url: string | Application,
-  user: UserTest,
-): Promise<boolean> => {
-  return new Promise((resolve, reject) => {
-    request(url)
-      .post('/graphql')
-      .set('Content-type', 'application/json')
-      .send({
-        query: `mutation Login($credentials: Credentials!) {
-          login(credentials: $credentials) {
-            message
-            token
-            user {
-              email
-              id
-              user_name
-            }
-          }
-        }`,
-        variables: {
-          credentials: {
-            username: user.email,
-            password: user.password,
-          },
-        },
-      })
-      .expect(200, (err, response) => {
-        if (err) {
-          reject(err);
-        } else {
-          if (
-            response.body.errors?.[0]?.message ===
-            "You are trying to access 'login' too often"
-          ) {
-            console.log('brute blocked', response.body.errors[0].message);
-            resolve(true);
-          } else {
-            resolve(false);
-          }
-        }
-      });
-  });
-};
-
 /* test for graphql query
 mutation UpdateUser($user: UserModify!) {
   updateUser(user: $user) {
@@ -259,6 +218,7 @@ const putUser = (url: string | Application, token: string) => {
         }`,
         variables: {
           user: {
+            id: '1',
             user_name: newValue,
           },
         },
@@ -294,14 +254,15 @@ mutation DeleteUser {
 const deleteUser = (
   url: string | Application,
   token: string,
+  userId: string,
 ): Promise<UserResponse> => {
   return new Promise((resolve, reject) => {
     request(url)
       .post('/graphql')
       .set('Authorization', 'Bearer ' + token)
       .send({
-        query: `mutation DeleteUser {
-          deleteUser {
+        query: `mutation DeleteUser($deleteUserId: ID!) {
+          deleteUser(id: $deleteUserId) {
             message
             user {
               id
@@ -310,11 +271,15 @@ const deleteUser = (
             }
           }
         }`,
+        variables: {
+          deleteUserId: userId,
+        },
       })
       .expect(200, (err, response) => {
         if (err) {
           reject(err);
         } else {
+          console.log(response.body);
           const userData = response.body.data.deleteUser;
           expect(userData).toHaveProperty('message');
           expect(userData).toHaveProperty('user');
@@ -391,6 +356,71 @@ const wrongUserDeleteUser = (
   });
 };
 
+const toggleFavoriteEvent = (
+  url: string | Application,
+  token: string,
+  eventId: string,
+): Promise<ToggleResponse> => {
+  return new Promise((resolve, reject) => {
+    request(url)
+      .post('/graphql')
+      .set('Authorization', 'Bearer ' + token)
+      .send({
+        query: `mutation ToggleFavoriteEvent($eventId: ID!) {
+          toggleFavoriteEvent(eventId: $eventId) {
+            message
+            isTrue
+          }
+        }`,
+        variables: {
+          eventId: eventId,
+        },
+      })
+      .expect(200, (err, response) => {
+        if (err) {
+          reject(err);
+        } else {
+          console.log('toggle response', response.body);
+          const eventData = response.body.data.toggleFavoriteEvent;
+          expect(eventData).toHaveProperty('isTrue');
+          resolve(eventData.isTrue);
+        }
+      });
+  });
+};
+
+const toggleAttendingEvent = (
+  url: string | Application,
+  token: string,
+  eventId: string,
+): Promise<ToggleResponse> => {
+  return new Promise((resolve, reject) => {
+    request(url)
+      .post('/graphql')
+      .set('Authorization', 'Bearer ' + token)
+      .send({
+        query: `mutation ToggleAttendingEvent($eventId: ID!) {
+          toggleAttendingEvent(eventId: $eventId) {
+            message
+            isTrue
+          }
+        }`,
+        variables: {
+          eventId: eventId,
+        },
+      })
+      .expect(200, (err, response) => {
+        if (err) {
+          reject(err);
+        } else {
+          const eventData = response.body.data.toggleAttendingEvent;
+          expect(eventData).toHaveProperty('isTrue');
+          resolve(eventData.isTrue);
+        }
+      });
+  });
+};
+
 export {
   getUser,
   getSingleUser,
@@ -401,4 +431,6 @@ export {
   loginBrute,
   adminDeleteUser,
   wrongUserDeleteUser,
+  toggleFavoriteEvent,
+  toggleAttendingEvent,
 };
