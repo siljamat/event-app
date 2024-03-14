@@ -64,8 +64,8 @@ const getEventById = gql`
 `;
 
 const getEventsByCategory = `
-  query EventsByCategory($category: String!) {
-    eventsByCategory(category: $category) {
+  query EventsByCategory($categoryName: String!) {
+    eventsByCategory(category_name: $categoryName) {
       address
       age_restriction
       category {
