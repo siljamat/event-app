@@ -3,17 +3,50 @@ import {useParams} from 'react-router-dom';
 import {getEventById} from '../src/graphql/eventQueries';
 import {useMutation, useQuery} from '@apollo/client';
 import {
+  attendingEvents,
+  likedEvents,
   toggleAttendingEvent,
   toggleFavoriteEvent,
 } from '../src/graphql/queries';
+import {EventType} from '../src/types/EventType';
 
 const EventPage: React.FC = () => {
   const {id} = useParams<{id: string}>();
   const token = localStorage.getItem('token');
+  const storedUserData = localStorage.getItem('user');
+  const user = storedUserData ? JSON.parse(storedUserData) : null;
+  const userId = user?.id;
   const [isFavorite, setIsFavorite] = useState(false);
-  const [favorite, setFavorite] = useState(false);
   const [isAttending, setIsAttending] = useState(false);
-  const [attending, setAttending] = useState(false);
+
+  const {data: likedData} = useQuery(likedEvents, {
+    variables: {userId},
+    skip: !userId,
+  });
+  useEffect(() => {
+    // Set liked events data
+    console.log('likedData', likedData);
+    if (likedData && likedData.favoritedEventsByUserId) {
+      const likedEventsData = likedData.favoritedEventsByUserId;
+      const isFav = likedEventsData.some((event: EventType) => event.id === id);
+      setIsFavorite(isFav);
+    }
+  }, [likedData]);
+
+  const {data} = useQuery(attendingEvents, {
+    variables: {userId},
+    skip: !userId,
+  });
+  useEffect(() => {
+    // Set liked events data
+    if (data && data.attendedEventsByUserId) {
+      const attendedEventsData = data.attendedEventsByUserId;
+      const isAtt = attendedEventsData.some(
+        (event: EventType) => event.id === id,
+      );
+      setIsAttending(isAtt);
+    }
+  }, [data]);
 
   console.log('eventId', id);
   console.log('token', token);
@@ -49,7 +82,6 @@ const EventPage: React.FC = () => {
     if (favorite) {
       console.log('favorite', favorite.data.toggleFavoriteEvent.isTrue);
       setIsFavorite(favorite.data.toggleFavoriteEvent.isTrue);
-      setFavorite(favorite.data.toggleFavoriteEvent.isTrue);
     }
   };
 
@@ -68,7 +100,6 @@ const EventPage: React.FC = () => {
     if (attend) {
       console.log('attend', attend.data.toggleAttendingEvent.isTrue);
       setIsAttending(attend.data.toggleAttendingEvent.isTrue);
-      setAttending(attend.data.toggleAttendingEvent.isTrue);
     }
 
     console.error(error);
@@ -76,25 +107,10 @@ const EventPage: React.FC = () => {
 
   const event = useMemo(() => {
     if (eventData && eventData.event) {
-      console.log('eventData', eventData.event.creator.user_name);
       return eventData.event;
     }
     return undefined;
   }, [eventData]);
-
-  useEffect(() => {
-    console.log('isFavorite', isFavorite);
-    if (event) {
-      setIsFavorite(favorite);
-    }
-  }, [favorite]);
-
-  useEffect(() => {
-    console.log('isAttending', isAttending);
-    if (event) {
-      setIsAttending(attending);
-    }
-  }, [attending]);
 
   if (loading) {
     return (
