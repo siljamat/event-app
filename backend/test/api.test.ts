@@ -4,18 +4,17 @@ import {
   deleteUser,
   getSingleUser,
   getUser,
-  // loginBrute,
   loginUser,
   postUser,
   putUser,
 } from './userFunctions';
-import mongoose from 'mongoose';
+import {deleteCategory, postCategory, putCategory} from './categoryFunctions';
 import {getNotFound} from './testFunctions';
-
+import mongoose from 'mongoose';
 import randomstring from 'randomstring';
 import jwt from 'jsonwebtoken';
 import {LoginResponse} from '../src/types/MessageTypes';
-import {UserTest} from '../src/types/DBTypes';
+import {CategoryTest, UserTest} from '../src/types/DBTypes';
 
 describe('Testing graphql api', () => {
   beforeAll(async () => {
@@ -141,28 +140,22 @@ describe('Testing graphql api', () => {
     await deleteUser(app, userData.token!);
   });
 
-  // test brute force protectiom
-  // test('Brute force attack simulation', async () => {
-  //   const maxAttempts = 20;
-  //   const mockUser: UserTest = {
-  //     user_name: 'Test User ' + randomstring.generate(7),
-  //     email: randomstring.generate(9) + '@user.fi',
-  //     password: 'notthepassword',
-  //   };
+  const testCategory: CategoryTest = {
+    category_name: 'test category',
+  };
 
-  //   try {
-  //     // Call the mock login function until the maximum number of attempts is reached
-  //     for (let i = 0; i < maxAttempts; i++) {
-  //       const result = await loginBrute(app, mockUser);
-  //       if (result) throw new Error('Brute force attack unsuccessful');
-  //     }
+  // test create category
+  it('should create a new category', async () => {
+    await postCategory(app, testCategory, adminData.token);
+  });
 
-  //     // If the while loop completes successfully, the test fails
-  //     throw new Error('Brute force attack succeeded');
-  //   } catch (error) {
-  //     console.log(error);
-  //     // If the login function throws an error, the test passes
-  //     expect((error as Error).message).toBe('Brute force attack unsuccessful');
-  //   }
-  // }, 15000);
+  // test update category
+  it('should update a category', async () => {
+    await putCategory(app, 'test category', testCategory, adminData.token);
+  });
+
+  // test delete category
+  it('should delete a category', async () => {
+    await deleteCategory(app, 'test category', adminData.token);
+  });
 });

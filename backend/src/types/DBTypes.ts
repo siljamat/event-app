@@ -55,6 +55,10 @@ type UserTest = Partial<User>;
 
 type LoginUser = Omit<User, 'password'>;
 
+type EventTest = Partial<Event>;
+
+type CategoryTest = Partial<Category>;
+
 type TokenContent = {
   token: string;
   user: LoginUser;
@@ -78,6 +82,8 @@ export {
   UserInput,
   UserTest,
   LoginUser,
+  EventTest,
+  CategoryTest,
   TokenContent,
   Location,
   LocationInput,
