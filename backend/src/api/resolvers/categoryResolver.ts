@@ -8,7 +8,7 @@ import EventModel from '../models/eventModel';
 export default {
   Event: {
     category: async (parent: Event) => {
-      return await CategoryModel.findById(parent.category);
+      return await CategoryModel.find({_id: {$in: parent.category}});
     },
   },
   Query: {

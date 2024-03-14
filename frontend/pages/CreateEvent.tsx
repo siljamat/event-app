@@ -5,9 +5,11 @@ import {doGraphQLFetch} from '../src/graphql/fetch';
 import {getCategories} from '../src/graphql/categoryQueries';
 import {EventType} from '../src/types/EventType';
 import {Category} from '../src/types/Category';
+import {useNavigate} from 'react-router-dom';
 
 function CreateEventForm() {
   const token = localStorage.getItem('token') || undefined;
+  const navigate = useNavigate();
   const [event, setEvent] = useState<Partial<EventType>>({
     event_name: '',
     description: '',
@@ -22,8 +24,6 @@ function CreateEventForm() {
     image: '',
     category: [],
   });
-
-  const [notification, setNotification] = useState<string | null>(null);
 
   const [categories, setCategories] = useState<Category[]>([]);
   const API_URL = import.meta.env.VITE_API_URL;
@@ -43,7 +43,7 @@ function CreateEventForm() {
         authorization: token ? `Bearer ${token}` : '',
       },
     },
-    onCompleted: () => {
+    onCompleted: (data) => {
       setEvent({
         event_name: '',
         description: '',
@@ -58,11 +58,12 @@ function CreateEventForm() {
         image: '',
         category: [],
       });
-      setNotification('Event created successfully');
+      // Navigate to the event page
+      navigate(`/event/${data.createEvent.id}`);
     },
     onError: (error) => {
       console.error('Error creating event: ', error);
-      setNotification('Error creating event');
+      alert('Error creating event');
     },
   });
 
@@ -127,7 +128,6 @@ function CreateEventForm() {
                   width: '100%',
                 }}
               >
-                {notification && <p>{notification}</p>}
                 <form onSubmit={handleSubmit}>
                   <div
                     style={{
