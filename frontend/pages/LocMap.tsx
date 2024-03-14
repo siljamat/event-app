@@ -15,10 +15,12 @@ declare global {
 const Map: React.FC = () => {
   const [eventData, setEvents] = React.useState<EventType[]>([]);
   const [displayedEvents, setDisplayedEvents] = React.useState<EventType[]>([]);
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
+    setIsLoading(true);
     console.log('fetching data');
     const fetchData = async () => {
       const data = await doGraphQLFetch(API_URL, getAllEvents, {});
@@ -33,6 +35,7 @@ const Map: React.FC = () => {
           return false;
         });
         setEvents(uniqueEvents);
+        setIsLoading(false);
       }
     };
 
@@ -265,33 +268,50 @@ const Map: React.FC = () => {
   }, []);
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      <div id="map" style={{width: '80%', height: '80vh'}} />
-      <div>
-        <>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: '1rem',
-            }}
-          >
-            {displayedEvents.map((event: EventType) => (
-              <div key={event.id}>
-                <EventCard event={event} />
+    <>
+      {' '}
+      {isLoading ? (
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100vh',
+          }}
+        >
+          <span className="loading loading-spinner loading-xs"></span>
+        </div>
+      ) : (
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <div id="map" style={{width: '80%', height: '80vh'}} />
+          <div className="flex justify-center">
+            <>
+              <div
+                style={{
+                  width: '80%',
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(3, 1fr)',
+                  gap: '1rem',
+                }}
+              >
+                {displayedEvents.map((event: EventType) => (
+                  <div key={event.id}>
+                    <EventCard event={event} />
+                  </div>
+                ))}
               </div>
-            ))}
+            </>
           </div>
-        </>
-      </div>
-    </div>
+        </div>
+      )}
+    </>
   );
 };
 
