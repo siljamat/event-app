@@ -13,6 +13,7 @@ import mongoose, {ObjectId} from 'mongoose';
 import {updateUsersFields} from '../../utils/user';
 import userResolver from './userResolver';
 import CategoryModel from '../models/categoryModel';
+import {deleteEventResponse} from '../../types/MessageTypes';
 
 export default {
   Query: {
@@ -218,7 +219,7 @@ export default {
       _parent: undefined,
       args: {input: Omit<Event, 'id'>},
       context: MyContext,
-    ) => {
+    ): Promise<Event> => {
       isLoggedIn(context);
       const {address} = args.input;
       const coords = await getLocationCoordinates(address);
@@ -252,7 +253,7 @@ export default {
       _parent: undefined,
       args: {id: string; input: Partial<Omit<Event, 'id'>>},
       context: MyContext,
-    ) => {
+    ): Promise<boolean> => {
       isLoggedIn(context);
       const eventToUpdate = await EventModel.findById(args.id);
       if (!eventToUpdate) {
@@ -277,7 +278,7 @@ export default {
         {new: true},
       );
       console.log('Event updated successfully!', updatedEvent);
-      return updatedEvent;
+      return true;
     },
     deleteEvent: async (
       _parent: undefined,

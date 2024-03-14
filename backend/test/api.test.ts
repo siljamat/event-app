@@ -10,6 +10,7 @@ import {
   toggleAttendingEvent,
   toggleFavoriteEvent,
 } from './userFunctions';
+import {postEvent, putEvent, deleteEvent} from './eventFunctions';
 import {deleteCategory, postCategory, putCategory} from './categoryFunctions';
 import {getNotFound} from './testFunctions';
 import mongoose from 'mongoose';
@@ -121,6 +122,29 @@ describe('Testing graphql api', () => {
     await putUser(app, userData.token!);
   });
 
+  const testEvent = {
+    event_name: 'test_event',
+    description: 'test description',
+    date: new Date(),
+    email: 'test@gmail.com',
+    address: 'Hämeentie 1',
+    age_restriction: '18',
+    price: '0',
+    organizer: 'test organizer',
+  };
+
+  it('should create a new event', async () => {
+    await postEvent(app, testEvent, userData.token);
+  });
+
+  it('should update an event', async () => {
+    await putEvent(app, testEvent, userData.token, '');
+  });
+
+  /*it('should delete an event', async () => {
+    await deleteEvent(app, testEvent, userData.token);
+  });*/
+
   // test delete user by id as admin
   it('should delete a user as admin', async () => {
     const result = await adminDeleteUser(
@@ -136,8 +160,6 @@ describe('Testing graphql api', () => {
       result,
     );
   });
-
-  // TO-DO: TOGGLE STUFF WITH TEST EVENT
 
   // test toggle favorite
   it('should toggle favorite event', async () => {

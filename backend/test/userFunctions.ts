@@ -428,7 +428,6 @@ export {
   putUser,
   deleteUser,
   loginUser,
-  loginBrute,
   adminDeleteUser,
   wrongUserDeleteUser,
   toggleFavoriteEvent,
