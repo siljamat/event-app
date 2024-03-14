@@ -24,7 +24,9 @@ The application is designed for individuals who want to easily discover various 
 ## Installation & Setup
 
 1. Clone both of these repositorys:
+   
 https://github.com/siljamat/event-app
+
 https://github.com/valttku/event-app-auth-server
 
 ### Server Setup for event-app
@@ -92,7 +94,6 @@ DATABASE_URL=MongoDB_URL
 2. Install server dependencies:
 
 ```bash
-cd backend
 npm install
 ```
 
