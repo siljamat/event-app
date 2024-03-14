@@ -7,8 +7,8 @@ function EventCard({event}: {event: EventType}) {
     <>
       <div className="card w-70 bg-base-100 shadow-xl mt-5 ">
         <figure>
-          <img src={event.image}></img>
-        </figure>
+          {event.image && event.image.length > 5 && <img src={event.image} />}
+        </figure>{' '}
         <div className="card-body">
           <h2 className="card-title">{event.event_name}</h2>
           <p>{event.date}</p>
