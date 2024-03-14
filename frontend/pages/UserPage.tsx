@@ -144,10 +144,10 @@ function UpdateUserForm() {
           paddingLeft: '3rem',
         }}
       >
-        <h1 className="text-5xl font-bold text-center">
+        <h1 className="text-2xl font-bold text-center">
           Hello, {userFromLocalObj.user_name}
         </h1>
-        <div className=" p-10 mt-5 rounded-lg">
+        <div className=" p-10 rounded-lg">
           <div>
             <div
               className="bg-accent rounded-lg text-center"
@@ -166,7 +166,7 @@ function UpdateUserForm() {
                   padding: '2rem',
                 }}
               >
-                <h2 className="text-xl font-bold">Update your user info</h2>
+                <h2 className="text-2xl mb-3">Update your user info</h2>
                 <div
                   style={{
                     alignContent: 'center',

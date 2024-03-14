@@ -156,8 +156,10 @@ const EventPage: React.FC = () => {
         style={{width: '60%', margin: 'auto'}}
       >
         <figure>
-          {event?.image && event?.image.length > 5 && (
-            <img src={event?.image} alt="picture" />
+          {event.image && event.image.length > 5 ? (
+            <img src={event.image} />
+          ) : (
+            <img src="https://picsum.photos/200/300" />
           )}
         </figure>
         <div className="card-body">

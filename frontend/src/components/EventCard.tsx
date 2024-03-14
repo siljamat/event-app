@@ -20,7 +20,11 @@ function EventCard({event}: {event: EventType}) {
     <>
       <div className="card w-70 bg-base-100 shadow-xl mt-5 ">
         <figure>
-          {event.image && event.image.length > 5 && <img src={event.image} />}
+          {event.image && event.image.length > 5 ? (
+            <img src={event.image} />
+          ) : (
+            <img src="https://picsum.photos/200/300" />
+          )}
         </figure>{' '}
         <div className="card-body">
           <h2 className="card-title">{event.event_name}</h2>

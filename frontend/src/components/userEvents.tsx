@@ -70,77 +70,82 @@ const UserEvents = () => {
           <span className="loading loading-spinner loading-xs"></span>
         </div>
       ) : (
-        <div
-          className="bg-accent flex justify-center items-center flex-col text-center mx-5"
-          style={{
-            padding: '2rem',
-            borderRadius: '1rem',
-            marginBottom: '1rem',
-          }}
-        >
-          <h1 className="text-2xl font-bold mb-5">Your events</h1>
-          {events.length === 0 ? (
-            <div className="bg-base-100 p-10 rounded-box ">
-              <p className="text-l mb-3">No events created</p>
-              <a className="btn btn-primary mt-5" href={`/createEvent`}>
-                Create event
-              </a>
-            </div>
-          ) : (
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
-                gap: '1rem',
-              }}
-            >
-              {events.map((event: EventType) => (
-                <div key={event.id}>
-                  <div className="card w-80 bg-base-100 shadow-xl mt-5 ">
-                    <figure>
-                      {event?.image && event?.image.length > 5 && (
-                        <img src={event?.image} alt="picture" />
-                      )}
-                    </figure>
-                    <div className="card-body">
-                      <h2 className="card-title">{event.event_name}</h2>
-                      <p>{new Date(event.date).toLocaleDateString()}</p>{' '}
-                      {event.address !== 'No address' && <p>{event.address}</p>}
-                      <p
-                        dangerouslySetInnerHTML={{__html: event.description}}
-                      />
-                      {event.age_restriction && (
-                        <p>Age restriction: {event.age_restriction}</p>
-                      )}
-                      {event.price && <p>Price: {event.price}</p>}
-                      {event.email && <p>Email: {event.email}</p>}
-                      {event.event_site && <p>Site: {event.event_site}</p>}
-                      <div className="card-actions justify-between">
-                        <div>
-                          <p>Likes: {event.favoriteCount}</p>
-                          <p>Attending: {event.attendeeCount}</p>
-                        </div>
-                        <div>
-                          <button
-                            onClick={() => handleEditEvent(event)}
-                            className="btn mr-2"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDeleteEvent(event)}
-                            className="btn"
-                          >
-                            Delete
-                          </button>
+        <div>
+          <h1 className="text-2xl text-center mb-5">Your events</h1>
+
+          <div
+            className="bg-accent mx-5"
+            style={{
+              padding: '2rem',
+              borderRadius: '1rem',
+              marginBottom: '1rem',
+            }}
+          >
+            {events.length === 0 ? (
+              <div className="bg-base-100 p-10 rounded-box ">
+                <p className="text-l mb-3">No events created</p>
+                <a className="btn btn-primary mt-5" href={`/createEvent`}>
+                  Create event
+                </a>
+              </div>
+            ) : (
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(3, 1fr)',
+                  gap: '1rem',
+                }}
+              >
+                {events.map((event: EventType) => (
+                  <div key={event.id}>
+                    <div className="card w-80 bg-base-100 shadow-xl mt-5 ">
+                      <figure>
+                        {event?.image && event?.image.length > 5 && (
+                          <img src={event?.image} alt="picture" />
+                        )}
+                      </figure>
+                      <div className="card-body">
+                        <h2 className="card-title">{event.event_name}</h2>
+                        <p>{new Date(event.date).toLocaleDateString()}</p>{' '}
+                        {event.address !== 'No address' && (
+                          <p>{event.address}</p>
+                        )}
+                        <p
+                          dangerouslySetInnerHTML={{__html: event.description}}
+                        />
+                        {event.age_restriction && (
+                          <p>Age restriction: {event.age_restriction}</p>
+                        )}
+                        {event.price && <p>Price: {event.price}</p>}
+                        {event.email && <p>Email: {event.email}</p>}
+                        {event.event_site && <p>Site: {event.event_site}</p>}
+                        <div className="card-actions justify-between">
+                          <div>
+                            <p>Likes: {event.favoriteCount}</p>
+                            <p>Attending: {event.attendeeCount}</p>
+                          </div>
+                          <div>
+                            <button
+                              onClick={() => handleEditEvent(event)}
+                              className="btn mr-2"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDeleteEvent(event)}
+                              className="btn"
+                            >
+                              Delete
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
