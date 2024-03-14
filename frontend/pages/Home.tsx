@@ -144,7 +144,9 @@ const Home: React.FC = () => {
                         marginLeft: '1rem',
                       }}
                     >
-                      <h1 className="text-2xl text-center">attending Events</h1>
+                      <h1 className="text-2xl text-center">
+                        Events you plan to attend
+                      </h1>
                       <div
                         style={{
                           display: isMobile ? 'flex' : 'grid',
@@ -166,7 +168,7 @@ const Home: React.FC = () => {
                             ))}
                             {attendingEventsData.length === 0 && (
                               <p className=" text text-l">
-                                You have nott attending any events yet
+                                You have not planned to attend any events yet
                               </p>
                             )}
                           </>
