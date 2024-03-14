@@ -137,7 +137,7 @@ describe('Testing graphql api', () => {
 
   // test delete user based on token
   it('should delete current user', async () => {
-    await deleteUser(app, userData.token!);
+    await deleteUser(app, userData.token!, userData.user.id!);
   });
 
   const testCategory: CategoryTest = {

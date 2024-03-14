@@ -188,7 +188,7 @@ export default {
           }),
         );
         // Poistetaan käyttäjä
-        await fetchData<UserResponse>(
+        return await fetchData<UserResponse>(
           `${process.env.AUTH_URL}/users/${args.id}`,
           {
             method: 'DELETE',
@@ -198,7 +198,6 @@ export default {
             },
           },
         );
-        return true;
       } catch (error) {
         throw new Error('Failed to delete user and update event fields.');
       }
@@ -261,7 +260,7 @@ export default {
           }),
         );
         // Poistetaan käyttäjä
-        await fetchData<UserResponse>(
+        return await fetchData<UserResponse>(
           `${process.env.AUTH_URL}/users/${args.id}`,
           {
             method: 'DELETE',
@@ -271,7 +270,6 @@ export default {
             },
           },
         );
-        return true;
       } catch (error) {
         throw new Error('Failed to delete user and update event fields.');
       }

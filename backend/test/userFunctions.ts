@@ -259,6 +259,7 @@ const putUser = (url: string | Application, token: string) => {
         }`,
         variables: {
           user: {
+            id: '1',
             user_name: newValue,
           },
         },
@@ -294,14 +295,15 @@ mutation DeleteUser {
 const deleteUser = (
   url: string | Application,
   token: string,
+  userId: string,
 ): Promise<UserResponse> => {
   return new Promise((resolve, reject) => {
     request(url)
       .post('/graphql')
       .set('Authorization', 'Bearer ' + token)
       .send({
-        query: `mutation DeleteUser {
-          deleteUser {
+        query: `mutation DeleteUser($deleteUserId: ID!) {
+          deleteUser(id: $deleteUserId) {
             message
             user {
               id
@@ -310,11 +312,15 @@ const deleteUser = (
             }
           }
         }`,
+        variables: {
+          deleteUserId: userId,
+        },
       })
       .expect(200, (err, response) => {
         if (err) {
           reject(err);
         } else {
+          console.log(response.body);
           const userData = response.body.data.deleteUser;
           expect(userData).toHaveProperty('message');
           expect(userData).toHaveProperty('user');
