@@ -2,10 +2,8 @@
 import {useEffect, useState} from 'react';
 import {doGraphQLFetch} from '../src/graphql/fetch';
 import {
-  getEventsByAddress,
   getEventsByCategory,
   getEventsByDate,
-  getEventsByMinAge,
   getEventsByTitle,
 } from '../src/graphql/eventQueries';
 import {getCategories} from '../src/graphql/categoryQueries';
@@ -14,7 +12,7 @@ import {EventType} from '../src/types/EventType';
 
 const SearchPage = () => {
   const [events, setEvents] = useState<EventType[]>([]);
-  const [apiEvents, setApiEvents] = useState<EventType[]>([]);
+  const [apiEvents] = useState<EventType[]>([]);
   const [searchParams, setSearchParams] = useState({
     date: '',
     keyword: '',
@@ -34,7 +32,6 @@ const SearchPage = () => {
       const data = await doGraphQLFetch(API_URL, getEventsByDate, {
         date: searchParams.date,
       });
-      //console.log('Data from getEventsByDate:', data); //Tämä palauttaa oikein eli vika ei doGraphqlFetchissä
       fetchedEvents = fetchedEvents.concat(data.eventsByDate || []);
     }
 
@@ -42,12 +39,10 @@ const SearchPage = () => {
       const data = await doGraphQLFetch(API_URL, getEventsByCategory, {
         categoryName: searchParams.category,
       });
-      console.log('Data:', data);
       if (data && data.eventsByCategory) {
         fetchedEvents = fetchedEvents.concat(
           data.eventsByCategory.filter((event: EventType) => event !== null),
         ); // Lisätään vain ei-null tapahtumat fetchedEvents-muuttujaan
-        console.log('fetchedEvents after concatenation:', fetchedEvents); // Varmista, että tapahtumat on lisätty fetchedEvents-muuttujaan
       } else {
         console.error('eventsByCategory is undefined');
       }
@@ -57,7 +52,6 @@ const SearchPage = () => {
       const data = await doGraphQLFetch(API_URL, getEventsByTitle, {
         keyword: searchParams.keyword,
       });
-      console.log('Data:', data); //Tämä on undefined
       if (data && data.eventsByTitle) {
         fetchedEvents = fetchedEvents.concat(
           data.eventsByTitle.filter((event: EventType) => event !== null),
@@ -69,8 +63,6 @@ const SearchPage = () => {
 
     setEvents(fetchedEvents);
   };
-
-  console.log('searchParams', searchParams.keyword);
 
   const handleInputChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -176,6 +168,3 @@ const SearchPage = () => {
 };
 
 export default SearchPage;
-
-//TODO:
-//free haku
