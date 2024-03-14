@@ -7,6 +7,8 @@ import {
   loginUser,
   postUser,
   putUser,
+  toggleAttendingEvent,
+  toggleFavoriteEvent,
 } from './userFunctions';
 import {deleteCategory, postCategory, putCategory} from './categoryFunctions';
 import {getNotFound} from './testFunctions';
@@ -132,6 +134,26 @@ describe('Testing graphql api', () => {
       'adminid',
       adminData.user.id,
       result,
+    );
+  });
+
+  // TO-DO: TOGGLE STUFF WITH TEST EVENT
+
+  // test toggle favorite
+  it('should toggle favorite event', async () => {
+    await toggleFavoriteEvent(
+      app,
+      userData.token!,
+      '65f2de6e6f2ec1f512dcd6f9'!,
+    );
+  });
+
+  // test toggle attendance
+  it('should toggle attendance to an event', async () => {
+    await toggleAttendingEvent(
+      app,
+      userData.token!,
+      '65f2de6e6f2ec1f512dcd6f9'!,
     );
   });
 

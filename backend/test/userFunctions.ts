@@ -3,7 +3,11 @@ import request from 'supertest';
 import randomstring from 'randomstring';
 import {UserTest} from '../src/types/DBTypes';
 import {Application} from 'express';
-import {LoginResponse, UserResponse} from '../src/types/MessageTypes';
+import {
+  LoginResponse,
+  ToggleResponse,
+  UserResponse,
+} from '../src/types/MessageTypes';
 
 // get user from graphql query users
 const getUser = (url: string | Application): Promise<UserTest[]> => {
@@ -397,6 +401,71 @@ const wrongUserDeleteUser = (
   });
 };
 
+const toggleFavoriteEvent = (
+  url: string | Application,
+  token: string,
+  eventId: string,
+): Promise<ToggleResponse> => {
+  return new Promise((resolve, reject) => {
+    request(url)
+      .post('/graphql')
+      .set('Authorization', 'Bearer ' + token)
+      .send({
+        query: `mutation ToggleFavoriteEvent($eventId: ID!) {
+          toggleFavoriteEvent(eventId: $eventId) {
+            message
+            isTrue
+          }
+        }`,
+        variables: {
+          eventId: eventId,
+        },
+      })
+      .expect(200, (err, response) => {
+        if (err) {
+          reject(err);
+        } else {
+          console.log('toggle response', response.body);
+          const eventData = response.body.data.toggleFavoriteEvent;
+          expect(eventData).toHaveProperty('isTrue');
+          resolve(eventData.isTrue);
+        }
+      });
+  });
+};
+
+const toggleAttendingEvent = (
+  url: string | Application,
+  token: string,
+  eventId: string,
+): Promise<ToggleResponse> => {
+  return new Promise((resolve, reject) => {
+    request(url)
+      .post('/graphql')
+      .set('Authorization', 'Bearer ' + token)
+      .send({
+        query: `mutation ToggleAttendingEvent($eventId: ID!) {
+          toggleAttendingEvent(eventId: $eventId) {
+            message
+            isTrue
+          }
+        }`,
+        variables: {
+          eventId: eventId,
+        },
+      })
+      .expect(200, (err, response) => {
+        if (err) {
+          reject(err);
+        } else {
+          const eventData = response.body.data.toggleAttendingEvent;
+          expect(eventData).toHaveProperty('isTrue');
+          resolve(eventData.isTrue);
+        }
+      });
+  });
+};
+
 export {
   getUser,
   getSingleUser,
@@ -407,4 +476,6 @@ export {
   loginBrute,
   adminDeleteUser,
   wrongUserDeleteUser,
+  toggleFavoriteEvent,
+  toggleAttendingEvent,
 };
