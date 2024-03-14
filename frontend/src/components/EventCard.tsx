@@ -1,6 +1,8 @@
+import {useState} from 'react';
 import {EventType} from '../types/EventType';
 
 function EventCard({event}: {event: EventType}) {
+  const [isExpanded, setIsExpanded] = useState(false);
   const shortDescription = event.description.substring(0, 200);
   const categoryReplacements: {[key: string]: string} = {
     concert: 'Concerts',
@@ -24,7 +26,14 @@ function EventCard({event}: {event: EventType}) {
           <h2 className="card-title">{event.event_name}</h2>
           <p>{event.date}</p>
           <p>{event.address}</p>
-          <p dangerouslySetInnerHTML={{__html: shortDescription}} />
+          <p
+            dangerouslySetInnerHTML={{
+              __html: isExpanded ? event.description : shortDescription,
+            }}
+          />
+          {!isExpanded && (
+            <button onClick={() => setIsExpanded(true)}>More...</button>
+          )}
           <div>
             <p className="flex flex-row">
               <svg
@@ -73,8 +82,8 @@ function EventCard({event}: {event: EventType}) {
             </div>
           </div>
           <div className="card-actions justify-end">
-            <a className="link" href={`/event/${event.id}`}>
-              More...
+            <a className="btn btn-sm btn-primary" href={`/event/${event.id}`}>
+              View Event
             </a>
           </div>
         </div>
