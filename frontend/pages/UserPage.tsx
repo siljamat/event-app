@@ -94,6 +94,7 @@ function UpdateUserForm() {
           console.log('updatedUser APSFJADEOGHJ:', updatedUser);
           if (updatedUser) {
             localStorage.setItem('user', JSON.stringify(updatedUser));
+            alert('User info updated successfully');
           }
         }
       } else {
