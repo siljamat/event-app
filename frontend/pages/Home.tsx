@@ -10,7 +10,7 @@ import {useQuery} from '@apollo/client';
 import {useMediaQuery} from 'react-responsive';
 
 const Home: React.FC = () => {
-  const isSmallScreen = useMediaQuery({query: '(max-width: 1500px)'});
+  const isSmallScreen = useMediaQuery({query: '(max-width: 1000px)'});
 
   const [eventData, setEvents] = useState<EventType[]>([]);
   const {isAuthenticated} = useContext(AuthContext);
@@ -39,12 +39,10 @@ const Home: React.FC = () => {
     //get all event data
     const fetchEventData = async () => {
       const data = await doGraphQLFetch(API_URL, getAllEvents, {});
-      console;
       if (data && data.events) {
         const validEvents = data.events.filter(
           (event: any) => event && event.event_name,
         );
-        console.log('validEvents', validEvents);
         setEvents(validEvents);
       }
       setIsLoading(false);
@@ -54,7 +52,6 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     // Set liked events data
-    console.log('likedData', likedData);
     if (likedData && likedData.favoritedEventsByUserId) {
       setLikedEventsData(likedData.favoritedEventsByUserId);
     }
@@ -62,7 +59,6 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     // Set attending events data
-    console.log('attendingData', attendingData);
     if (attendingData && attendingData.attendedEventsByUserId) {
       setAttendingEvents(attendingData.attendedEventsByUserId);
     }
