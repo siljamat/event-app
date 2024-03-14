@@ -11,6 +11,7 @@ import {EventType} from '../src/types/EventType';
 import EventCard from '../src/components/EventCard';
 import {AuthContext} from '../src/context/AuthContext';
 
+// Update user info
 function UpdateUserForm() {
   const token = localStorage.getItem('token');
   const userFromLocal = localStorage.getItem('user');

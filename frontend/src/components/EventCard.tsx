@@ -1,6 +1,7 @@
 import {useState} from 'react';
 import {EventType} from '../types/EventType';
 
+// EventCard component displays event information
 function EventCard({event}: {event: EventType}) {
   const [isExpanded, setIsExpanded] = useState(false);
   const shortDescription = event.description.substring(0, 200);

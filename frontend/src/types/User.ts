@@ -1,3 +1,5 @@
+// Type definition for User
+
 type User = {
   email: string;
   id: string;

@@ -4,7 +4,6 @@ import {useEffect, useState} from 'react';
 import EditEventModal from './editEventModal';
 import {EventType} from '../types/EventType';
 import {deleteEvent} from '../graphql/eventQueries';
-import {Category} from '../types/Category';
 
 const UserEvents = () => {
   const storedUserData = localStorage.getItem('user');
@@ -33,12 +32,14 @@ const UserEvents = () => {
     skip: !userId,
   });
 
+  // Set events to state
   useEffect(() => {
     if (data) {
       setEvents(data.createdEventsByUserId);
     }
   }, [data]);
 
+  // Open modal with event data
   const handleEditEvent = (event: any) => {
     setSelectedEvent(event);
     console.log('Edit event:', event);
@@ -48,6 +49,7 @@ const UserEvents = () => {
     setIsModalOpen(false);
   };
 
+  // Delete event
   const handleDeleteEvent = async (event: any) => {
     console.log('Delete event');
     console.log('eventId', event.id);

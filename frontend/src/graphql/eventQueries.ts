@@ -1,5 +1,7 @@
 import {gql} from '@apollo/client';
 
+// Queries and mutations for events
+
 const getAllEvents = `
   query Events {
     events {

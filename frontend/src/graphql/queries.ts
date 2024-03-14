@@ -1,4 +1,6 @@
 import {gql} from '@apollo/client';
+
+// Queries and mutations
 const loginMutation = gql`
   mutation Login($credentials: Credentials!) {
     login(credentials: $credentials) {

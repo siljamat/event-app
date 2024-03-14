@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
+// Fetch data from the API using GraphQL
 const doGraphQLFetch = async (
   url: string,
   query: string,

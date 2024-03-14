@@ -4,6 +4,7 @@ import {getEventsByDate} from '../src/graphql/eventQueries';
 import EventCard from '../src/components/EventCard';
 import {EventType} from '../src/types/EventType';
 
+// EventsPage component fetches and displays events happening today
 const EventsPage = () => {
   const [events, setEvents] = useState<EventType[]>([]);
   const [isLoading, setIsLoading] = useState(false);

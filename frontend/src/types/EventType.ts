@@ -1,5 +1,6 @@
 import {User} from './User';
-import {Category} from './Category';
+
+// Event type
 
 type EventType = {
   address: string;

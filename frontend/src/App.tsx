@@ -16,6 +16,7 @@ import LikedEventsPage from '../pages/LikedEventsPage';
 import AttendingPage from '../pages/AttendingPage';
 import HappeningToday from '../pages/happeningToday';
 
+// Main App component
 const httpLink = createHttpLink({
   uri: import.meta.env.VITE_API_URL,
   headers: {
@@ -24,7 +25,7 @@ const httpLink = createHttpLink({
       : '',
   },
 });
-
+// Create an Apollo client
 const client = new ApolloClient({
   link: httpLink,
   cache: new InMemoryCache(),

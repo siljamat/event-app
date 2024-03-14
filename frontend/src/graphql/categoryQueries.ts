@@ -1,3 +1,5 @@
+// Query and mutation definitions for category
+
 const getCategories = `
 query Categories {
     categories {

@@ -7,6 +7,7 @@ interface RegisterSuccessModalProps {
   openLoginModal: () => void;
 }
 
+// RegisterSuccessModal component displays a modal for successful registration
 const RegisterSuccessModal: React.FC<RegisterSuccessModalProps> = ({
   isRegisterSuccessModalOpen,
   closeRegisterSuccessModal,

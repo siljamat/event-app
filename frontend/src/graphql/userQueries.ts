@@ -1,5 +1,7 @@
 import {gql} from '@apollo/client';
 
+// Queries and mutations for user
+
 const getUser = gql`
   query GetUser($id: ID!) {
     userById(id: $id) {

@@ -31,7 +31,6 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
   const [email, setEmail] = React.useState(event?.email || '');
   const [site, setSite] = React.useState(event?.event_site || '');
   const [image, setImage] = React.useState(event?.image || '');
-  const [category, setCategory] = React.useState(event?.category || '');
   const [categories, setCategories] = React.useState([]);
   const [selectedCategories, setSelectedCategories] = React.useState<string[]>(
     [],
@@ -55,7 +54,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
     children: 'Kids',
   };
 
-  const [updateEventHandle, {error}] = useMutation(updateEvent);
+  const [updateEventHandle] = useMutation(updateEvent);
 
   //fetch categories
   useEffect(() => {

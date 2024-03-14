@@ -15,6 +15,7 @@ interface RegisterModalProps {
   error: string | null;
 }
 
+// RegisterModal component displays a modal for registering
 const RegisterModal: React.FC<RegisterModalProps> = ({
   isRegisterModalOpen,
   closeRegisterModal,

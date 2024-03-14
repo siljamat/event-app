@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {AuthContextType} from '../types/AuthContextType';
 
+// Create a context for the authentication state
 export const AuthContext = React.createContext<AuthContextType>({
   isAuthenticated: false,
   setIsAuthenticated: () => {},

@@ -14,6 +14,7 @@ interface LoginModalProps {
   isLoading: boolean;
 }
 
+// LoginModal component displays a modal for logging in
 const LoginModal: React.FC<LoginModalProps> = ({
   isLoginModalOpen,
   closeLoginModal,

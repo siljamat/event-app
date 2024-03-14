@@ -5,6 +5,7 @@ import {getAllEvents} from '../src/graphql/eventQueries';
 import {EventType} from '../src/types/EventType';
 import EventCard from '../src/components/EventCard';
 
+// Declaring global interface for window object to accommodate Google Maps API
 declare global {
   interface Window {
     google: any;
@@ -19,6 +20,7 @@ const Map: React.FC = () => {
 
   const API_URL = import.meta.env.VITE_API_URL;
 
+  // useEffect hook to fetch data from API when component mounts
   useEffect(() => {
     setIsLoading(true);
     console.log('fetching data');
@@ -42,6 +44,7 @@ const Map: React.FC = () => {
     fetchData();
   }, [API_URL]);
 
+  // useEffect hook to handle Google Maps initialization and event markers setup
   useEffect(() => {
     if (window.google && eventData.length > 0) {
       const {Map} = window.google.maps;
@@ -230,6 +233,7 @@ const Map: React.FC = () => {
     }
   }, [eventData, window.google]);
 
+  // useEffect hook to load Google Maps API script
   useEffect(() => {
     const loadGoogleMapsApi = () => {
       return new Promise<void>((resolve) => {
