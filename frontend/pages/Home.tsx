@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, {useContext, useEffect} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import EventCard from '../src/components/EventCard';
 import {getAllEvents} from '../src/graphql/eventQueries';
 import {EventType} from '../src/types/EventType';
@@ -7,15 +7,17 @@ import {doGraphQLFetch} from '../src/graphql/fetch';
 import {AuthContext} from '../src/context/AuthContext';
 import {attendingEvents, likedEvents} from '../src/graphql/queries';
 import {useQuery} from '@apollo/client';
+import {useMediaQuery} from 'react-responsive';
 
 const Home: React.FC = () => {
-  const [eventData, setEvents] = React.useState<EventType[]>([]);
+  const isSmallScreen = useMediaQuery({query: '(max-width: 1500px)'});
+
+  const [eventData, setEvents] = useState<EventType[]>([]);
   const {isAuthenticated} = useContext(AuthContext);
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [likedEventsData, setLikedEventsData] = React.useState<EventType[]>([]);
-  const [attendingEventsData, setAttendingEvents] = React.useState<EventType[]>(
-    [],
-  );
+  const [isLoading, setIsLoading] = useState(false);
+  const [likedEventsData, setLikedEventsData] = useState<EventType[]>([]);
+  const [attendingEventsData, setAttendingEvents] = useState<EventType[]>([]);
+  const [displayCount, setDisplayCount] = useState(10);
 
   const storedUserData = localStorage.getItem('user');
   const user = storedUserData ? JSON.parse(storedUserData) : null;
@@ -85,8 +87,11 @@ const Home: React.FC = () => {
             <>
               <div
                 style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(3, 1fr)',
+                  display: isSmallScreen ? 'flex' : 'grid',
+                  flexDirection: isSmallScreen ? 'column' : 'unset',
+                  gridTemplateColumns: isSmallScreen
+                    ? 'unset'
+                    : 'repeat(2, 1fr)',
                   gap: '1rem',
                   maxWidth: '100%',
                   overflowX: 'auto',
@@ -132,6 +137,8 @@ const Home: React.FC = () => {
                         padding: '2rem',
                         borderRadius: '1rem',
                         marginBottom: '1rem',
+                        marginRight: '1rem',
+                        marginLeft: '1rem',
                       }}
                     >
                       <h1 className="text-l">attending Events</h1>
@@ -214,12 +221,18 @@ const Home: React.FC = () => {
                 >
                   {/* TODO: LISÄÄ MORE EVENTS NAPPI TMS JOLLA SAA LADATTUA LISÄÄ EVENTTEJÄ NÄKYVIIN */}
 
-                  {eventData.slice(0, 20).map((event: EventType) => (
+                  {eventData.slice(0, displayCount).map((event: EventType) => (
                     <div key={event.id}>
                       <EventCard event={event} />
                     </div>
                   ))}
                 </div>
+                <button
+                  className=" justify-end btn btn-ghost btn-sm mt-5"
+                  onClick={() => setDisplayCount(displayCount + 20)}
+                >
+                  See More
+                </button>
               </div>
             </>
           )}
