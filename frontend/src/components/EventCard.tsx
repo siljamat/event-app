@@ -28,6 +28,21 @@ function EventCard({event}: {event: EventType}) {
           )}
         </figure>{' '}
         <div className="card-body">
+          {event.creator.user_name === 'apiUser' && (
+            <div
+              style={{
+                backgroundColor: '#4792AB',
+                padding: '8px',
+                borderRadius: '1rem',
+                marginBottom: '1rem',
+              }}
+            >
+              <p>
+                This event is from Linked Events and it can't be liked or
+                attended.{' '}
+              </p>
+            </div>
+          )}
           <h2 className="card-title">{event.event_name}</h2>
           <p>{event.date}</p>
           <p>{event.address}</p>

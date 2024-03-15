@@ -182,6 +182,7 @@ const EventPage: React.FC = () => {
                 className="btn"
                 style={{marginRight: '5px'}}
                 onClick={handleToggleFavoriteEvent}
+                disabled={event && event.creator.user_name === 'apiUser'}
               >
                 {isFavorite ? (
                   <svg
@@ -209,7 +210,11 @@ const EventPage: React.FC = () => {
                   </svg>
                 )}
               </button>
-              <button className="btn" onClick={handleToggleAttendingEvent}>
+              <button
+                className="btn"
+                disabled={event && event.creator.user_name === 'apiUser'}
+                onClick={handleToggleAttendingEvent}
+              >
                 {isAttending ? (
                   <>
                     <svg
