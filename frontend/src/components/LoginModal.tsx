@@ -1,6 +1,19 @@
 import React from 'react';
 import {Transition} from '@headlessui/react';
 
+/**
+ * @typedef {object} LoginModalProps
+ * @property {boolean} isLoginModalOpen - Whether the login modal is open.
+ * @property {function} closeLoginModal - The function to close the login modal.
+ * @property {string} email - The email entered by the user.
+ * @property {string} password - The password entered by the user.
+ * @property {function} setEmail - The function to update the email state.
+ * @property {function} setPassword - The function to update the password state.
+ * @property {function} handleLogin - The function to handle the login process.
+ * @property {function} openRegisterModal - The function to open the register modal.
+ * @property {string | null} loginError - The error message from the login process.
+ * @property {boolean} isLoading - Whether the login process is loading.
+ */
 interface LoginModalProps {
   isLoginModalOpen: boolean;
   closeLoginModal: () => void;
@@ -14,7 +27,11 @@ interface LoginModalProps {
   isLoading: boolean;
 }
 
-// LoginModal component displays a modal for logging in
+/**
+ * LoginModal component displays a modal for logging in.
+ * @param {LoginModalProps} props - The props for the LoginModal component.
+ * @returns {JSX.Element} The rendered LoginModal component.
+ */
 const LoginModal: React.FC<LoginModalProps> = ({
   isLoginModalOpen,
   closeLoginModal,

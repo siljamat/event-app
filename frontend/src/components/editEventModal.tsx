@@ -13,11 +13,23 @@ interface EditEventModalProps {
   event: EventType;
 }
 
+/**
+ * EditEventModal component allows the user to edit an event.
+ * @param {object} props - The props for the EditEventModal component.
+ * @param {boolean} props.isOpen - Whether the modal is open.
+ * @param {function} props.closeModal - The function to close the modal.
+ * @param {EventType} props.event - The event to be edited.
+ * @returns {JSX.Element} The rendered EditEventModal component.
+ */
 const EditEventModal: React.FC<EditEventModalProps> = ({
   isOpen,
   closeModal,
   event,
 }) => {
+  /**
+   * @type {React.State<string>} eventName - The state variable where the event name is stored.
+   * @function setEventName - The function to update the eventName state.
+   */
   const [eventName, setEventName] = React.useState(event?.event_name || '');
   const [description, setDescription] = React.useState(
     event?.description || '',
@@ -31,7 +43,17 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
   const [email, setEmail] = React.useState(event?.email || '');
   const [site, setSite] = React.useState(event?.event_site || '');
   const [image, setImage] = React.useState(event?.image || '');
+
+  /**
+   * @type {React.State<string[]>} categories - The state variable where the categories are stored.
+   * @function setCategories - The function to update the categories state.
+   */
   const [categories, setCategories] = React.useState([]);
+
+  /**
+   * @type {React.State<string[]>} selectedCategories - The state variable where the selected categories are stored.
+   * @function setSelectedCategories - The function to update the selectedCategories state.
+   */
   const [selectedCategories, setSelectedCategories] = React.useState<string[]>(
     [],
   );
@@ -41,7 +63,10 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
   const API_URL = import.meta.env.VITE_API_URL;
   const token = localStorage.getItem('token') || undefined;
 
-  //category replacements to make the category names more user friendly
+  /**
+   * @type {object} categoryReplacements - The object that maps category names to their replacements.
+   *
+   */
   const categoryReplacements: {[key: string]: string} = {
     concert: 'Concerts',
     theatre: 'Theatre',

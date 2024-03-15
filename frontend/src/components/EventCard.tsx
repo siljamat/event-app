@@ -1,10 +1,27 @@
 import {useState} from 'react';
 import {EventType} from '../types/EventType';
 
-// EventCard component displays event information
+/**
+ * EventCard component displays event information
+ * @param {object} props - The props for the EventCard component.
+ * @param {EventType} props.event - The event to be displayed.
+ * @returns {JSX.Element} The rendered EventCard component.
+ */
 function EventCard({event}: {event: EventType}) {
+  /**
+   * @type {React.State<boolean>} isExpanded - The state variable that determines whether the event description is expanded.
+   * @function setIsExpanded - The function to update the isExpanded state.
+   */
   const [isExpanded, setIsExpanded] = useState(false);
+
+  /**
+   * @type {string} shortDescription - The shortened description of the event.
+   */
   const shortDescription = event.description.substring(0, 200);
+
+  /**
+   * @type {object} categoryReplacements - The object that maps category names to their replacements.
+   */
   const categoryReplacements: {[key: string]: string} = {
     concert: 'Concerts',
     theatre: 'Theatre',

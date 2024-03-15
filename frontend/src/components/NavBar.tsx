@@ -10,8 +10,17 @@ import RegisterModal from './RegisterModal';
 import {useMutation} from '@apollo/client';
 import {useNavigate} from 'react-router-dom';
 
+/**
+ * NavBar component displays the navigation bar.
+ * @returns {JSX.Element} The rendered NavBar component.
+ */
 const NavBar = () => {
   const {isAuthenticated, setIsAuthenticated} = useContext(AuthContext);
+
+  /**
+   * @type {React.State<boolean>} isLoginModalOpen - The state variable that determines whether the login modal is open.
+   * @function setLoginModalOpen - The function to update the isLoginModalOpen state.
+   */
   const [isLoginModalOpen, setLoginModalOpen] = useState(false);
   const [isRegisterModalOpen, setRegistermodalOpen] = useState(false);
   const [isRegisterSuccessModalOpen, setRegisterSuccessModalOpen] =
@@ -90,7 +99,9 @@ const NavBar = () => {
     return true;
   };
 
-  //Modal handling
+  /**
+   * @function openLoginModal - The function to open the login modal.
+   */
   const openLoginModal = () => {
     resetStates();
     closeRegisterSuccessModal();
@@ -125,7 +136,10 @@ const NavBar = () => {
     setRegisterSuccessModalOpen(false);
   };
 
-  //Login handling
+  /**
+   * @function handleLogin - The function to handle the login process.
+   * It sends the login request to the server and updates the user and isAuthenticated states.
+   */
   const handleLogin = async () => {
     setIsLoading(true);
     console.log('Login, email:', email, 'password:', password);
@@ -160,7 +174,10 @@ const NavBar = () => {
     }
   };
 
-  //register handling
+  /**
+   * @function handleRegister - The function to handle the register process.
+   * @returns {JSX.Element} The rendered NavBar component.
+   */
   const handleRegister = async () => {
     if (!validateInput()) {
       return;
@@ -184,7 +201,10 @@ const NavBar = () => {
     }
   };
 
-  //logout handling
+  /**
+   * @function handleLogout - The function to handle the logout process.
+   * It removes the token and user from the local storage and updates the user and isAuthenticated states.
+   */
   const handleLogout = () => {
     console.log('Logout');
     localStorage.removeItem('token');

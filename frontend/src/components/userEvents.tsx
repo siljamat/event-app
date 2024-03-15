@@ -6,6 +6,10 @@ import EditEventModal from './editEventModal';
 import {EventType} from '../types/EventType';
 import {deleteEvent} from '../graphql/eventQueries';
 
+/**
+ * UserEvents component displays the events of the user.
+ * @returns {JSX.Element} The rendered UserEvents component.
+ */
 const UserEvents = () => {
   const storedUserData = localStorage.getItem('user');
   const user = storedUserData ? JSON.parse(storedUserData) : null;
@@ -40,7 +44,10 @@ const UserEvents = () => {
     }
   }, [data]);
 
-  // Open modal with event data
+  /**
+   * Function to open the modal with event data.
+   * @param {any} event - The event data.
+   */
   const handleEditEvent = (event: any) => {
     setSelectedEvent(event);
     console.log('Edit event:', event);
@@ -50,7 +57,10 @@ const UserEvents = () => {
     setIsModalOpen(false);
   };
 
-  // Delete event
+  /**
+   * Function to delete an event.
+   * @param {any} event - The event data.
+   */
   const handleDeleteEvent = async (event: any) => {
     console.log('Delete event');
     console.log('eventId', event.id);

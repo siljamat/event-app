@@ -1,13 +1,24 @@
 import React from 'react';
 import {Transition} from '@headlessui/react';
 
+/**
+ * @typedef {object} RegisterSuccessModalProps
+ * @property {boolean} isRegisterSuccessModalOpen - Whether the register success modal is open.
+ * @property {function} closeRegisterSuccessModal - The function to close the register success modal.
+ * @property {function} openLoginModal - The function to open the login modal.
+ */
+
 interface RegisterSuccessModalProps {
   isRegisterSuccessModalOpen: boolean;
   closeRegisterSuccessModal: () => void;
   openLoginModal: () => void;
 }
 
-// RegisterSuccessModal component displays a modal for successful registration
+/**
+ * RegisterSuccessModal component displays a modal for successful registration.
+ * @param {RegisterSuccessModalProps} props - The props for the RegisterSuccessModal component.
+ * @returns {JSX.Element} The rendered RegisterSuccessModal component.
+ */
 const RegisterSuccessModal: React.FC<RegisterSuccessModalProps> = ({
   isRegisterSuccessModalOpen,
   closeRegisterSuccessModal,

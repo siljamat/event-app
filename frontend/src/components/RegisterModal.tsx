@@ -1,6 +1,21 @@
 import React from 'react';
 import {Transition} from '@headlessui/react';
 
+/**
+ * @typedef {object} RegisterModalProps
+ * @property {boolean} isRegisterModalOpen - Whether the register modal is open.
+ * @property {function} closeRegisterModal - The function to close the register modal.
+ * @property {string} email - The email entered by the user.
+ * @property {string} username - The username entered by the user.
+ * @property {string} password - The password entered by the user.
+ * @property {function} setEmail - The function to update the email state.
+ * @property {function} setUsername - The function to update the username state.
+ * @property {function} setPassword - The function to update the password state.
+ * @property {function} handleRegister - The function to handle the registration process.
+ * @property {function} openLoginModal - The function to open the login modal.
+ * @property {string | null} error - The error message from the registration process.
+ */
+
 interface RegisterModalProps {
   isRegisterModalOpen: boolean;
   closeRegisterModal: () => void;
@@ -15,7 +30,11 @@ interface RegisterModalProps {
   error: string | null;
 }
 
-// RegisterModal component displays a modal for registering
+/**
+ * RegisterModal component displays a modal for registering.
+ * @param {RegisterModalProps} props - The props for the RegisterModal component.
+ * @returns {JSX.Element} The rendered RegisterModal component.
+ */
 const RegisterModal: React.FC<RegisterModalProps> = ({
   isRegisterModalOpen,
   closeRegisterModal,
