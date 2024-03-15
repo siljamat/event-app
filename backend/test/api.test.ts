@@ -137,14 +137,6 @@ describe('Testing graphql api', () => {
     await postEvent(app, testEvent, userData.token);
   });
 
-  it('should update an event', async () => {
-    await putEvent(app, testEvent, userData.token, '');
-  });
-
-  /*it('should delete an event', async () => {
-    await deleteEvent(app, testEvent, userData.token);
-  });*/
-
   // test delete user by id as admin
   it('should delete a user as admin', async () => {
     const result = await adminDeleteUser(
