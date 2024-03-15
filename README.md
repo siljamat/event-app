@@ -5,7 +5,7 @@ The application is designed for individuals who want to easily discover various 
 ## Try it out here:
 https://blue-hill-0d73d0b03.4.azurestaticapps.net/
 
-## Pictures of Event-app and the functionalities
+## Pictures of Event-app and its functionalities
 ### Homepage featuring Liked Events and Planned Attendances
 ![image](https://github.com/siljamat/event-app/assets/104004445/236355cd-6ad1-4861-bf63-4cd105aad179)
 
