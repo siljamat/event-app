@@ -4,19 +4,35 @@ import {attendingEvents} from '../src/graphql/queries';
 import {useQuery} from '@apollo/client';
 import EventCard from '../src/components/EventCard';
 
+/**
+ * AttendingPage component displays the events that the user plans on attending.
+ * @returns {JSX.Element} The rendered AttendingPage component
+ */
 const AttendingPage = () => {
   const storedUserData = localStorage.getItem('user');
   const user = storedUserData ? JSON.parse(storedUserData) : null;
   const userId = user?.id;
+
+  /**
+   * @type {React.State<EventType[]>} events - The state variable where the attended events are stored.
+   * @function setEvents - The function to update the events state.
+   */
   const [events, setEvents] = React.useState<EventType[]>([]);
 
   // Get liked events
+  /**
+   * @type {object} data - The data returned from the attendingEvents query.
+   * @type {boolean} loading - A boolean that indicates whether the query is still loading.
+   */
   const {data, loading} = useQuery(attendingEvents, {
     variables: {userId},
     skip: !userId,
   });
 
   // Set liked events data
+  /**
+   * useEffect hook to set the events state when the data from the attendingEvents query changes.
+   */
   useEffect(() => {
     if (data && data.attendedEventsByUserId) {
       console.log('data', data.attendedEventsByUserId);

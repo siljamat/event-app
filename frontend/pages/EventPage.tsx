@@ -11,17 +11,37 @@ import {
 import {EventType} from '../src/types/EventType';
 import {Category} from '../src/types/Category';
 
+/**
+ * EventPage component displays the details of a specific event.
+ * @returns {JSX.Element} The rendered EventPage component
+ */
 const EventPage: React.FC = () => {
   const {id} = useParams<{id: string}>();
   const token = localStorage.getItem('token');
   const storedUserData = localStorage.getItem('user');
   const user = storedUserData ? JSON.parse(storedUserData) : null;
   const userId = user?.id;
+  /**
+   * @type {React.State<boolean>} isFavorite - The state variable that indicates whether the event is a favorite.
+   * @function setIsFavorite - The function to update the isFavorite state.
+   */
   const [isFavorite, setIsFavorite] = useState(false);
+
+  /**
+   * @type {React.State<boolean>} isAttending - The state variable that indicates whether the user is attending the event.
+   * @function setIsAttending - The function to update the isAttending state.
+   */
   const [isAttending, setIsAttending] = useState(false);
+
+  /**
+   * @type {React.State<Category[]>} categories - The state variable where the event categories are stored.
+   * @function setCategories - The function to update the categories state.
+   */
   const [categories, setCategories] = useState([]);
 
-  // Replace category names with more user friendly ones
+  /**
+   * @type {object} categoryReplacements - The object that contains the category replacements.
+   */
   const categoryReplacements: {[key: string]: string} = {
     concert: 'Concerts',
     theatre: 'Theatre',
@@ -34,12 +54,17 @@ const EventPage: React.FC = () => {
     children: 'Kids',
   };
 
-  //query liked events and set isFavorite if user found on the event's liked list
+  /**
+   * @type {object} likedData - The data returned from the likedEvents query.
+   */
   const {data: likedData} = useQuery(likedEvents, {
     variables: {userId},
     skip: !userId,
   });
 
+  /**
+   * useEffect hook to set the isFavorite state when the data from the likedEvents query changes.
+   */
   useEffect(() => {
     console.log('likedData', likedData);
     if (likedData && likedData.favoritedEventsByUserId) {
@@ -49,7 +74,9 @@ const EventPage: React.FC = () => {
     }
   }, [likedData]);
 
-  //query attending events and set isAttending if user found on the event's attending list
+  /**
+   * @type {object} attendingData - The data returned from the attendingEvents query.
+   */
   const {data} = useQuery(attendingEvents, {
     variables: {userId},
     skip: !userId,
@@ -117,6 +144,9 @@ const EventPage: React.FC = () => {
     }
   };
 
+  /**
+   * handleToggleFavoriteEvent function handles the action of toggling an event as a favorite.
+   */
   const handleToggleAttendingEvent = async () => {
     if (!token) {
       alert('You must be logged in to attend an event');
@@ -137,7 +167,9 @@ const EventPage: React.FC = () => {
     console.error(error);
   };
 
-  //render spinner while loading and error message if error
+  /**
+   * handleToggleAttendingEvent function handles the action of toggling attending an event.
+   */
   if (loading) {
     return (
       <div

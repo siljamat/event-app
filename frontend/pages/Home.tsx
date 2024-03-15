@@ -9,6 +9,10 @@ import {attendingEvents, likedEvents} from '../src/graphql/queries';
 import {useQuery} from '@apollo/client';
 import {useMediaQuery} from 'react-responsive';
 
+/**
+ * Home component fetches and displays all events, liked events and attending events.
+ * @returns {JSX.Element} The rendered Home component.
+ */
 const Home: React.FC = () => {
   const isSmallScreen = useMediaQuery({query: '(max-width: 1200px)'});
   const isMobile = useMediaQuery({query: '(max-width: 650px)'});
@@ -18,19 +22,43 @@ const Home: React.FC = () => {
   const userId = user?.id;
   const API_URL = import.meta.env.VITE_API_URL;
 
+  /**
+   * @type {React.State<EventType[]>} eventData - The state variable where the events are stored.
+   * @function setEvents - The function to update the events state.
+   */
   const [eventData, setEvents] = useState<EventType[]>([]);
   const {isAuthenticated} = useContext(AuthContext);
+
+  /**
+   * @type {React.State<boolean>} isLoading - The state variable that indicates whether the events are being loaded.
+   * @function setIsLoading - The function to update the isLoading state.
+   */
   const [isLoading, setIsLoading] = useState(false);
+
+  /**
+   * @type {React.State<EventType[]>} likedEventsData - The state variable where the liked events are stored.
+   * @function setLikedEventsData - The function to update the likedEventsData state.
+   */
   const [likedEventsData, setLikedEventsData] = useState<EventType[]>([]);
+
+  /**
+   * @type {React.State<EventType[]>} attendingEventsData - The state variable where the attending events are stored.
+   * @function setAttendingEvents - The function to update the attendingEventsData state.
+   */
   const [attendingEventsData, setAttendingEvents] = useState<EventType[]>([]);
   const [displayCount, setDisplayCount] = useState(10);
 
-  //fetch liked events and attending events
+  /**
+   * @type {object} likedData - The data returned from the likedEvents query.
+   */
   const {data: likedData} = useQuery(likedEvents, {
     variables: {userId},
     skip: !userId,
   });
 
+  /**
+   * @type {object} attendingData - The data returned from the attendingEvents query.
+   */
   const {data: attendingData} = useQuery(attendingEvents, {
     variables: {userId},
     skip: !userId,

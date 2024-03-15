@@ -4,19 +4,30 @@ import {likedEvents} from '../src/graphql/queries';
 import {useQuery} from '@apollo/client';
 import EventCard from '../src/components/EventCard';
 
+/**
+ * LikedEventsPage component fetches and displays all liked events.
+ * @returns {JSX.Element} The rendered LikedEventsPage component.
+ */
 const LikedEventsPage = () => {
   const storedUserData = localStorage.getItem('user');
   const user = storedUserData ? JSON.parse(storedUserData) : null;
   const userId = user?.id;
+
+  /**
+   * @type {React.State<EventType[]>} likedEventsData - The state variable where the liked events are stored.
+   * @function setLikedEventsData - The function to update the likedEventsData state.
+   */
   const [likedEventsData, setLikedEventsData] = React.useState<EventType[]>([]);
 
-  //get liked events
+  /**
+   * @type {object} likedData - The data returned from the likedEvents query.
+   */
   const {data: likedData, loading} = useQuery(likedEvents, {
     variables: {userId},
     skip: !userId,
   });
 
-  // Set liked events data
+  // Set liked events data when likedData changes
   useEffect(() => {
     console.log('likedData', likedData);
     if (likedData && likedData.favoritedEventsByUserId) {

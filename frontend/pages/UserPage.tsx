@@ -11,13 +11,21 @@ import {EventType} from '../src/types/EventType';
 import EventCard from '../src/components/EventCard';
 import {AuthContext} from '../src/context/AuthContext';
 
-// Update user info
+/**
+ * UpdateUserForm component allows the user to update their information.
+ * @returns {JSX.Element} The rendered UpdateUserForm component.
+ */
 function UpdateUserForm() {
   const token = localStorage.getItem('token');
   const userFromLocal = localStorage.getItem('user');
   const userFromLocalObj = JSON.parse(userFromLocal || '{}');
 
   const {isAuthenticated} = useContext(AuthContext);
+
+  /**
+   * @type {React.State<object>} user - The state variable where the user information is stored.
+   * @function setUser - The function to update the user state.
+   */
   const [user, setUser] = useState({
     user_name: userFromLocalObj.user_name || '',
     email: userFromLocalObj.email || '',
@@ -25,10 +33,27 @@ function UpdateUserForm() {
   });
   const userId = userFromLocalObj.id;
 
+  /**
+   * @type {React.State<EventType[]>} likedEventsData - The state variable where the liked events are stored.
+   * @function setLikedEventsData - The function to update the likedEventsData state.
+   */
   const [likedEventsData, setLikedEventsData] = useState<EventType[]>([]);
+
+  /**
+   * @type {React.State<EventType[]>} attendingEventsData - The state variable where the attending events are stored.
+   * @function setAttendingEvents - The function to update the attendingEventsData state.
+   */
   const [attendingEventsData, setAttendingEvents] = useState<EventType[]>([]);
+
+  /**
+   * @type {React.State<EventType[]>} createdEvents - The state variable where the created events are stored.
+   * @function setCreatedEvents - The function to update the createdEvents state.
+   */
   const [createdEvents, setCreatedEvents] = useState<EventType[]>([]);
 
+  /**
+   * @type {object} updateUser - The mutation function to update the user.
+   */
   const [updateUser] = useMutation(userSettings, {
     context: {
       headers: {
@@ -37,17 +62,25 @@ function UpdateUserForm() {
     },
   });
 
-  //get data for events
+  /**
+   * @type {object} likedData - The data returned from the likedEvents query.
+   */
   const {data: likedData} = useQuery(likedEvents, {
     variables: {userId},
     skip: !userId,
   });
 
+  /**
+   * @type {object} attendingData - The data returned from the attendingEvents query.
+   */
   const {data: attendingData} = useQuery(attendingEvents, {
     variables: {userId},
     skip: !userId,
   });
 
+  /**
+   * @type {object} createdEventsData - The data returned from the getUserEvents query.
+   */
   const {data: createdEventsData} = useQuery(getUserEvents, {
     variables: {userId},
     skip: !userId,

@@ -6,13 +6,25 @@ import {getCategories} from '../src/graphql/categoryQueries';
 import {EventType} from '../src/types/EventType';
 import {Category} from '../src/types/Category';
 import {useNavigate} from 'react-router-dom';
-
+/**
+ * CreateEventForm component is a form for creating a new event.
+ * @returns {JSX.Element} The rendered CreateEventForm component
+ */
 function CreateEventForm() {
   const navigate = useNavigate();
   const API_URL = import.meta.env.VITE_API_URL;
   const token = localStorage.getItem('token') || undefined;
+
+  /**
+   * @type {React.State<Category[]>} categories - The state variable where the categories are stored.
+   * @function setCategories - The function to update the categories state.
+   */
   const [categories, setCategories] = useState<Category[]>([]);
-  //initial state for event
+
+  /**
+   * @type {React.State<Partial<EventType>>} event - The state variable where the event data is stored.
+   * @function setEvent - The function to update the event state.
+   */
   const [event, setEvent] = useState<Partial<EventType>>({
     event_name: '',
     description: '',
@@ -27,7 +39,9 @@ function CreateEventForm() {
     image: '',
     category: [],
   });
-  //category replacements to make the category names more user friendly
+  /**
+   * @type {object} categoryReplacements - An object that maps the original category names to more user-friendly names.
+   */
   const categoryReplacements: {[key: string]: string} = {
     concert: 'Concerts',
     theatre: 'Theatre',
@@ -80,7 +94,10 @@ function CreateEventForm() {
     },
   });
 
-  //handle change for input fields
+  /**
+   * handleCategoryChange function handles the change of the category selection.
+   * @param {ChangeEvent<HTMLInputElement>} event - The event object from the change event.
+   */
   const handleChange = (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
@@ -106,7 +123,10 @@ function CreateEventForm() {
     }
   };
 
-  //create event
+  /**
+   * handleSubmit function handles the submission of the form to create a new event.
+   * @param {FormEvent<HTMLFormElement>} e - The event object from the form submission.
+   */
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const {data} = await createEvent({variables: {input: event}});

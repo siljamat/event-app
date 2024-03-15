@@ -14,9 +14,27 @@ declare global {
   }
 }
 
+/**
+ * Map component fetches and displays all events on a map.
+ * @returns {JSX.Element} The rendered Map component.
+ */
 const Map: React.FC = () => {
+  /**
+   * @type {React.State<EventType[]>} eventData - The state variable where the events are stored.
+   * @function setEvents - The function to update the events state.
+   */
   const [eventData, setEvents] = React.useState<EventType[]>([]);
+
+  /**
+   * @type {React.State<EventType[]>} displayedEvents - The state variable where the displayed events are stored.
+   * @function setDisplayedEvents - The function to update the displayedEvents state.
+   */
   const [displayedEvents, setDisplayedEvents] = React.useState<EventType[]>([]);
+
+  /**
+   * @type {React.State<boolean>} isLoading - The state variable that indicates whether the events are being loaded.
+   * @function setIsLoading - The function to update the isLoading state.
+   */
   const [isLoading, setIsLoading] = React.useState(false);
 
   const API_URL = import.meta.env.VITE_API_URL;

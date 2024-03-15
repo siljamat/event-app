@@ -11,17 +11,48 @@ import EventCard from '../src/components/EventCard';
 import {EventType} from '../src/types/EventType';
 import {useMediaQuery} from 'react-responsive';
 
+/**
+ * SearchPage component fetches and displays events based on search parameters.
+ * @returns {JSX.Element} The rendered SearchPage component.
+ */
 const SearchPage = () => {
+  /**
+   * @type {React.State<EventType[]>} events - The state variable where the events are stored.
+   * @function setEvents - The function to update the events state.
+   */
   const [events, setEvents] = useState<EventType[]>([]);
+
+  /**
+   * @type {React.State<EventType[]>} apiEvents - The state variable where the API events are stored.
+   */
   const [apiEvents] = useState<EventType[]>([]);
+
+  /**
+   * @type {React.State<object>} searchParams - The state variable where the search parameters are stored.
+   * @function setSearchParams - The function to update the searchParams state.
+   */
   const [searchParams, setSearchParams] = useState({
     date: '',
     keyword: '',
     category: '',
   });
 
+  /**
+   * @type {React.State<boolean>} searchPerformed - The state variable that indicates whether a search has been performed.
+   * @function setSearchPerformed - The function to update the searchPerformed state.
+   */
   const [searchPerformed, setSearchPerformed] = useState(false);
+
+  /**
+   * @type {React.State<string[]>} categories - The state variable where the categories are stored.
+   * @function setCategories - The function to update the categories state.
+   */
   const [categories, setCategories] = useState<string[]>([]);
+
+  /**
+   * @type {React.State<string[]>} displayCategories - The state variable where the display categories are stored.
+   * @function setDisplayCategories - The function to update the displayCategories state.
+   */
   const [displayCategories, setDisplayCategories] = useState<string[]>([]);
   const API_URL = import.meta.env.VITE_API_URL;
   const isMobile = useMediaQuery({query: '(max-width: 650px)'});

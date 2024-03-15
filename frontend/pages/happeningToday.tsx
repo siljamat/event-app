@@ -4,13 +4,27 @@ import {getEventsByDate} from '../src/graphql/eventQueries';
 import EventCard from '../src/components/EventCard';
 import {EventType} from '../src/types/EventType';
 
-// EventsPage component fetches and displays events happening today
+/**
+ * EventsPage component fetches and displays events happening today.
+ * @returns {JSX.Element} The rendered EventsPage component.
+ */
 const EventsPage = () => {
+  /**
+   * @type {React.State<EventType[]>} events - The state variable where the events are stored.
+   * @function setEvents - The function to update the events state.
+   */
   const [events, setEvents] = useState<EventType[]>([]);
+  /**
+   * @type {React.State<boolean>} isLoading - The state variable that indicates whether the events are being loaded.
+   * @function setIsLoading - The function to update the isLoading state.
+   */
   const [isLoading, setIsLoading] = useState(false);
   const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
+    /**
+     * fetchEvents function fetches the events happening today.
+     */
     const fetchEvents = async () => {
       setIsLoading(true);
       const today = new Date().toISOString().split('T')[0]; // Get current date in YYYY-MM-DD format
