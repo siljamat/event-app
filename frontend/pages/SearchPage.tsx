@@ -12,6 +12,7 @@ import {EventType} from '../src/types/EventType';
 import {useMediaQuery} from 'react-responsive';
 
 const SearchPage = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const [events, setEvents] = useState<EventType[]>([]);
   const [apiEvents] = useState<EventType[]>([]);
   const [searchParams, setSearchParams] = useState({
@@ -61,6 +62,7 @@ const SearchPage = () => {
 
   // Fetch events from the API
   const fetchEvents = async () => {
+    setIsLoading(true);
     setSearchPerformed(true);
 
     let fetchedEvents: EventType[] = [];
@@ -99,6 +101,7 @@ const SearchPage = () => {
     }
 
     setEvents(fetchedEvents);
+    setIsLoading(false);
   };
 
   // Handle input change
@@ -241,30 +244,44 @@ const SearchPage = () => {
           </div>
         </div>
       </div>
-      {searchPerformed && combinedEvents.length > 0 ? (
+      {isLoading ? (
         <div
           style={{
-            display: isMobile ? 'flex' : 'grid',
-            flexDirection: isMobile ? 'column' : 'unset',
-            gridTemplateColumns: isMobile ? 'unset' : 'repeat(3, 1fr)',
-            gap: '1rem',
-            maxWidth: '100%',
-            overflowX: 'auto',
+            display: 'flex',
+            justifyContent: 'center',
+            height: '50px',
           }}
         >
-          {combinedEvents.slice(0, 10).map((event) => {
-            console.log(event.date);
-            return (
-              <div key={event.id}>
-                <EventCard event={event} />
-              </div>
-            );
-          })}
+          <span className="loading loading-spinner loading-xs"></span>
         </div>
       ) : (
-        <div className=" p-10">
-          <p className="text text-center text-xl">No events</p>
-        </div>
+        <>
+          {searchPerformed && combinedEvents.length > 0 ? (
+            <div
+              style={{
+                display: isMobile ? 'flex' : 'grid',
+                flexDirection: isMobile ? 'column' : 'unset',
+                gridTemplateColumns: isMobile ? 'unset' : 'repeat(3, 1fr)',
+                gap: '1rem',
+                maxWidth: '100%',
+                overflowX: 'auto',
+              }}
+            >
+              {combinedEvents.slice(0, 10).map((event) => {
+                console.log(event.date);
+                return (
+                  <div key={event.id}>
+                    <EventCard event={event} />
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className=" p-10">
+              <p className="text text-center text-xl">No events</p>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
