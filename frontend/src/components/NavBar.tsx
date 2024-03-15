@@ -162,15 +162,14 @@ const NavBar = () => {
         console.log('toka lohko');
         setUser(userData);
         localStorage.setItem('user', JSON.stringify(userData));
+        setIsAuthenticated(true);
         console.log('Login success');
+        closeLoginModal();
       }
     } catch (error) {
       console.log(error);
     } finally {
-      setIsAuthenticated(true);
-
       setIsLoading(false);
-      closeLoginModal();
     }
   };
 
