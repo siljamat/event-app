@@ -2,11 +2,8 @@ import {ChangeEvent, FormEvent, useContext, useEffect, useState} from 'react';
 import {useMutation, useQuery} from '@apollo/client';
 import {userSettings} from '../src/graphql/userQueries';
 import bcrypt from 'bcryptjs';
-import {
-  likedEvents,
-  attendingEvents,
-  getUserEvents,
-} from '../src/graphql/queries';
+import {getUserEvents} from '../src/graphql/eventQueries';
+import {likedEvents, attendingEvents} from '../src/graphql/queries';
 import {EventType} from '../src/types/EventType';
 import EventCard from '../src/components/EventCard';
 import {AuthContext} from '../src/context/AuthContext';

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {useMutation, useQuery} from '@apollo/client';
-import {getUserEvents} from '../graphql/queries';
+import {getUserEvents} from '../graphql/eventQueries';
 import {useEffect, useState} from 'react';
 import EditEventModal from './editEventModal';
 import {EventType} from '../types/EventType';

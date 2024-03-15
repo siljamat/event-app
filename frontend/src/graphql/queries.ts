@@ -38,41 +38,6 @@ query CheckToken {
   }
 `;
 
-const getCategories = `
-query Categories {
-    categories {
-      category_name
-      id
-    }
-  }
-`;
-
-const addCategory = `
-mutation CreateCategory($category_name: String!) {
-    createCategory(category_name: $category_name) {
-      category_name
-      id
-    }
-  }
-`;
-
-const updateCategory = `
-mutation UpdateCategory($id: String!, $category_name: String!) {
-    updateCategory(id: $id, category_name: $category_name) {
-      category_name
-      id
-    }
-  }
-`;
-
-const deleteCategory = `
-mutation DeleteCategory($id: String!) {
-    deleteCategory(id: $id) {
-      message
-    }
-  }
-`;
-
 const likedEvents = gql`
   query FavoritedEventsByUserId($userId: ID!) {
     favoritedEventsByUserId(id: $userId) {
@@ -135,36 +100,6 @@ const attendingEvents = gql`
   }
 `;
 
-const getUserEvents = gql`
-  query CreatedEventsByUserId($userId: ID!) {
-    createdEventsByUserId(id: $userId) {
-      address
-      age_restriction
-      category {
-        category_name
-      }
-      created_at
-      creator {
-        user_name
-      }
-      date
-      description
-      email
-      event_name
-      event_site
-      favoriteCount
-      id
-      image
-      location {
-        coordinates
-        type
-      }
-      organizer
-      price
-      ticket_site
-    }
-  }
-`;
 const toggleFavoriteEvent = gql`
   mutation ToggleFavoriteEvent($eventId: ID!) {
     toggleFavoriteEvent(eventId: $eventId) {
@@ -186,13 +121,8 @@ export {
   loginMutation,
   registerMutation,
   checkToken,
-  getCategories,
-  addCategory,
-  updateCategory,
-  deleteCategory,
   likedEvents,
   attendingEvents,
-  getUserEvents,
   toggleFavoriteEvent,
   toggleAttendingEvent,
 };

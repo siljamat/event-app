@@ -4,7 +4,7 @@ import {EventType} from '../types/EventType';
 import {useMutation} from '@apollo/client';
 import {updateEvent} from '../graphql/eventQueries';
 import {doGraphQLFetch} from '../graphql/fetch';
-import {getCategories} from '../graphql/queries';
+import {getCategories} from '../graphql/categoryQueries';
 import {Category} from '../types/Category';
 
 interface EditEventModalProps {

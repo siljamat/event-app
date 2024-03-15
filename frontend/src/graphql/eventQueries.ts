@@ -252,8 +252,8 @@ const getEventsByPrice = gql`
 `;
 
 const getUserEvents = gql`
-  query createdEventsByUserId($id: String!) {
-    createdEventsByUserId(id: $id) {
+  query CreatedEventsByUserId($userId: ID!) {
+    createdEventsByUserId(id: $userId) {
       address
       age_restriction
       category {
